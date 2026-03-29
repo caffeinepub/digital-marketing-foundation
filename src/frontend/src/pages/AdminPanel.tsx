@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   BookOpen,
   ClipboardList,
+  CreditCard,
   Database,
   FileQuestion,
   Gift,
@@ -42,10 +43,11 @@ import {
   Video,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
 import type { CourseTier } from "../backend.d";
+import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAdminAllEnrollments,
@@ -64,6 +66,7 @@ import {
   useSeedSampleData,
   useVideosForModule,
 } from "../hooks/useQueries";
+import { useStripeConfig } from "../hooks/useStripe";
 
 interface Props {
   nav: AppNav;
@@ -1144,6 +1147,145 @@ function EnrollmentsTab() {
   );
 }
 
+function StripeConfigTab() {
+  const { checkConfigured, configure } = useStripeConfig();
+  const [secretKey, setSecretKey] = useState("");
+  const [countries, setCountries] = useState("US,CA,GB,IN,AU");
+  const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  const checkStatus = async () => {
+    setChecking(true);
+    const result = await checkConfigured();
+    setIsConfigured(result);
+    setChecking(false);
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
+  useEffect(() => {
+    checkStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
+
+  const handleSave = async () => {
+    if (!secretKey.trim()) return;
+    setLoading(true);
+    try {
+      const allowedCountries = countries
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+      await configure(secretKey, allowedCountries);
+      setIsConfigured(true);
+      setSecretKey("");
+      toast.success("Stripe configured successfully!");
+    } catch (_err) {
+      toast.error("Failed to configure Stripe. Check your secret key.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (checking) {
+    return (
+      <div className="flex items-center gap-2 text-brand-body py-4">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Checking Stripe status...
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-lg">
+      <div className="flex items-center gap-3 mb-4">
+        <CreditCard className="w-6 h-6 text-brand-teal" />
+        <h3 className="text-lg font-bold text-brand-heading">
+          Payment Gateway (Stripe)
+        </h3>
+      </div>
+      {isConfigured ? (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <div className="font-semibold text-emerald-700 text-sm">
+              Stripe is configured
+            </div>
+            <div className="text-xs text-emerald-600 mt-0.5">
+              Payment processing is active. Students can now pay for courses.
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+            <CreditCard className="w-4 h-4 text-amber-600" />
+          </div>
+          <div>
+            <div className="font-semibold text-amber-700 text-sm">
+              Stripe not configured
+            </div>
+            <div className="text-xs text-amber-600 mt-0.5">
+              Configure Stripe to enable course payments.
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        <div>
+          <Label className="text-sm font-medium text-brand-heading mb-1.5 block">
+            Stripe Secret Key
+          </Label>
+          <Input
+            data-ocid="stripe.input"
+            type="password"
+            placeholder="sk_live_... or sk_test_..."
+            value={secretKey}
+            onChange={(e) => setSecretKey(e.target.value)}
+          />
+          <p className="text-xs text-brand-body mt-1">
+            Find this in your Stripe Dashboard → Developers → API Keys
+          </p>
+        </div>
+        <div>
+          <Label className="text-sm font-medium text-brand-heading mb-1.5 block">
+            Allowed Countries (comma-separated)
+          </Label>
+          <Input
+            data-ocid="stripe.countries_input"
+            placeholder="US,CA,GB,IN,AU"
+            value={countries}
+            onChange={(e) => setCountries(e.target.value)}
+          />
+        </div>
+        <Button
+          data-ocid="stripe.submit_button"
+          onClick={handleSave}
+          disabled={loading || !secretKey.trim()}
+          className="bg-brand-teal hover:bg-brand-teal-dark text-white"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <CreditCard className="w-4 h-4 mr-2" />
+              {isConfigured
+                ? "Update Stripe Config"
+                : "Activate Stripe Payments"}
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPanel({ nav }: Props) {
   const { identity, login, loginStatus } = useInternetIdentity();
   const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
@@ -1261,6 +1403,10 @@ export default function AdminPanel({ nav }: Props) {
               <Users className="w-4 h-4 mr-1" />
               Enrollments
             </TabsTrigger>
+            <TabsTrigger value="stripe" className="text-xs sm:text-sm">
+              <CreditCard className="w-4 h-4 mr-1" />
+              Payments
+            </TabsTrigger>
           </TabsList>
 
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
@@ -1284,6 +1430,9 @@ export default function AdminPanel({ nav }: Props) {
             </TabsContent>
             <TabsContent value="enrollments">
               <EnrollmentsTab />
+            </TabsContent>
+            <TabsContent value="stripe">
+              <StripeConfigTab />
             </TabsContent>
           </div>
         </Tabs>

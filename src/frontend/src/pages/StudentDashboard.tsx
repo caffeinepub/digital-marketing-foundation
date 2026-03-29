@@ -414,236 +414,258 @@ export default function StudentDashboard({ nav }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-5xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-extrabold text-brand-heading">
-            My Learning Dashboard
-          </h1>
-          <p className="text-brand-body mt-1">
-            Principal:{" "}
-            <span className="font-mono text-xs text-brand-teal">
-              {identity.getPrincipal().toString().slice(0, 20)}...
-            </span>
-          </p>
-        </motion.div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            {
-              label: "Enrolled Courses",
-              value: enrollments.length,
-              icon: BookOpen,
-              color: "text-brand-teal",
-            },
-            {
-              label: "Certificates",
-              value: certificates.length,
-              icon: Award,
-              color: "text-brand-orange",
-            },
-            {
-              label: "Submissions",
-              value: submissions.length,
-              icon: ClipboardList,
-              color: "text-blue-500",
-            },
-            {
-              label: "Reviewed",
-              value: submissions.filter((s) => s.reviewed).length,
-              icon: CheckCircle2,
-              color: "text-green-500",
-            },
-          ].map(({ label, value, icon: Icon, color }) => (
-            <Card key={label} className="border border-gray-100 shadow-xs">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className={`text-2xl font-extrabold ${color}`}>
-                      {value}
-                    </div>
-                    <div className="text-xs text-brand-body mt-0.5">
-                      {label}
-                    </div>
-                  </div>
-                  <Icon className={`w-6 h-6 ${color} opacity-40`} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList
-            data-ocid="dashboard.tab"
-            className="bg-white border border-gray-100"
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="https://www.w3schools.com/howto/rain.mp4"
+      >
+        <source
+          src="https://www.w3schools.com/howto/rain.mp4"
+          type="video/mp4"
+        />
+      </video>
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/65 z-10" />
+      {/* Content */}
+      <div className="relative z-20 py-8">
+        <div className="container mx-auto px-4 max-w-5xl">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
           >
-            <TabsTrigger value="courses">My Courses</TabsTrigger>
-            <TabsTrigger value="assignments">Assignments</TabsTrigger>
-            <TabsTrigger value="certificates">Certificates</TabsTrigger>
-            <TabsTrigger value="submissions">Submissions</TabsTrigger>
-          </TabsList>
+            <h1 className="text-3xl font-extrabold text-white">
+              My Learning Dashboard
+            </h1>
+            <p className="text-white/70 mt-1">
+              Principal:{" "}
+              <span className="font-mono text-xs text-cyan-300">
+                {identity.getPrincipal().toString().slice(0, 20)}...
+              </span>
+            </p>
+          </motion.div>
 
-          {/* Courses Tab */}
-          <TabsContent value="courses">
-            {enrollmentsLoading ? (
-              <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
-                ))}
-              </div>
-            ) : enrollments.length === 0 ? (
-              <div
-                data-ocid="dashboard.empty_state"
-                className="text-center py-16"
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {[
+              {
+                label: "Enrolled Courses",
+                value: enrollments.length,
+                icon: BookOpen,
+                color: "text-brand-teal",
+              },
+              {
+                label: "Certificates",
+                value: certificates.length,
+                icon: Award,
+                color: "text-brand-orange",
+              },
+              {
+                label: "Submissions",
+                value: submissions.length,
+                icon: ClipboardList,
+                color: "text-blue-500",
+              },
+              {
+                label: "Reviewed",
+                value: submissions.filter((s) => s.reviewed).length,
+                icon: CheckCircle2,
+                color: "text-green-500",
+              },
+            ].map(({ label, value, icon: Icon, color }) => (
+              <Card
+                key={label}
+                className="border border-white/20 shadow-xs bg-white/10 backdrop-blur-sm"
               >
-                <BookOpen className="w-12 h-12 mx-auto text-gray-200 mb-4" />
-                <h3 className="font-semibold text-brand-heading mb-2">
-                  No courses yet
-                </h3>
-                <p className="text-sm text-brand-body mb-5">
-                  Enroll in a course to start your learning journey.
-                </p>
-                <Button
-                  data-ocid="dashboard.primary_button"
-                  onClick={() => nav.navigate("landing")}
-                  className="bg-brand-teal text-white rounded-full px-6"
-                >
-                  Explore Courses
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {enrollments.map((e, i) => (
-                  <div data-ocid={`dashboard.item.${i + 1}`} key={e.id}>
-                    <EnrolledCourseCard enrollment={e} nav={nav} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Assignments Tab */}
-          <TabsContent value="assignments">
-            {enrollments.length === 0 ? (
-              <div
-                data-ocid="dashboard.empty_state"
-                className="text-center py-10 text-brand-body"
-              >
-                <ClipboardList className="w-10 h-10 mx-auto text-gray-200 mb-3" />
-                <p>Enroll in a course to see assignments.</p>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {enrollments.map((e) => (
-                  <div key={e.id}>
-                    <h3 className="font-semibold text-brand-heading text-sm mb-3">
-                      Assignments for enrolled course
-                    </h3>
-                    <AssignmentsSection courseId={e.courseId} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Certificates Tab */}
-          <TabsContent value="certificates">
-            {certsLoading ? (
-              <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
-                ))}
-              </div>
-            ) : certificates.length === 0 ? (
-              <div
-                data-ocid="certificates.empty_state"
-                className="text-center py-16"
-              >
-                <Trophy className="w-12 h-12 mx-auto text-gray-200 mb-4" />
-                <h3 className="font-semibold text-brand-heading mb-2">
-                  No certificates yet
-                </h3>
-                <p className="text-sm text-brand-body">
-                  Complete a course to earn your certificate.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {certificates.map((cert, i) => (
-                  <CertificateCard key={cert.id} cert={cert} i={i} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Submissions Tab */}
-          <TabsContent value="submissions">
-            {submissions.length === 0 ? (
-              <div
-                data-ocid="submissions.empty_state"
-                className="text-center py-16"
-              >
-                <ClipboardList className="w-12 h-12 mx-auto text-gray-200 mb-4" />
-                <h3 className="font-semibold text-brand-heading mb-2">
-                  No submissions yet
-                </h3>
-                <p className="text-sm text-brand-body">
-                  Submit assignments to see them here.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {submissions.map((sub, i) => (
-                  <Card
-                    data-ocid={`submissions.item.${i + 1}`}
-                    key={sub.id}
-                    className="border border-gray-100"
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <p className="text-sm text-brand-body">
-                            {sub.submissionText}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-1">
-                            {new Date(
-                              Number(sub.submittedAt) / 1_000_000,
-                            ).toLocaleDateString("en-IN")}
-                          </p>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <Badge
-                            className={
-                              sub.reviewed
-                                ? "bg-brand-teal/10 text-brand-teal border-brand-teal/20"
-                                : "bg-yellow-50 text-yellow-700 border-yellow-200"
-                            }
-                          >
-                            {sub.reviewed ? "Reviewed" : "Pending"}
-                          </Badge>
-                          {sub.giftCardCode.__kind__ === "Some" && (
-                            <div className="flex items-center gap-1 text-xs text-brand-orange font-semibold">
-                              <Gift className="w-3 h-3" />
-                              {sub.giftCardCode.value}
-                            </div>
-                          )}
-                        </div>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className={`text-2xl font-extrabold ${color}`}>
+                        {value}
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                      <div className="text-xs text-white/70 mt-0.5">
+                        {label}
+                      </div>
+                    </div>
+                    <Icon className={`w-6 h-6 ${color} opacity-40`} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Tabs */}
+          <Tabs defaultValue="courses" className="space-y-6">
+            <TabsList
+              data-ocid="dashboard.tab"
+              className="bg-white/10 border border-white/20 backdrop-blur-sm"
+            >
+              <TabsTrigger value="courses">My Courses</TabsTrigger>
+              <TabsTrigger value="assignments">Assignments</TabsTrigger>
+              <TabsTrigger value="certificates">Certificates</TabsTrigger>
+              <TabsTrigger value="submissions">Submissions</TabsTrigger>
+            </TabsList>
+
+            {/* Courses Tab */}
+            <TabsContent value="courses">
+              {enrollmentsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : enrollments.length === 0 ? (
+                <div
+                  data-ocid="dashboard.empty_state"
+                  className="text-center py-16"
+                >
+                  <BookOpen className="w-12 h-12 mx-auto text-gray-200 mb-4" />
+                  <h3 className="font-semibold text-brand-heading mb-2">
+                    No courses yet
+                  </h3>
+                  <p className="text-sm text-brand-body mb-5">
+                    Enroll in a course to start your learning journey.
+                  </p>
+                  <Button
+                    data-ocid="dashboard.primary_button"
+                    onClick={() => nav.navigate("landing")}
+                    className="bg-brand-teal text-white rounded-full px-6"
+                  >
+                    Explore Courses
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {enrollments.map((e, i) => (
+                    <div data-ocid={`dashboard.item.${i + 1}`} key={e.id}>
+                      <EnrolledCourseCard enrollment={e} nav={nav} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Assignments Tab */}
+            <TabsContent value="assignments">
+              {enrollments.length === 0 ? (
+                <div
+                  data-ocid="dashboard.empty_state"
+                  className="text-center py-10 text-brand-body"
+                >
+                  <ClipboardList className="w-10 h-10 mx-auto text-gray-200 mb-3" />
+                  <p>Enroll in a course to see assignments.</p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {enrollments.map((e) => (
+                    <div key={e.id}>
+                      <h3 className="font-semibold text-brand-heading text-sm mb-3">
+                        Assignments for enrolled course
+                      </h3>
+                      <AssignmentsSection courseId={e.courseId} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Certificates Tab */}
+            <TabsContent value="certificates">
+              {certsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map((i) => (
+                    <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : certificates.length === 0 ? (
+                <div
+                  data-ocid="certificates.empty_state"
+                  className="text-center py-16"
+                >
+                  <Trophy className="w-12 h-12 mx-auto text-gray-200 mb-4" />
+                  <h3 className="font-semibold text-brand-heading mb-2">
+                    No certificates yet
+                  </h3>
+                  <p className="text-sm text-brand-body">
+                    Complete a course to earn your certificate.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {certificates.map((cert, i) => (
+                    <CertificateCard key={cert.id} cert={cert} i={i} />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Submissions Tab */}
+            <TabsContent value="submissions">
+              {submissions.length === 0 ? (
+                <div
+                  data-ocid="submissions.empty_state"
+                  className="text-center py-16"
+                >
+                  <ClipboardList className="w-12 h-12 mx-auto text-gray-200 mb-4" />
+                  <h3 className="font-semibold text-brand-heading mb-2">
+                    No submissions yet
+                  </h3>
+                  <p className="text-sm text-brand-body">
+                    Submit assignments to see them here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {submissions.map((sub, i) => (
+                    <Card
+                      data-ocid={`submissions.item.${i + 1}`}
+                      key={sub.id}
+                      className="border border-gray-100"
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <p className="text-sm text-brand-body">
+                              {sub.submissionText}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              {new Date(
+                                Number(sub.submittedAt) / 1_000_000,
+                              ).toLocaleDateString("en-IN")}
+                            </p>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <Badge
+                              className={
+                                sub.reviewed
+                                  ? "bg-brand-teal/10 text-brand-teal border-brand-teal/20"
+                                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                              }
+                            >
+                              {sub.reviewed ? "Reviewed" : "Pending"}
+                            </Badge>
+                            {sub.giftCardCode.__kind__ === "Some" && (
+                              <div className="flex items-center gap-1 text-xs text-brand-orange font-semibold">
+                                <Gift className="w-3 h-3" />
+                                {sub.giftCardCode.value}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

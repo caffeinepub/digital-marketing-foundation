@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
+  Loader2,
   PlayCircle,
   Star,
   TrendingUp,
@@ -21,6 +22,7 @@ import type { AppNav } from "../App";
 import type { Course } from "../backend.d";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useCourses } from "../hooks/useQueries";
+import { useCreateCheckoutSession } from "../hooks/useStripe";
 
 interface LandingPageProps {
   nav: AppNav;
@@ -76,6 +78,8 @@ const PRICING_PLANS = [
     tier: "Basic",
     price: "₹4,999",
     popular: false,
+    priceId: "price_basic_4999",
+    tierKey: "basic",
     color: "border-emerald-200",
     badge: "bg-emerald-100 text-emerald-700",
     features: [
@@ -91,6 +95,8 @@ const PRICING_PLANS = [
     tier: "Professional",
     price: "₹9,999",
     popular: true,
+    priceId: "price_pro_9999",
+    tierKey: "professional",
     color: "border-brand-teal",
     badge: "bg-brand-teal text-white",
     features: [
@@ -107,6 +113,8 @@ const PRICING_PLANS = [
     tier: "Advanced",
     price: "₹24,999",
     popular: false,
+    priceId: "price_advanced_24999",
+    tierKey: "advanced",
     color: "border-purple-200",
     badge: "bg-purple-100 text-purple-700",
     features: [
@@ -148,6 +156,7 @@ const TESTIMONIALS = [
 function CourseCard({
   course,
   onEnroll,
+  isCheckingOut,
 }: {
   course: Partial<Course> & {
     id: string;
@@ -157,7 +166,8 @@ function CourseCard({
     priceInr: bigint;
     thumbnailUrl: string;
   };
-  onEnroll: (id: string) => void;
+  onEnroll: (id: string, tierKey: string) => void;
+  isCheckingOut: boolean;
 }) {
   const tierKey = course.tier.__kind__ as keyof typeof TIER_COLORS;
   const tierInfo = TIER_COLORS[tierKey] || TIER_COLORS.basic;
@@ -201,10 +211,15 @@ function CourseCard({
             <Button
               data-ocid="courses.primary_button"
               size="sm"
-              onClick={() => onEnroll(course.id)}
+              onClick={() => onEnroll(course.id, tierKey)}
+              disabled={isCheckingOut}
               className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-4 font-semibold"
             >
-              Enroll Now
+              {isCheckingOut ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Enroll Now"
+              )}
             </Button>
           </div>
         </CardContent>
@@ -216,17 +231,70 @@ function CourseCard({
 export default function LandingPage({ nav }: LandingPageProps) {
   const { data: courses, isLoading } = useCourses();
   const { login, identity } = useInternetIdentity();
+  const createCheckout = useCreateCheckoutSession();
+
+  const TIER_PRICE_MAP: Record<
+    string,
+    { priceId: string; name: string; amount: number }
+  > = {
+    basic: {
+      priceId: "price_basic_4999",
+      name: "Digital Marketing Basics",
+      amount: 499900,
+    },
+    professional: {
+      priceId: "price_pro_9999",
+      name: "Professional Digital Marketing",
+      amount: 999900,
+    },
+    advanced: {
+      priceId: "price_advanced_24999",
+      name: "Advanced Digital Marketing Mastery",
+      amount: 2499900,
+    },
+  };
 
   const displayCourses = (
     courses && courses.length > 0 ? courses : STATIC_COURSES
   ).slice(0, 3);
 
-  const handleEnroll = (courseId: string) => {
+  const handleEnroll = async (courseId: string, tierKey?: string) => {
     if (!identity) {
       login();
       return;
     }
-    nav.navigate("course-detail", { courseId });
+    const tier = tierKey || "basic";
+    const tierInfo = TIER_PRICE_MAP[tier] || TIER_PRICE_MAP.basic;
+    sessionStorage.setItem("pending_course_id", courseId);
+    try {
+      const session = await createCheckout.mutateAsync([
+        {
+          name: tierInfo.name,
+          description: "Lifetime access to all course materials",
+          amount: tierInfo.amount,
+          currency: "inr",
+          quantity: 1,
+        },
+      ]);
+      if (!session?.url) throw new Error("Stripe session missing url");
+      window.location.href = session.url;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      // Fallback to course detail page
+      nav.navigate("course-detail", { courseId });
+    }
+  };
+
+  const handlePricingEnroll = async (tierKey: string) => {
+    if (!identity) {
+      login();
+      return;
+    }
+    // Find matching course or use a generic ID for the tier
+    const allCourses = courses && courses.length > 0 ? courses : STATIC_COURSES;
+    const matchingCourse = allCourses.find((c) => c.tier.__kind__ === tierKey);
+    const courseId = matchingCourse?.id || `tier-${tierKey}`;
+    await handleEnroll(courseId, tierKey);
   };
 
   return (
@@ -442,6 +510,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
                   key={course.id}
                   course={course as any}
                   onEnroll={handleEnroll}
+                  isCheckingOut={createCheckout.isPending}
                 />
               ))}
             </div>
@@ -534,17 +603,19 @@ export default function LandingPage({ nav }: LandingPageProps) {
                 <Button
                   data-ocid="pricing.primary_button"
                   size="lg"
-                  onClick={() => {
-                    if (!identity) login();
-                    else nav.navigate("landing");
-                  }}
+                  disabled={createCheckout.isPending}
+                  onClick={() => handlePricingEnroll(plan.tierKey)}
                   className={`w-full rounded-full font-semibold ${
                     plan.popular
                       ? "bg-brand-orange hover:bg-brand-orange-dark text-white shadow-orange"
                       : "bg-brand-teal hover:bg-brand-teal-dark text-white"
                   }`}
                 >
-                  Get Started
+                  {createCheckout.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                  ) : (
+                    "Get Started"
+                  )}
                 </Button>
               </motion.div>
             ))}

@@ -1,30 +1,35 @@
 # Digital Marketing Foundation
 
 ## Current State
-New project — no existing application files.
+Fresh project, no existing files.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Public landing page showcasing course packages (Rs. 4,999 / Rs. 9,999 / Rs. 24,999 tiers)
-- Stripe payment integration for course enrollment
-- Student dashboard with course journey tracker (progress per module)
-- Payment-gated video tutorial player (blob-storage hosted videos)
-- Post-video quiz system (multiple choice, must pass to unlock next video)
-- Weekly assignments with submission upload and gift card reward tracking
-- Course completion certificate generation (frontend PDF/canvas)
-- Admin CMS panel (role-based) to manage courses, modules, videos, quizzes, and assignments
-- Role-based access control (student vs admin)
+- Full course platform with level-based packages: Beginner (Rs. 4,999), Intermediate (Rs. 12,999), Advanced (Rs. 24,999)
+- Stripe payment gateway for course purchases
+- Student dashboard with a looping video background behind the main content area
+- Payment-gated video tutorials organized by course modules
+- Post-video quizzes
+- Weekly assignments with gift card reward tracking
+- Course completion certificates
+- Admin panel: manage courses, videos, quizzes, assignments, view enrollments
+- Role-based access: admin vs student
 
 ### Modify
-- Nothing (new project)
+- N/A (new project)
 
 ### Remove
-- Nothing (new project)
+- N/A
 
 ## Implementation Plan
-1. Backend: Course catalog, enrollment records, quiz attempts, assignment submissions, certificate issuance, admin CRUD for content
-2. Authorization component for student/admin roles
-3. Blob-storage for video content and assignment uploads
-4. Stripe for payment processing at enrollment
-5. Frontend: Landing page, course cards, checkout flow, student dashboard, video player with quiz gates, assignment submission, certificate view, admin CMS
+1. Select components: authorization, stripe, blob-storage
+2. Generate Motoko backend with: user roles, course catalog, enrollment (post-payment), video progress tracking, quiz submission, assignment submission, certificate issuance, admin CRUD
+3. Frontend:
+   - Landing page with course packages and pricing
+   - Stripe checkout flow for course purchase
+   - Student dashboard: looping ambient video background, enrolled courses, progress
+   - Video player page with post-video quiz
+   - Assignments page
+   - Certificate page
+   - Admin panel: seed data, manage content, view enrollments
