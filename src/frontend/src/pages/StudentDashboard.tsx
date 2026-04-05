@@ -38,6 +38,7 @@ import type {
   Certificate,
   Enrollment,
 } from "../backend.d";
+import { useEmailAuth } from "../hooks/useEmailAuth";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useAssignmentsForCourse,
@@ -372,6 +373,8 @@ function CertificateCard({
 
 export default function StudentDashboard({ nav }: Props) {
   const { identity, login, loginStatus } = useInternetIdentity();
+  const { emailUser, isEmailLoggedIn } = useEmailAuth();
+  const isAnyLoggedIn = !!identity || isEmailLoggedIn;
   const { data: enrollments = [], isLoading: enrollmentsLoading } =
     useMyEnrollments();
   const { data: certificates = [], isLoading: certsLoading } =
@@ -379,7 +382,7 @@ export default function StudentDashboard({ nav }: Props) {
   const { data: submissions = [] } = useMySubmissions();
   const isLoggingIn = loginStatus === "logging-in";
 
-  if (!identity) {
+  if (!isAnyLoggedIn) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <motion.div
@@ -447,13 +450,21 @@ export default function StudentDashboard({ nav }: Props) {
             className="mb-8"
           >
             <h1 className="text-3xl font-extrabold text-white">
-              My Learning Dashboard
+              {isEmailLoggedIn && emailUser
+                ? `Welcome, ${emailUser.name}!`
+                : "My Learning Dashboard"}
             </h1>
             <p className="text-white/70 mt-1">
-              Principal:{" "}
-              <span className="font-mono text-xs text-cyan-300">
-                {identity.getPrincipal().toString().slice(0, 20)}...
-              </span>
+              {isEmailLoggedIn && emailUser ? (
+                <span className="text-white/60 text-sm">{emailUser.email}</span>
+              ) : identity ? (
+                <>
+                  Principal:{" "}
+                  <span className="font-mono text-xs text-cyan-300">
+                    {identity.getPrincipal().toString().slice(0, 20)}...
+                  </span>
+                </>
+              ) : null}
             </p>
           </motion.div>
 

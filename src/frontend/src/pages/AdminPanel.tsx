@@ -80,6 +80,110 @@ import {
   useVideosForModule,
 } from "../hooks/useQueries";
 
+function UsersTab() {
+  const { actor, isFetching } = useActor();
+  const [users, setUsers] = useState<import("../backend.d").UserProfile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!actor || isFetching) return;
+    setLoading(true);
+    setError(null);
+    actor
+      .adminGetAllUsers()
+      .then((data) => setUsers(data))
+      .catch(() => setError("Failed to load users."))
+      .finally(() => setLoading(false));
+  }, [actor, isFetching]);
+
+  const formatDate = (ts: bigint) => {
+    return new Date(Number(ts) / 1_000_000).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-brand-heading">
+          Registered Users
+        </h2>
+        <Badge variant="outline">{users.length} total</Badge>
+      </div>
+      {loading ? (
+        <div data-ocid="admin.loading_state" className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-10 w-full rounded" />
+          ))}
+        </div>
+      ) : error ? (
+        <p data-ocid="admin.error_state" className="text-red-500 text-sm py-4">
+          {error}
+        </p>
+      ) : users.length === 0 ? (
+        <div
+          data-ocid="admin.empty_state"
+          className="text-center py-12 text-brand-body"
+        >
+          <Users className="w-10 h-10 mx-auto text-gray-200 mb-3" />
+          <p>No registered users yet.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <Table data-ocid="admin.table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>#</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Age</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Registered</TableHead>
+                <TableHead>OTP Verified</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((u, i) => (
+                <TableRow data-ocid={`admin.item.${i + 1}`} key={u.email}>
+                  <TableCell className="text-xs text-gray-400">
+                    {i + 1}
+                  </TableCell>
+                  <TableCell className="font-medium">{u.name}</TableCell>
+                  <TableCell className="text-sm text-brand-body">
+                    {u.email}
+                  </TableCell>
+                  <TableCell>{Number(u.age)}</TableCell>
+                  <TableCell className="text-sm">{u.contactNumber}</TableCell>
+                  <TableCell className="text-xs text-gray-500">
+                    {formatDate(u.registeredAt)}
+                  </TableCell>
+                  <TableCell>
+                    {u.otpVerified ? (
+                      <Badge className="bg-green-50 text-green-700 border-green-200 text-xs">
+                        <CheckCheck className="w-3 h-3 mr-1" /> Verified
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="text-xs text-amber-600 border-amber-200"
+                      >
+                        Pending
+                      </Badge>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface Props {
   nav: AppNav;
 }
@@ -1849,6 +1953,10 @@ export default function AdminPanel({ nav }: Props) {
               <Brain className="w-4 h-4 mr-1" />
               AI Tools
             </TabsTrigger>
+            <TabsTrigger value="users" className="text-xs sm:text-sm">
+              <Users className="w-4 h-4 mr-1" />
+              Users
+            </TabsTrigger>
           </TabsList>
 
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
@@ -1878,6 +1986,9 @@ export default function AdminPanel({ nav }: Props) {
             </TabsContent>
             <TabsContent value="ai-tools">
               <AIToolsTab />
+            </TabsContent>
+            <TabsContent value="users">
+              <UsersTab />
             </TabsContent>
           </div>
         </Tabs>

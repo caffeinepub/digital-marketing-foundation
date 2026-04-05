@@ -233,7 +233,15 @@ export interface Certificate {
     courseId: string;
 }
 export interface UserProfile {
+    id: Principal;
+    age: bigint;
+    otpCode: string;
+    otpVerified: boolean;
     name: string;
+    email: string;
+    passwordHash: string;
+    contactNumber: string;
+    registeredAt: bigint;
 }
 export interface _CaffeineStorageRefillResult {
     success?: boolean;
@@ -265,6 +273,7 @@ export interface backendInterface {
     adminDeleteQuizQuestion(questionId: string): Promise<void>;
     adminGetAllEnrollments(): Promise<Array<Enrollment>>;
     adminGetAllSubmissions(): Promise<Array<AssignmentSubmission>>;
+    adminGetAllUsers(): Promise<Array<UserProfile>>;
     adminGetPaymentSettings(): Promise<{
         keyId: string;
         keySecret: string;
@@ -281,14 +290,15 @@ export interface backendInterface {
     enrollInCourse(courseId: string, razorpayOrderId: string, razorpayPaymentId: string): Promise<Enrollment>;
     generateAIContent(contentType: string, topic: string): Promise<string>;
     getAssignmentsForCourse(courseId: string): Promise<Array<Assignment>>;
-    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getCertificateById(certId: string): Promise<Certificate | null>;
     getCompletedVideos(courseId: string): Promise<Array<string>>;
     getCourse(courseId: string): Promise<Course | null>;
     getCourses(): Promise<Array<Course>>;
     getModulesForCourse(courseId: string): Promise<Array<CourseModule>>;
     getMyCertificates(): Promise<Array<Certificate>>;
     getMyEnrollments(): Promise<Array<Enrollment>>;
+    getMyProfile(): Promise<UserProfile | null>;
     getMyQuizAttempts(videoId: string): Promise<Array<QuizAttempt>>;
     getMySubmissions(): Promise<Array<AssignmentSubmission>>;
     getPromptTemplates(): Promise<Array<PromptTemplate>>;
@@ -302,7 +312,9 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     isEnrolled(courseId: string): Promise<boolean>;
     isStripeConfigured(): Promise<boolean>;
+    loginWithEmail(email: string, passwordHash: string): Promise<UserProfile | null>;
     markVideoComplete(videoId: string, courseId: string): Promise<void>;
+    registerUser(email: string, name: string, age: bigint, contactNumber: string, passwordHash: string): Promise<string>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     savePromptTemplate(title: string, description: string, promptText: string, category: string): Promise<PromptTemplate>;
     seedSampleData(): Promise<void>;
@@ -310,8 +322,9 @@ export interface backendInterface {
     submitAssignment(assignmentId: string, submissionText: string): Promise<AssignmentSubmission>;
     submitQuiz(videoId: string, answers: Array<bigint>): Promise<QuizAttempt>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
+    verifyOtp(email: string, otpCode: string): Promise<boolean>;
 }
-import type { AssignmentSubmission as _AssignmentSubmission, Course as _Course, CourseTier as _CourseTier, Enrollment as _Enrollment, StripeSessionStatus as _StripeSessionStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { AssignmentSubmission as _AssignmentSubmission, Certificate as _Certificate, Course as _Course, CourseTier as _CourseTier, Enrollment as _Enrollment, StripeSessionStatus as _StripeSessionStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -524,6 +537,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
         }
     }
+    async adminGetAllUsers(): Promise<Array<UserProfile>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminGetAllUsers();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminGetAllUsers();
+            return result;
+        }
+    }
     async adminGetPaymentSettings(): Promise<{
         keyId: string;
         keySecret: string;
@@ -709,32 +736,32 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getCallerUserProfile(): Promise<UserProfile | null> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getCallerUserProfile();
-                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCallerUserProfile();
-            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
-        }
-    }
     async getCallerUserRole(): Promise<UserRole> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserRole();
-                return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+                return from_candid_UserRole_n24(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserRole();
-            return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+            return from_candid_UserRole_n24(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCertificateById(arg0: string): Promise<Certificate | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCertificateById(arg0);
+                return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCertificateById(arg0);
+            return from_candid_opt_n26(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCompletedVideos(arg0: string): Promise<Array<string>> {
@@ -821,6 +848,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getMyProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyProfile();
+                return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyProfile();
+            return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getMyQuizAttempts(arg0: string): Promise<Array<QuizAttempt>> {
         if (this.processError) {
             try {
@@ -895,28 +936,28 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getStripeSessionStatus(arg0);
-                return from_candid_StripeSessionStatus_n29(this._uploadFile, this._downloadFile, result);
+                return from_candid_StripeSessionStatus_n30(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getStripeSessionStatus(arg0);
-            return from_candid_StripeSessionStatus_n29(this._uploadFile, this._downloadFile, result);
+            return from_candid_StripeSessionStatus_n30(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
         }
     }
     async getVideosForCourse(arg0: string): Promise<Array<VideoWithBlob>> {
@@ -1003,6 +1044,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async loginWithEmail(arg0: string, arg1: string): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.loginWithEmail(arg0, arg1);
+                return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.loginWithEmail(arg0, arg1);
+            return from_candid_opt_n29(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async markVideoComplete(arg0: string, arg1: string): Promise<void> {
         if (this.processError) {
             try {
@@ -1014,6 +1069,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.markVideoComplete(arg0, arg1);
+            return result;
+        }
+    }
+    async registerUser(arg0: string, arg1: string, arg2: bigint, arg3: string, arg4: string): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.registerUser(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.registerUser(arg0, arg1, arg2, arg3, arg4);
             return result;
         }
     }
@@ -1115,6 +1184,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async verifyOtp(arg0: string, arg1: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.verifyOtp(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.verifyOtp(arg0, arg1);
+            return result;
+        }
+    }
 }
 function from_candid_AssignmentSubmission_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AssignmentSubmission): AssignmentSubmission {
     return from_candid_record_n19(_uploadFile, _downloadFile, value);
@@ -1128,11 +1211,11 @@ function from_candid_Course_n10(_uploadFile: (file: ExternalBlob) => Promise<Uin
 function from_candid_Enrollment_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Enrollment): Enrollment {
     return from_candid_record_n16(_uploadFile, _downloadFile, value);
 }
-function from_candid_StripeSessionStatus_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StripeSessionStatus): StripeSessionStatus {
-    return from_candid_variant_n30(_uploadFile, _downloadFile, value);
+function from_candid_StripeSessionStatus_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StripeSessionStatus): StripeSessionStatus {
+    return from_candid_variant_n31(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n26(_uploadFile, _downloadFile, value);
+function from_candid_UserRole_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n25(_uploadFile, _downloadFile, value);
 }
 function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
@@ -1140,11 +1223,14 @@ function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: Externa
 function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+function from_candid_opt_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Certificate]): Certificate | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Course]): Course | null {
     return value.length === 0 ? null : from_candid_Course_n10(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
     return value.length === 0 ? null : value[0];
@@ -1233,7 +1319,7 @@ function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uin
         reviewed: value.reviewed
     };
 }
-function from_candid_record_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     userPrincipal: [] | [string];
     response: string;
 }): {
@@ -1266,7 +1352,7 @@ function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): CourseTier {
     return "advanced" in value ? CourseTier.advanced : "professional" in value ? CourseTier.professional : "basic" in value ? CourseTier.basic : value;
 }
-function from_candid_variant_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
 } | {
     user: null;
@@ -1275,7 +1361,7 @@ function from_candid_variant_n26(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     completed: {
         userPrincipal: [] | [string];
         response: string;
@@ -1298,7 +1384,7 @@ function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Ui
 } {
     return "completed" in value ? {
         __kind__: "completed",
-        completed: from_candid_record_n31(_uploadFile, _downloadFile, value.completed)
+        completed: from_candid_record_n32(_uploadFile, _downloadFile, value.completed)
     } : "failed" in value ? {
         __kind__: "failed",
         failed: value.failed

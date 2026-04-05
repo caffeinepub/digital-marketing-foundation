@@ -32,6 +32,7 @@ import { motion } from "motion/react";
 import { useEffect } from "react";
 import type { AppNav } from "../App";
 import type { Course } from "../backend.d";
+import WhatsAppChatbot from "../components/WhatsAppChatbot";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useCourses } from "../hooks/useQueries";
 import { useCreateCheckoutSession } from "../hooks/useStripe";
@@ -51,6 +52,11 @@ const TIER_COLORS: Record<string, { bg: string; text: string; label: string }> =
       bg: "bg-purple-100",
       text: "text-purple-700",
       label: "Advanced",
+    },
+    performance: {
+      bg: "bg-red-100",
+      text: "text-red-700",
+      label: "Performance",
     },
   };
 
@@ -109,6 +115,15 @@ const STATIC_COURSES = [
     priceInr: BigInt(24999),
     thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
   },
+  {
+    id: "static-7",
+    title: "Performance Marketing Masterclass",
+    description:
+      "High-ticket Meta Ads, Google Ads, ROI optimization, conversion rate optimization. Scale campaigns to Rs.10L+ monthly ad spend.",
+    tier: { __kind__: "performance" },
+    priceInr: BigInt(74999),
+    thumbnailUrl: "/assets/generated/course-performance.dim_400x240.jpg",
+  },
 ];
 
 const PRICING_PLANS = [
@@ -152,6 +167,27 @@ const PRICING_PLANS = [
       "Agency partnership opportunities",
       "Advanced certifications (Google, Meta)",
       "Lifetime content + future updates access",
+    ],
+  },
+  {
+    tier: "Performance Marketing",
+    price: "\u20b974,999",
+    tagline: "High-Ticket Performance Specialist",
+    popular: false,
+    priceId: "price_perf_74999",
+    tierKey: "performance",
+    color: "border-red-400",
+    badge: "bg-red-600 text-white",
+    features: [
+      "Everything in Advanced Mastery",
+      "High-ticket Meta Ads & Google Ads campaigns",
+      "ROI & ROAS optimization strategies",
+      "Conversion Rate Optimization (CRO)",
+      "Rs.10L+ monthly ad spend management",
+      "Agency client acquisition training",
+      "Advanced analytics & attribution modeling",
+      "Performance marketing certifications",
+      "1-on-1 campaign review sessions",
     ],
   },
 ];
@@ -372,11 +408,16 @@ export default function LandingPage({ nav }: LandingPageProps) {
       name: "Advanced Digital Marketing Mastery",
       amount: 3499900,
     },
+    performance: {
+      priceId: "price_perf_74999",
+      name: "Performance Marketing Masterclass",
+      amount: 7499900,
+    },
   };
 
   const displayCourses = (
     courses && courses.length > 0 ? courses : STATIC_COURSES
-  ).slice(0, 6);
+  ).slice(0, 7);
 
   const handleEnroll = async (courseId: string, tierKey?: string) => {
     if (!identity) {
@@ -743,7 +784,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {PRICING_PLANS.map((plan, i) => (
               <motion.div
                 key={plan.tier}
@@ -869,6 +910,31 @@ export default function LandingPage({ nav }: LandingPageProps) {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* WhatsApp AI Advisor Section */}
+      <section className="py-14 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-8"
+          >
+            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
+              AI-Powered Guidance
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
+              Chat with Our AI Marketing Advisor
+            </h2>
+            <p className="text-brand-body max-w-xl mx-auto">
+              Get instant personalized course recommendations powered by
+              ChatGPT. Describe your goals and we will match you with the
+              perfect course.
+            </p>
+          </motion.div>
+          <WhatsAppChatbot mode="embedded" />
         </div>
       </section>
 

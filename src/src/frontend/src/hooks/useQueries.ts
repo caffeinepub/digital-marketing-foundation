@@ -6,10 +6,10 @@ import type {
   Certificate,
   Course,
   CourseModule,
+  EmailUser,
   Enrollment,
   Option,
   QuizQuestion,
-  Video,
   VideoWithBlob,
 } from "../backend.d";
 import { useActor } from "./useActor";
@@ -206,6 +206,31 @@ export function useAdminAllSubmissions() {
     queryFn: async () => {
       if (!actor) return [];
       return api(actor).adminGetAllSubmissions();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCertificateById(certId: string) {
+  const { actor, isFetching } = useActor();
+  return useQuery<Certificate | null>({
+    queryKey: ["certificate", certId],
+    queryFn: async () => {
+      if (!actor || !certId) return null;
+      const result = await api(actor).getCertificateById(certId);
+      return result.__kind__ === "Some" ? result.value : null;
+    },
+    enabled: !!actor && !isFetching && !!certId,
+  });
+}
+
+export function useAdminGetAllEmailUsers() {
+  const { actor, isFetching } = useActor();
+  return useQuery<EmailUser[]>({
+    queryKey: ["adminEmailUsers"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return api(actor).adminGetAllEmailUsers();
     },
     enabled: !!actor && !isFetching,
   });

@@ -16,7 +16,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -70,12 +70,14 @@ export default {
           ring: "oklch(var(--sidebar-ring))",
         },
         brand: {
-          teal: "oklch(0.637 0.125 192.7)",
-          "teal-light": "oklch(0.850 0.080 192.7)",
-          "teal-dark": "oklch(0.374 0.080 210)",
-          orange: "oklch(0.702 0.191 47.3)",
-          "orange-dark": "oklch(0.580 0.180 47.3)",
-          wash: "oklch(0.970 0.012 195)",
+          /* WhatsApp green */
+          teal: "oklch(0.596 0.164 152)",
+          "teal-light": "oklch(0.820 0.100 152)",
+          "teal-dark": "oklch(0.424 0.118 152)",
+          /* YouTube red */
+          orange: "oklch(0.565 0.236 27)",
+          "orange-dark": "oklch(0.460 0.210 27)",
+          wash: "oklch(0.960 0.030 152)",
           heading: "oklch(0.155 0.012 265)",
           body: "oklch(0.325 0.022 265)",
         },
@@ -87,8 +89,8 @@ export default {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        teal: "0 4px 20px oklch(0.637 0.125 192.7 / 0.20)",
-        orange: "0 4px 20px oklch(0.702 0.191 47.3 / 0.25)",
+        teal: "0 4px 20px oklch(0.596 0.164 152 / 0.30)",
+        orange: "0 4px 20px oklch(0.565 0.236 27 / 0.30)",
       },
       keyframes: {
         "accordion-down": {

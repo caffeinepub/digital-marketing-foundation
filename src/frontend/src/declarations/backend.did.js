@@ -80,6 +80,17 @@ export const AssignmentSubmission = IDL.Record({
   'submissionText' : IDL.Text,
   'reviewed' : IDL.Bool,
 });
+export const UserProfile = IDL.Record({
+  'id' : IDL.Principal,
+  'age' : IDL.Nat,
+  'otpCode' : IDL.Text,
+  'otpVerified' : IDL.Bool,
+  'name' : IDL.Text,
+  'email' : IDL.Text,
+  'passwordHash' : IDL.Text,
+  'contactNumber' : IDL.Text,
+  'registeredAt' : IDL.Int,
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
@@ -104,7 +115,6 @@ export const ShoppingItem = IDL.Record({
   'priceInCents' : IDL.Nat,
   'productDescription' : IDL.Text,
 });
-export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 export const QuizAttempt = IDL.Record({
   'id' : IDL.Text,
   'userId' : IDL.Principal,
@@ -222,6 +232,7 @@ export const idlService = IDL.Service({
       [IDL.Vec(AssignmentSubmission)],
       ['query'],
     ),
+  'adminGetAllUsers' : IDL.Func([], [IDL.Vec(UserProfile)], ['query']),
   'adminGetPaymentSettings' : IDL.Func(
       [],
       [IDL.Record({ 'keyId' : IDL.Text, 'keySecret' : IDL.Text })],
@@ -251,8 +262,12 @@ export const idlService = IDL.Service({
       [IDL.Vec(Assignment)],
       ['query'],
     ),
-  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getCertificateById' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(Certificate)],
+      ['query'],
+    ),
   'getCompletedVideos' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
   'getCourse' : IDL.Func([IDL.Text], [IDL.Opt(Course)], ['query']),
   'getCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
@@ -263,6 +278,7 @@ export const idlService = IDL.Service({
     ),
   'getMyCertificates' : IDL.Func([], [IDL.Vec(Certificate)], ['query']),
   'getMyEnrollments' : IDL.Func([], [IDL.Vec(Enrollment)], ['query']),
+  'getMyProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getMyQuizAttempts' : IDL.Func([IDL.Text], [IDL.Vec(QuizAttempt)], ['query']),
   'getMySubmissions' : IDL.Func([], [IDL.Vec(AssignmentSubmission)], ['query']),
   'getPromptTemplates' : IDL.Func([], [IDL.Vec(PromptTemplate)], ['query']),
@@ -292,7 +308,13 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'isEnrolled' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
   'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
+  'loginWithEmail' : IDL.Func([IDL.Text, IDL.Text], [IDL.Opt(UserProfile)], []),
   'markVideoComplete' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'registerUser' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Nat, IDL.Text, IDL.Text],
+      [IDL.Text],
+      [],
+    ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'savePromptTemplate' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
@@ -312,6 +334,7 @@ export const idlService = IDL.Service({
       [TransformationOutput],
       ['query'],
     ),
+  'verifyOtp' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
 });
 
 export const idlInitArgs = [];
@@ -389,6 +412,17 @@ export const idlFactory = ({ IDL }) => {
     'submissionText' : IDL.Text,
     'reviewed' : IDL.Bool,
   });
+  const UserProfile = IDL.Record({
+    'id' : IDL.Principal,
+    'age' : IDL.Nat,
+    'otpCode' : IDL.Text,
+    'otpVerified' : IDL.Bool,
+    'name' : IDL.Text,
+    'email' : IDL.Text,
+    'passwordHash' : IDL.Text,
+    'contactNumber' : IDL.Text,
+    'registeredAt' : IDL.Int,
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
@@ -410,7 +444,6 @@ export const idlFactory = ({ IDL }) => {
     'priceInCents' : IDL.Nat,
     'productDescription' : IDL.Text,
   });
-  const UserProfile = IDL.Record({ 'name' : IDL.Text });
   const QuizAttempt = IDL.Record({
     'id' : IDL.Text,
     'userId' : IDL.Principal,
@@ -525,6 +558,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(AssignmentSubmission)],
         ['query'],
       ),
+    'adminGetAllUsers' : IDL.Func([], [IDL.Vec(UserProfile)], ['query']),
     'adminGetPaymentSettings' : IDL.Func(
         [],
         [IDL.Record({ 'keyId' : IDL.Text, 'keySecret' : IDL.Text })],
@@ -558,8 +592,12 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(Assignment)],
         ['query'],
       ),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getCertificateById' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(Certificate)],
+        ['query'],
+      ),
     'getCompletedVideos' : IDL.Func([IDL.Text], [IDL.Vec(IDL.Text)], ['query']),
     'getCourse' : IDL.Func([IDL.Text], [IDL.Opt(Course)], ['query']),
     'getCourses' : IDL.Func([], [IDL.Vec(Course)], ['query']),
@@ -570,6 +608,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getMyCertificates' : IDL.Func([], [IDL.Vec(Certificate)], ['query']),
     'getMyEnrollments' : IDL.Func([], [IDL.Vec(Enrollment)], ['query']),
+    'getMyProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getMyQuizAttempts' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(QuizAttempt)],
@@ -607,7 +646,17 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'isEnrolled' : IDL.Func([IDL.Text], [IDL.Bool], ['query']),
     'isStripeConfigured' : IDL.Func([], [IDL.Bool], ['query']),
+    'loginWithEmail' : IDL.Func(
+        [IDL.Text, IDL.Text],
+        [IDL.Opt(UserProfile)],
+        [],
+      ),
     'markVideoComplete' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'registerUser' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Nat, IDL.Text, IDL.Text],
+        [IDL.Text],
+        [],
+      ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'savePromptTemplate' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
@@ -627,6 +676,7 @@ export const idlFactory = ({ IDL }) => {
         [TransformationOutput],
         ['query'],
       ),
+    'verifyOtp' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
   });
 };
 

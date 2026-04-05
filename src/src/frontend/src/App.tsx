@@ -2,9 +2,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import WhatsAppChatbot from "./components/WhatsAppChatbot";
 import AdminPanel from "./pages/AdminPanel";
 import BlogArticlePage from "./pages/BlogArticlePage";
 import BlogsPage from "./pages/BlogsPage";
+import CertificatePage from "./pages/CertificatePage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import LandingPage from "./pages/LandingPage";
 import NewsArticlePage from "./pages/NewsArticlePage";
@@ -25,7 +27,8 @@ export type PageName =
   | "blogs"
   | "news"
   | "blog-article"
-  | "news-article";
+  | "news-article"
+  | "certificate";
 
 export interface AppNav {
   navigate: (page: PageName, params?: Partial<AppParams>) => void;
@@ -36,6 +39,7 @@ export interface AppParams {
   videoId: string;
   moduleId: string;
   articleId: string;
+  certId: string;
 }
 
 function getInitialPage(): { page: PageName; params: Partial<AppParams> } {
@@ -52,6 +56,9 @@ function getInitialPage(): { page: PageName; params: Partial<AppParams> } {
   const newsMatch = path.match(/^\/news\/(\d+)/);
   if (newsMatch)
     return { page: "news-article", params: { articleId: newsMatch[1] } };
+  const certMatch = path.match(/^\/certificate\/([^/]+)/);
+  if (certMatch)
+    return { page: "certificate", params: { certId: certMatch[1] } };
   return { page: "landing", params: {} };
 }
 
@@ -64,6 +71,13 @@ export default function App() {
     const { page: p, params: pr } = getInitialPage();
     setPage(p);
     setParams(pr);
+  }, []);
+
+  // Right-click protection
+  useEffect(() => {
+    const prevent = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener("contextmenu", prevent);
+    return () => document.removeEventListener("contextmenu", prevent);
   }, []);
 
   const navigate = (nextPage: PageName, nextParams?: Partial<AppParams>) => {
@@ -82,6 +96,12 @@ export default function App() {
       window.history.pushState({}, "", `/blog/${nextParams?.articleId || ""}`);
     } else if (nextPage === "news-article") {
       window.history.pushState({}, "", `/news/${nextParams?.articleId || ""}`);
+    } else if (nextPage === "certificate") {
+      window.history.pushState(
+        {},
+        "",
+        `/certificate/${nextParams?.certId || ""}`,
+      );
     } else if (nextPage === "landing") {
       window.history.pushState({}, "", "/");
     }
@@ -91,6 +111,7 @@ export default function App() {
 
   const isPaymentPage =
     page === "payment-success" || page === "payment-failure";
+  const isAdminPage = page === "admin";
 
   const renderPage = () => {
     switch (page) {
@@ -126,6 +147,8 @@ export default function App() {
         return (
           <NewsArticlePage nav={nav} articleId={params.articleId || "1"} />
         );
+      case "certificate":
+        return <CertificatePage nav={nav} certId={params.certId || ""} />;
       default:
         return <LandingPage nav={nav} />;
     }
@@ -136,6 +159,7 @@ export default function App() {
       {!isPaymentPage && <Header nav={nav} currentPage={page} />}
       <main className="flex-1">{renderPage()}</main>
       {!isPaymentPage && <Footer nav={nav} />}
+      {!isPaymentPage && !isAdminPage && <WhatsAppChatbot mode="floating" />}
       <Toaster richColors position="top-right" />
     </div>
   );

@@ -8,8 +8,8 @@ export interface None {
 }
 export type Option<T> = Some<T> | None;
 
-// Keep #basic for backward compatibility with existing stored data
-export type CourseTier = { __kind__: "basic" } | { __kind__: "professional" } | { __kind__: "advanced" };
+// CourseTier: basic (backward compat), professional, advanced, performance
+export type CourseTier = { __kind__: "basic" } | { __kind__: "professional" } | { __kind__: "advanced" } | { __kind__: "performance" };
 export type UserRole = { __kind__: "admin" } | { __kind__: "user" } | { __kind__: "guest" };
 
 export interface Course {
@@ -30,7 +30,6 @@ export interface CourseModule {
     orderPos: bigint;
 }
 
-// Base Video type (returned by adminCreateVideo)
 export interface Video {
     id: string;
     moduleId: string;
@@ -41,7 +40,6 @@ export interface Video {
     orderPos: bigint;
 }
 
-// Video with blobId (returned by getVideosForModule / getVideosForCourse)
 export interface VideoWithBlob extends Video {
     blobId: string;
 }
@@ -100,6 +98,16 @@ export interface Certificate {
     issuedAt: bigint;
 }
 
+export interface EmailUser {
+    id: string;
+    email: string;
+    name: string;
+    age: bigint;
+    contactNumber: string;
+    passwordHash: string;
+    registeredAt: bigint;
+}
+
 export interface backendInterface {
     // Auth
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
@@ -118,7 +126,7 @@ export interface backendInterface {
     // Payment settings
     getRazorpayKeyId(): Promise<string>;
 
-    // Enrollment - razorpay data stored in stripeSessionId internally
+    // Enrollment
     enrollInCourse(courseId: string, razorpayOrderId: string, razorpayPaymentId: string): Promise<Enrollment>;
     getMyEnrollments(): Promise<Enrollment[]>;
     isEnrolled(courseId: string): Promise<boolean>;
@@ -140,6 +148,11 @@ export interface backendInterface {
     // Certificates
     claimCertificate(courseId: string, studentName: string): Promise<Certificate>;
     getMyCertificates(): Promise<Certificate[]>;
+    getCertificateById(certId: string): Promise<Option<Certificate>>;
+
+    // Email user registration
+    registerEmailUser(email: string, name: string, age: bigint, contactNumber: string, passwordHash: string): Promise<{ success: boolean; message: string }>;
+    verifyEmailUser(email: string, passwordHash: string): Promise<{ success: boolean; name: string }>;
 
     // Admin
     adminCreateCourse(title: string, description: string, tier: CourseTier, priceInr: bigint, thumbnailUrl: string): Promise<Course>;
@@ -155,5 +168,6 @@ export interface backendInterface {
     adminGetAllSubmissions(): Promise<AssignmentSubmission[]>;
     adminSetPaymentSettings(keyId: string, keySecret: string): Promise<void>;
     adminGetPaymentSettings(): Promise<{ keyId: string; keySecret: string }>;
+    adminGetAllEmailUsers(): Promise<EmailUser[]>;
     seedSampleData(): Promise<void>;
 }

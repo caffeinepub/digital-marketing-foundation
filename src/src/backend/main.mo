@@ -20,8 +20,8 @@ actor {
     id.toText();
   };
 
-  // Keep #basic in CourseTier for backward compatibility with existing stable data
-  public type CourseTier = { #basic; #professional; #advanced };
+  // CourseTier includes basic (backward compat), professional, advanced, performance
+  public type CourseTier = { #basic; #professional; #advanced; #performance };
   public type Course = {
     id : Text;
     title : Text;
@@ -43,7 +43,7 @@ actor {
   };
   let modules = Map.empty<Text, CourseModule>();
 
-  // Videos - keep original fields (blobId stored separately for upgrade compatibility)
+  // Videos
   public type Video = {
     id : Text;
     moduleId : Text;
@@ -55,8 +55,8 @@ actor {
   };
   let videos = Map.empty<Text, Video>();
 
-  // Separate stable map for video blob IDs (avoids breaking Video stable type)
-  let videoBlobIds = Map.empty<Text, Text>(); // videoId -> blobId
+  // Separate stable map for video blob IDs
+  let videoBlobIds = Map.empty<Text, Text>();
 
   // Quiz questions
   public type QuizQuestion = {
@@ -80,14 +80,13 @@ actor {
   };
   let quizAttempts = Map.empty<Text, QuizAttempt>();
 
-  // Enrollments - keep stripeSessionId field for backward compatibility,
-  // store razorpay payment ID there when enrolling via Razorpay
+  // Enrollments
   public type Enrollment = {
     id : Text;
     userId : Principal;
     courseId : Text;
     tier : CourseTier;
-    stripeSessionId : Text; // stores razorpayPaymentId for new enrollments
+    stripeSessionId : Text;
     enrolledAt : Int;
   };
   let enrollments = Map.empty<Text, Enrollment>();
@@ -134,6 +133,18 @@ actor {
   };
   let certificates = Map.empty<Text, Certificate>();
 
+  // Email-registered users
+  public type EmailUser = {
+    id : Text;
+    email : Text;
+    name : Text;
+    age : Nat;
+    contactNumber : Text;
+    passwordHash : Text; // simple hash stored for simulated auth
+    registeredAt : Int;
+  };
+  let emailUsers = Map.empty<Text, EmailUser>(); // keyed by email
+
   // Payment settings
   var razorpayKeyId : Text = "";
   var razorpayKeySecret : Text = "";
@@ -154,6 +165,40 @@ actor {
     { keyId = razorpayKeyId; keySecret = razorpayKeySecret };
   };
 
+  // ─── Email User Registration ─────────────────────────────────
+  public shared func registerEmailUser(email : Text, name : Text, age : Nat, contactNumber : Text, passwordHash : Text) : async { success : Bool; message : Text } {
+    switch (emailUsers.get(email)) {
+      case (?_) { return { success = false; message = "Email already registered" } };
+      case (null) {
+        let id = genId();
+        let user : EmailUser = {
+          id; email; name; age; contactNumber; passwordHash;
+          registeredAt = Time.now();
+        };
+        emailUsers.add(email, user);
+        { success = true; message = "Registration successful" };
+      };
+    };
+  };
+
+  public query func verifyEmailUser(email : Text, passwordHash : Text) : async { success : Bool; name : Text } {
+    switch (emailUsers.get(email)) {
+      case (?user) {
+        if (user.passwordHash == passwordHash) {
+          { success = true; name = user.name };
+        } else {
+          { success = false; name = "" };
+        };
+      };
+      case (null) { { success = false; name = "" } };
+    };
+  };
+
+  public query ({ caller }) func adminGetAllEmailUsers() : async [EmailUser] {
+    assert AccessControl.isAdmin(accessControlState, caller);
+    emailUsers.values().toArray();
+  };
+
   // ─── Course Queries ─────────────────────────────────────────
   public query func getCourses() : async [Course] {
     courses.values().toArray();
@@ -171,7 +216,6 @@ actor {
     result.toArray();
   };
 
-  // Returns videos with blobId merged in from videoBlobIds map
   public type VideoWithBlob = {
     id : Text;
     moduleId : Text;
@@ -214,7 +258,6 @@ actor {
   };
 
   // ─── Enrollment ─────────────────────────────────────────────
-  // razorpayPaymentId stored in stripeSessionId field for backward compat
   public shared ({ caller }) func enrollInCourse(courseId : Text, razorpayOrderId : Text, razorpayPaymentId : Text) : async Enrollment {
     let courseOpt = courses.get(courseId);
     switch (courseOpt) {
@@ -386,6 +429,10 @@ actor {
     result.toArray();
   };
 
+  public query func getCertificateById(certId : Text) : async ?Certificate {
+    certificates.get(certId);
+  };
+
   // ─── Admin: Course Management ────────────────────────────────
   public shared ({ caller }) func adminCreateCourse(title : Text, description : Text, tier : CourseTier, priceInr : Nat, thumbnailUrl : Text) : async Course {
     assert AccessControl.isAdmin(accessControlState, caller);
@@ -494,6 +541,18 @@ actor {
       thumbnailUrl = "/assets/generated/course-google-ads.dim_400x240.jpg";
       totalModules = 8;
       totalVideos = 35;
+    });
+
+    let c3 = genId();
+    courses.add(c3, {
+      id = c3;
+      title = "Performance Marketing Masterclass";
+      description = "High-ticket performance marketing: Meta Ads, Google Ads, ROI optimization, conversion rate optimization, advanced analytics, and scaling to Rs.10L+ monthly ad spend.";
+      tier = #performance;
+      priceInr = 74999;
+      thumbnailUrl = "/assets/generated/course-performance.dim_400x240.jpg";
+      totalModules = 12;
+      totalVideos = 50;
     });
 
     let m1 = genId();

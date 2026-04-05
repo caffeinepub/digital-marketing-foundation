@@ -7,17 +7,6 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface _CaffeineStorageRefillInformation {
-    proposed_top_up_amount?: bigint;
-}
-export interface _CaffeineStorageCreateCertificateResult {
-    method: string;
-    blob_hash: string;
-}
-export interface _CaffeineStorageRefillResult {
-    success?: boolean;
-    topped_up_amount?: bigint;
-}
 export interface Video {
     id: string;
     moduleId: string;
@@ -155,7 +144,15 @@ export interface Certificate {
     courseId: string;
 }
 export interface UserProfile {
+    id: Principal;
+    age: bigint;
+    otpCode: string;
+    otpVerified: boolean;
     name: string;
+    email: string;
+    passwordHash: string;
+    contactNumber: string;
+    registeredAt: bigint;
 }
 export enum CourseTier {
     advanced = "advanced",
@@ -168,13 +165,6 @@ export enum UserRole {
     guest = "guest"
 }
 export interface backendInterface {
-    _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
-    _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
-    _caffeineStorageConfirmBlobDeletion(blobs: Array<Uint8Array>): Promise<void>;
-    _caffeineStorageCreateCertificate(blobHash: string): Promise<_CaffeineStorageCreateCertificateResult>;
-    _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
-    _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
-    _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     adminCreateAssignment(courseId: string, weekNumber: bigint, title: string, description: string): Promise<Assignment>;
     adminCreateCourse(title: string, description: string, tier: CourseTier, priceInr: bigint, thumbnailUrl: string): Promise<Course>;
     adminCreateModule(courseId: string, title: string, orderPos: bigint): Promise<CourseModule>;
@@ -183,6 +173,7 @@ export interface backendInterface {
     adminDeleteQuizQuestion(questionId: string): Promise<void>;
     adminGetAllEnrollments(): Promise<Array<Enrollment>>;
     adminGetAllSubmissions(): Promise<Array<AssignmentSubmission>>;
+    adminGetAllUsers(): Promise<Array<UserProfile>>;
     adminGetPaymentSettings(): Promise<{
         keyId: string;
         keySecret: string;
@@ -199,14 +190,15 @@ export interface backendInterface {
     enrollInCourse(courseId: string, razorpayOrderId: string, razorpayPaymentId: string): Promise<Enrollment>;
     generateAIContent(contentType: string, topic: string): Promise<string>;
     getAssignmentsForCourse(courseId: string): Promise<Array<Assignment>>;
-    getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getCertificateById(certId: string): Promise<Certificate | null>;
     getCompletedVideos(courseId: string): Promise<Array<string>>;
     getCourse(courseId: string): Promise<Course | null>;
     getCourses(): Promise<Array<Course>>;
     getModulesForCourse(courseId: string): Promise<Array<CourseModule>>;
     getMyCertificates(): Promise<Array<Certificate>>;
     getMyEnrollments(): Promise<Array<Enrollment>>;
+    getMyProfile(): Promise<UserProfile | null>;
     getMyQuizAttempts(videoId: string): Promise<Array<QuizAttempt>>;
     getMySubmissions(): Promise<Array<AssignmentSubmission>>;
     getPromptTemplates(): Promise<Array<PromptTemplate>>;
@@ -220,7 +212,9 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     isEnrolled(courseId: string): Promise<boolean>;
     isStripeConfigured(): Promise<boolean>;
+    loginWithEmail(email: string, passwordHash: string): Promise<UserProfile | null>;
     markVideoComplete(videoId: string, courseId: string): Promise<void>;
+    registerUser(email: string, name: string, age: bigint, contactNumber: string, passwordHash: string): Promise<string>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     savePromptTemplate(title: string, description: string, promptText: string, category: string): Promise<PromptTemplate>;
     seedSampleData(): Promise<void>;
@@ -228,4 +222,5 @@ export interface backendInterface {
     submitAssignment(assignmentId: string, submissionText: string): Promise<AssignmentSubmission>;
     submitQuiz(videoId: string, answers: Array<bigint>): Promise<QuizAttempt>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
+    verifyOtp(email: string, otpCode: string): Promise<boolean>;
 }

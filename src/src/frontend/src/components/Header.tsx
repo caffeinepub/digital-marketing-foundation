@@ -2,7 +2,9 @@ import { Button } from "@/components/ui/button";
 import {
   GraduationCap,
   LayoutDashboard,
+  LogIn,
   LogOut,
+  Mail,
   Menu,
   ShieldCheck,
   X,
@@ -11,6 +13,7 @@ import { useState } from "react";
 import type { AppNav, PageName } from "../App";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useIsAdmin } from "../hooks/useQueries";
+import EmailLoginDialog, { useEmailUser } from "./EmailLoginDialog";
 
 interface HeaderProps {
   nav: AppNav;
@@ -19,10 +22,15 @@ interface HeaderProps {
 
 export default function Header({ nav, currentPage }: HeaderProps) {
   const { login, clear, loginStatus, identity } = useInternetIdentity();
+  const { user: emailUser, logout: emailLogout, refresh } = useEmailUser();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const isLoggedIn = !!identity;
+  const isEmailLoggedIn = !!emailUser?.isEmailLoggedIn;
   const isLoggingIn = loginStatus === "logging-in";
   const { data: isAdmin } = useIsAdmin();
+
+  const isAnyLoggedIn = isLoggedIn || isEmailLoggedIn;
 
   const navLinks: { label: string; page: PageName; hash?: string }[] = [
     { label: "Courses", page: "landing", hash: "courses" },
@@ -41,6 +49,12 @@ export default function Header({ nav, currentPage }: HeaderProps) {
         if (el) el.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
+  };
+
+  const handleLogout = () => {
+    if (isLoggedIn) clear();
+    if (isEmailLoggedIn) emailLogout();
+    setMenuOpen(false);
   };
 
   return (
@@ -95,9 +109,16 @@ export default function Header({ nav, currentPage }: HeaderProps) {
         </nav>
 
         {/* Auth Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          {isLoggedIn ? (
+        <div className="hidden md:flex items-center gap-2">
+          {isAnyLoggedIn ? (
             <>
+              <div className="flex items-center gap-2 text-sm">
+                {isEmailLoggedIn && (
+                  <span className="font-medium text-brand-teal">
+                    {emailUser!.name}
+                  </span>
+                )}
+              </div>
               <Button
                 data-ocid="header.button"
                 variant="ghost"
@@ -112,7 +133,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                 data-ocid="header.button"
                 variant="outline"
                 size="sm"
-                onClick={() => clear()}
+                onClick={handleLogout}
                 className="border-brand-teal text-brand-teal hover:bg-brand-wash"
               >
                 <LogOut className="w-4 h-4 mr-1" />
@@ -125,17 +146,27 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                 data-ocid="header.button"
                 variant="ghost"
                 size="sm"
+                onClick={() => setEmailDialogOpen(true)}
+                className="text-brand-body hover:text-brand-teal"
+              >
+                <Mail className="w-4 h-4 mr-1" />
+                Email Login
+              </Button>
+              <Button
+                data-ocid="header.button"
+                variant="ghost"
+                size="sm"
                 onClick={() => login()}
                 disabled={isLoggingIn}
                 className="text-brand-body hover:text-brand-teal"
               >
-                {isLoggingIn ? "Logging in..." : "Login"}
+                <LogIn className="w-4 h-4 mr-1" />
+                {isLoggingIn ? "Logging in..." : "II Login"}
               </Button>
               <Button
                 data-ocid="header.primary_button"
                 size="sm"
-                onClick={() => login()}
-                disabled={isLoggingIn}
+                onClick={() => setEmailDialogOpen(true)}
                 className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-5 font-semibold shadow-orange"
               >
                 Join Now
@@ -183,36 +214,61 @@ export default function Header({ nav, currentPage }: HeaderProps) {
               Admin Panel
             </button>
           )}
-          <div className="flex gap-2 pt-2">
-            {isLoggedIn ? (
-              <Button
-                data-ocid="header.button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  clear();
-                  setMenuOpen(false);
-                }}
-                className="border-brand-teal text-brand-teal"
-              >
-                Logout
-              </Button>
+          <div className="flex flex-col gap-2 pt-2">
+            {isAnyLoggedIn ? (
+              <>
+                {isEmailLoggedIn && (
+                  <div className="text-sm font-medium text-brand-teal py-1">
+                    {emailUser!.name}
+                  </div>
+                )}
+                <Button
+                  data-ocid="header.button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="border-brand-teal text-brand-teal"
+                >
+                  <LogOut className="w-4 h-4 mr-1" /> Logout
+                </Button>
+              </>
             ) : (
-              <Button
-                data-ocid="header.primary_button"
-                size="sm"
-                onClick={() => {
-                  login();
-                  setMenuOpen(false);
-                }}
-                className="bg-brand-orange text-white rounded-full px-5"
-              >
-                Join Now
-              </Button>
+              <>
+                <Button
+                  data-ocid="header.button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEmailDialogOpen(true);
+                    setMenuOpen(false);
+                  }}
+                  className="border-brand-teal text-brand-teal"
+                >
+                  <Mail className="w-4 h-4 mr-1" /> Email Login
+                </Button>
+                <Button
+                  data-ocid="header.primary_button"
+                  size="sm"
+                  onClick={() => {
+                    login();
+                    setMenuOpen(false);
+                  }}
+                  className="bg-brand-orange text-white rounded-full px-5"
+                >
+                  Join Now (Internet Identity)
+                </Button>
+              </>
             )}
           </div>
         </div>
       )}
+
+      {/* Email Login Dialog */}
+      <EmailLoginDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        onSuccess={() => refresh()}
+      />
     </header>
   );
 }

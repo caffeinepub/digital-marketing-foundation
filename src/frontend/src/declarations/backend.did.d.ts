@@ -110,7 +110,17 @@ export interface TransformationOutput {
   'body' : Uint8Array,
   'headers' : Array<http_header>,
 }
-export interface UserProfile { 'name' : string }
+export interface UserProfile {
+  'id' : Principal,
+  'age' : bigint,
+  'otpCode' : string,
+  'otpVerified' : boolean,
+  'name' : string,
+  'email' : string,
+  'passwordHash' : string,
+  'contactNumber' : string,
+  'registeredAt' : bigint,
+}
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
@@ -187,6 +197,7 @@ export interface _SERVICE {
   'adminDeleteQuizQuestion' : ActorMethod<[string], undefined>,
   'adminGetAllEnrollments' : ActorMethod<[], Array<Enrollment>>,
   'adminGetAllSubmissions' : ActorMethod<[], Array<AssignmentSubmission>>,
+  'adminGetAllUsers' : ActorMethod<[], Array<UserProfile>>,
   'adminGetPaymentSettings' : ActorMethod<
     [],
     { 'keyId' : string, 'keySecret' : string }
@@ -209,14 +220,15 @@ export interface _SERVICE {
   'enrollInCourse' : ActorMethod<[string, string, string], Enrollment>,
   'generateAIContent' : ActorMethod<[string, string], string>,
   'getAssignmentsForCourse' : ActorMethod<[string], Array<Assignment>>,
-  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCertificateById' : ActorMethod<[string], [] | [Certificate]>,
   'getCompletedVideos' : ActorMethod<[string], Array<string>>,
   'getCourse' : ActorMethod<[string], [] | [Course]>,
   'getCourses' : ActorMethod<[], Array<Course>>,
   'getModulesForCourse' : ActorMethod<[string], Array<CourseModule>>,
   'getMyCertificates' : ActorMethod<[], Array<Certificate>>,
   'getMyEnrollments' : ActorMethod<[], Array<Enrollment>>,
+  'getMyProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getMyQuizAttempts' : ActorMethod<[string], Array<QuizAttempt>>,
   'getMySubmissions' : ActorMethod<[], Array<AssignmentSubmission>>,
   'getPromptTemplates' : ActorMethod<[], Array<PromptTemplate>>,
@@ -230,7 +242,12 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'isEnrolled' : ActorMethod<[string], boolean>,
   'isStripeConfigured' : ActorMethod<[], boolean>,
+  'loginWithEmail' : ActorMethod<[string, string], [] | [UserProfile]>,
   'markVideoComplete' : ActorMethod<[string, string], undefined>,
+  'registerUser' : ActorMethod<
+    [string, string, bigint, string, string],
+    string
+  >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'savePromptTemplate' : ActorMethod<
     [string, string, string, string],
@@ -241,6 +258,7 @@ export interface _SERVICE {
   'submitAssignment' : ActorMethod<[string, string], AssignmentSubmission>,
   'submitQuiz' : ActorMethod<[string, Array<bigint>], QuizAttempt>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+  'verifyOtp' : ActorMethod<[string, string], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
