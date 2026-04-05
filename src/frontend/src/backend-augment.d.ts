@@ -14,6 +14,7 @@ import type {
   QuizQuestion,
   UserRole,
   Video,
+  backendInterface,
 } from "./backend.d";
 
 // Full backend interface with all methods
@@ -109,5 +110,5 @@ declare module "./backend" {
     uploadFile: (file: ExternalBlob) => Promise<Uint8Array>,
     downloadFile: (file: Uint8Array) => Promise<ExternalBlob>,
     options?: CreateActorOptions,
-  ): FullBackendInterface;
+  ): backendInterface;
 }

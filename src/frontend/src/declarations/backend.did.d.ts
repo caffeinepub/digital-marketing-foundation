@@ -10,7 +10,238 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface _SERVICE {}
+export interface AIMessage { 'content' : string, 'role' : string }
+export interface Assignment {
+  'id' : string,
+  'title' : string,
+  'description' : string,
+  'weekNumber' : bigint,
+  'courseId' : string,
+}
+export interface AssignmentSubmission {
+  'id' : string,
+  'userId' : Principal,
+  'submittedAt' : bigint,
+  'giftCardCode' : [] | [string],
+  'assignmentId' : string,
+  'submissionText' : string,
+  'reviewed' : boolean,
+}
+export interface Certificate {
+  'id' : string,
+  'studentName' : string,
+  'userId' : Principal,
+  'issuedAt' : bigint,
+  'courseTitle' : string,
+  'courseId' : string,
+}
+export interface Course {
+  'id' : string,
+  'title' : string,
+  'thumbnailUrl' : string,
+  'tier' : CourseTier,
+  'description' : string,
+  'totalModules' : bigint,
+  'totalVideos' : bigint,
+  'priceInr' : bigint,
+}
+export interface CourseModule {
+  'id' : string,
+  'title' : string,
+  'orderPos' : bigint,
+  'courseId' : string,
+}
+export type CourseTier = { 'advanced' : null } |
+  { 'professional' : null } |
+  { 'basic' : null };
+export interface Enrollment {
+  'id' : string,
+  'userId' : Principal,
+  'tier' : CourseTier,
+  'enrolledAt' : bigint,
+  'stripeSessionId' : string,
+  'courseId' : string,
+}
+export interface PromptTemplate {
+  'id' : string,
+  'title' : string,
+  'createdAt' : bigint,
+  'promptText' : string,
+  'description' : string,
+  'category' : string,
+}
+export interface QuizAttempt {
+  'id' : string,
+  'userId' : Principal,
+  'answers' : Array<bigint>,
+  'score' : bigint,
+  'attemptedAt' : bigint,
+  'passed' : boolean,
+  'videoId' : string,
+}
+export interface QuizQuestion {
+  'id' : string,
+  'correctIndex' : bigint,
+  'questionText' : string,
+  'options' : Array<string>,
+  'videoId' : string,
+}
+export interface ShoppingItem {
+  'productName' : string,
+  'currency' : string,
+  'quantity' : bigint,
+  'priceInCents' : bigint,
+  'productDescription' : string,
+}
+export interface StripeConfiguration {
+  'allowedCountries' : Array<string>,
+  'secretKey' : string,
+}
+export type StripeSessionStatus = {
+    'completed' : { 'userPrincipal' : [] | [string], 'response' : string }
+  } |
+  { 'failed' : { 'error' : string } };
+export interface TransformationInput {
+  'context' : Uint8Array,
+  'response' : http_request_result,
+}
+export interface TransformationOutput {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
+export interface Video {
+  'id' : string,
+  'moduleId' : string,
+  'title' : string,
+  'description' : string,
+  'durationMinutes' : bigint,
+  'orderPos' : bigint,
+  'courseId' : string,
+}
+export interface VideoWithBlob {
+  'id' : string,
+  'moduleId' : string,
+  'title' : string,
+  'description' : string,
+  'durationMinutes' : bigint,
+  'blobId' : string,
+  'orderPos' : bigint,
+  'courseId' : string,
+}
+export interface _CaffeineStorageCreateCertificateResult {
+  'method' : string,
+  'blob_hash' : string,
+}
+export interface _CaffeineStorageRefillInformation {
+  'proposed_top_up_amount' : [] | [bigint],
+}
+export interface _CaffeineStorageRefillResult {
+  'success' : [] | [boolean],
+  'topped_up_amount' : [] | [bigint],
+}
+export interface http_header { 'value' : string, 'name' : string }
+export interface http_request_result {
+  'status' : bigint,
+  'body' : Uint8Array,
+  'headers' : Array<http_header>,
+}
+export interface _SERVICE {
+  '_caffeineStorageBlobIsLive' : ActorMethod<[Uint8Array], boolean>,
+  '_caffeineStorageBlobsToDelete' : ActorMethod<[], Array<Uint8Array>>,
+  '_caffeineStorageConfirmBlobDeletion' : ActorMethod<
+    [Array<Uint8Array>],
+    undefined
+  >,
+  '_caffeineStorageCreateCertificate' : ActorMethod<
+    [string],
+    _CaffeineStorageCreateCertificateResult
+  >,
+  '_caffeineStorageRefillCashier' : ActorMethod<
+    [[] | [_CaffeineStorageRefillInformation]],
+    _CaffeineStorageRefillResult
+  >,
+  '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'adminCreateAssignment' : ActorMethod<
+    [string, bigint, string, string],
+    Assignment
+  >,
+  'adminCreateCourse' : ActorMethod<
+    [string, string, CourseTier, bigint, string],
+    Course
+  >,
+  'adminCreateModule' : ActorMethod<[string, string, bigint], CourseModule>,
+  'adminCreateQuizQuestion' : ActorMethod<
+    [string, string, Array<string>, bigint],
+    QuizQuestion
+  >,
+  'adminCreateVideo' : ActorMethod<
+    [string, string, string, string, bigint, bigint],
+    Video
+  >,
+  'adminDeleteQuizQuestion' : ActorMethod<[string], undefined>,
+  'adminGetAllEnrollments' : ActorMethod<[], Array<Enrollment>>,
+  'adminGetAllSubmissions' : ActorMethod<[], Array<AssignmentSubmission>>,
+  'adminGetPaymentSettings' : ActorMethod<
+    [],
+    { 'keyId' : string, 'keySecret' : string }
+  >,
+  'adminReviewSubmission' : ActorMethod<[string, [] | [string]], undefined>,
+  'adminSetPaymentSettings' : ActorMethod<[string, string], undefined>,
+  'adminUpdateCourse' : ActorMethod<
+    [string, string, string, bigint, string],
+    undefined
+  >,
+  'adminUpdateVideoBlobId' : ActorMethod<[string, string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'chatWithAI' : ActorMethod<[string, Array<AIMessage>], string>,
+  'claimCertificate' : ActorMethod<[string, string], Certificate>,
+  'createCheckoutSession' : ActorMethod<
+    [Array<ShoppingItem>, string, string],
+    string
+  >,
+  'deletePromptTemplate' : ActorMethod<[string], undefined>,
+  'enrollInCourse' : ActorMethod<[string, string, string], Enrollment>,
+  'generateAIContent' : ActorMethod<[string, string], string>,
+  'getAssignmentsForCourse' : ActorMethod<[string], Array<Assignment>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCompletedVideos' : ActorMethod<[string], Array<string>>,
+  'getCourse' : ActorMethod<[string], [] | [Course]>,
+  'getCourses' : ActorMethod<[], Array<Course>>,
+  'getModulesForCourse' : ActorMethod<[string], Array<CourseModule>>,
+  'getMyCertificates' : ActorMethod<[], Array<Certificate>>,
+  'getMyEnrollments' : ActorMethod<[], Array<Enrollment>>,
+  'getMyQuizAttempts' : ActorMethod<[string], Array<QuizAttempt>>,
+  'getMySubmissions' : ActorMethod<[], Array<AssignmentSubmission>>,
+  'getPromptTemplates' : ActorMethod<[], Array<PromptTemplate>>,
+  'getQuizQuestionsForVideo' : ActorMethod<[string], Array<QuizQuestion>>,
+  'getRazorpayKeyId' : ActorMethod<[], string>,
+  'getStripeSessionStatus' : ActorMethod<[string], StripeSessionStatus>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getVideosForCourse' : ActorMethod<[string], Array<VideoWithBlob>>,
+  'getVideosForModule' : ActorMethod<[string], Array<VideoWithBlob>>,
+  'hasPassedQuiz' : ActorMethod<[string], boolean>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isEnrolled' : ActorMethod<[string], boolean>,
+  'isStripeConfigured' : ActorMethod<[], boolean>,
+  'markVideoComplete' : ActorMethod<[string, string], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'savePromptTemplate' : ActorMethod<
+    [string, string, string, string],
+    PromptTemplate
+  >,
+  'seedSampleData' : ActorMethod<[], undefined>,
+  'setStripeConfiguration' : ActorMethod<[StripeConfiguration], undefined>,
+  'submitAssignment' : ActorMethod<[string, string], AssignmentSubmission>,
+  'submitQuiz' : ActorMethod<[string, Array<bigint>], QuizAttempt>,
+  'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
+}
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];
 export declare const idlFactory: IDL.InterfaceFactory;

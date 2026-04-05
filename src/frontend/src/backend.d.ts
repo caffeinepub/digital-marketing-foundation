@@ -7,138 +7,225 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-
-export type CourseTier = { __kind__: "basic" } | { __kind__: "professional" } | { __kind__: "advanced" };
-export type UserRole = { __kind__: "admin" } | { __kind__: "user" } | { __kind__: "guest" };
-
-export interface Course {
-    id: string;
-    title: string;
-    description: string;
-    tier: CourseTier;
-    priceInr: bigint;
-    thumbnailUrl: string;
-    totalModules: bigint;
-    totalVideos: bigint;
+export interface _CaffeineStorageRefillInformation {
+    proposed_top_up_amount?: bigint;
 }
-
-export interface CourseModule {
-    id: string;
-    courseId: string;
-    title: string;
-    orderPos: bigint;
+export interface _CaffeineStorageCreateCertificateResult {
+    method: string;
+    blob_hash: string;
 }
-
+export interface _CaffeineStorageRefillResult {
+    success?: boolean;
+    topped_up_amount?: bigint;
+}
 export interface Video {
     id: string;
     moduleId: string;
-    courseId: string;
     title: string;
     description: string;
     durationMinutes: bigint;
     orderPos: bigint;
+    courseId: string;
 }
-
+export interface PromptTemplate {
+    id: string;
+    title: string;
+    createdAt: bigint;
+    promptText: string;
+    description: string;
+    category: string;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
 export interface QuizQuestion {
     id: string;
-    videoId: string;
-    questionText: string;
-    options: string[];
     correctIndex: bigint;
-}
-
-export interface QuizAttempt {
-    id: string;
-    userId: Principal;
+    questionText: string;
+    options: Array<string>;
     videoId: string;
-    answers: bigint[];
-    score: bigint;
-    passed: boolean;
-    attemptedAt: bigint;
 }
-
 export interface Enrollment {
     id: string;
     userId: Principal;
-    courseId: string;
     tier: CourseTier;
-    stripeSessionId: string;
     enrolledAt: bigint;
-}
-
-export interface Assignment {
-    id: string;
+    stripeSessionId: string;
     courseId: string;
-    weekNumber: bigint;
-    title: string;
-    description: string;
 }
-
 export interface AssignmentSubmission {
     id: string;
     userId: Principal;
+    submittedAt: bigint;
+    giftCardCode?: string;
     assignmentId: string;
     submissionText: string;
-    submittedAt: bigint;
-    giftCardCode: Option<string>;
     reviewed: boolean;
 }
-
-export interface Certificate {
+export interface http_header {
+    value: string;
+    name: string;
+}
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface CourseModule {
+    id: string;
+    title: string;
+    orderPos: bigint;
+    courseId: string;
+}
+export interface Course {
+    id: string;
+    title: string;
+    thumbnailUrl: string;
+    tier: CourseTier;
+    description: string;
+    totalModules: bigint;
+    totalVideos: bigint;
+    priceInr: bigint;
+}
+export interface AIMessage {
+    content: string;
+    role: string;
+}
+export interface ShoppingItem {
+    productName: string;
+    currency: string;
+    quantity: bigint;
+    priceInCents: bigint;
+    productDescription: string;
+}
+export interface VideoWithBlob {
+    id: string;
+    moduleId: string;
+    title: string;
+    description: string;
+    durationMinutes: bigint;
+    blobId: string;
+    orderPos: bigint;
+    courseId: string;
+}
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
+export interface QuizAttempt {
     id: string;
     userId: Principal;
-    courseId: string;
-    courseTitle: string;
-    studentName: string;
-    issuedAt: bigint;
+    answers: Array<bigint>;
+    score: bigint;
+    attemptedAt: bigint;
+    passed: boolean;
+    videoId: string;
 }
-
+export interface Assignment {
+    id: string;
+    title: string;
+    description: string;
+    weekNumber: bigint;
+    courseId: string;
+}
+export type StripeSessionStatus = {
+    __kind__: "completed";
+    completed: {
+        userPrincipal?: string;
+        response: string;
+    };
+} | {
+    __kind__: "failed";
+    failed: {
+        error: string;
+    };
+};
+export interface StripeConfiguration {
+    allowedCountries: Array<string>;
+    secretKey: string;
+}
+export interface Certificate {
+    id: string;
+    studentName: string;
+    userId: Principal;
+    issuedAt: bigint;
+    courseTitle: string;
+    courseId: string;
+}
+export interface UserProfile {
+    name: string;
+}
+export enum CourseTier {
+    advanced = "advanced",
+    professional = "professional",
+    basic = "basic"
+}
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
-    // Auth
+    _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
+    _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
+    _caffeineStorageConfirmBlobDeletion(blobs: Array<Uint8Array>): Promise<void>;
+    _caffeineStorageCreateCertificate(blobHash: string): Promise<_CaffeineStorageCreateCertificateResult>;
+    _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
+    _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
-    getCallerUserRole(): Promise<UserRole>;
-    isCallerAdmin(): Promise<boolean>;
-    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-
-    // Courses
-    getCourses(): Promise<Course[]>;
-    getCourse(courseId: string): Promise<Option<Course>>;
-    getModulesForCourse(courseId: string): Promise<CourseModule[]>;
-    getVideosForModule(moduleId: string): Promise<Video[]>;
-    getQuizQuestionsForVideo(videoId: string): Promise<QuizQuestion[]>;
-
-    // Enrollment
-    enrollInCourse(courseId: string, stripeSessionId: string): Promise<Enrollment>;
-    getMyEnrollments(): Promise<Enrollment[]>;
-    isEnrolled(courseId: string): Promise<boolean>;
-
-    // Progress
-    markVideoComplete(videoId: string, courseId: string): Promise<void>;
-    getCompletedVideos(courseId: string): Promise<string[]>;
-
-    // Quiz
-    submitQuiz(videoId: string, answers: bigint[]): Promise<QuizAttempt>;
-    hasPassedQuiz(videoId: string): Promise<boolean>;
-    getMyQuizAttempts(videoId: string): Promise<QuizAttempt[]>;
-
-    // Assignments
-    getAssignmentsForCourse(courseId: string): Promise<Assignment[]>;
-    submitAssignment(assignmentId: string, submissionText: string): Promise<AssignmentSubmission>;
-    getMySubmissions(): Promise<AssignmentSubmission[]>;
-
-    // Certificates
-    claimCertificate(courseId: string, studentName: string): Promise<Certificate>;
-    getMyCertificates(): Promise<Certificate[]>;
-
-    // Admin
-    adminCreateCourse(title: string, description: string, tier: CourseTier, priceInr: bigint, thumbnailUrl: string): Promise<Course>;
-    adminUpdateCourse(courseId: string, title: string, description: string, priceInr: bigint, thumbnailUrl: string): Promise<void>;
-    adminCreateModule(courseId: string, title: string, orderPos: bigint): Promise<CourseModule>;
-    adminCreateVideo(moduleId: string, courseId: string, title: string, description: string, durationMinutes: bigint, orderPos: bigint): Promise<Video>;
-    adminCreateQuizQuestion(videoId: string, questionText: string, options: string[], correctIndex: bigint): Promise<QuizQuestion>;
     adminCreateAssignment(courseId: string, weekNumber: bigint, title: string, description: string): Promise<Assignment>;
-    adminReviewSubmission(submissionId: string, giftCardCode: Option<string>): Promise<void>;
-    adminGetAllEnrollments(): Promise<Enrollment[]>;
-    adminGetAllSubmissions(): Promise<AssignmentSubmission[]>;
+    adminCreateCourse(title: string, description: string, tier: CourseTier, priceInr: bigint, thumbnailUrl: string): Promise<Course>;
+    adminCreateModule(courseId: string, title: string, orderPos: bigint): Promise<CourseModule>;
+    adminCreateQuizQuestion(videoId: string, questionText: string, options: Array<string>, correctIndex: bigint): Promise<QuizQuestion>;
+    adminCreateVideo(moduleId: string, courseId: string, title: string, description: string, durationMinutes: bigint, orderPos: bigint): Promise<Video>;
+    adminDeleteQuizQuestion(questionId: string): Promise<void>;
+    adminGetAllEnrollments(): Promise<Array<Enrollment>>;
+    adminGetAllSubmissions(): Promise<Array<AssignmentSubmission>>;
+    adminGetPaymentSettings(): Promise<{
+        keyId: string;
+        keySecret: string;
+    }>;
+    adminReviewSubmission(submissionId: string, giftCardCode: string | null): Promise<void>;
+    adminSetPaymentSettings(keyId: string, keySecret: string): Promise<void>;
+    adminUpdateCourse(courseId: string, title: string, description: string, priceInr: bigint, thumbnailUrl: string): Promise<void>;
+    adminUpdateVideoBlobId(videoId: string, blobId: string): Promise<void>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    chatWithAI(userMessage: string, history: Array<AIMessage>): Promise<string>;
+    claimCertificate(courseId: string, studentName: string): Promise<Certificate>;
+    createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
+    deletePromptTemplate(templateId: string): Promise<void>;
+    enrollInCourse(courseId: string, razorpayOrderId: string, razorpayPaymentId: string): Promise<Enrollment>;
+    generateAIContent(contentType: string, topic: string): Promise<string>;
+    getAssignmentsForCourse(courseId: string): Promise<Array<Assignment>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getCompletedVideos(courseId: string): Promise<Array<string>>;
+    getCourse(courseId: string): Promise<Course | null>;
+    getCourses(): Promise<Array<Course>>;
+    getModulesForCourse(courseId: string): Promise<Array<CourseModule>>;
+    getMyCertificates(): Promise<Array<Certificate>>;
+    getMyEnrollments(): Promise<Array<Enrollment>>;
+    getMyQuizAttempts(videoId: string): Promise<Array<QuizAttempt>>;
+    getMySubmissions(): Promise<Array<AssignmentSubmission>>;
+    getPromptTemplates(): Promise<Array<PromptTemplate>>;
+    getQuizQuestionsForVideo(videoId: string): Promise<Array<QuizQuestion>>;
+    getRazorpayKeyId(): Promise<string>;
+    getStripeSessionStatus(sessionId: string): Promise<StripeSessionStatus>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getVideosForCourse(courseId: string): Promise<Array<VideoWithBlob>>;
+    getVideosForModule(moduleId: string): Promise<Array<VideoWithBlob>>;
+    hasPassedQuiz(videoId: string): Promise<boolean>;
+    isCallerAdmin(): Promise<boolean>;
+    isEnrolled(courseId: string): Promise<boolean>;
+    isStripeConfigured(): Promise<boolean>;
+    markVideoComplete(videoId: string, courseId: string): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    savePromptTemplate(title: string, description: string, promptText: string, category: string): Promise<PromptTemplate>;
     seedSampleData(): Promise<void>;
+    setStripeConfiguration(config: StripeConfiguration): Promise<void>;
+    submitAssignment(assignmentId: string, submissionText: string): Promise<AssignmentSubmission>;
+    submitQuiz(videoId: string, answers: Array<bigint>): Promise<QuizAttempt>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
 }

@@ -1,15 +1,32 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Award,
+  BarChart2,
   BookOpen,
+  Bot,
+  Briefcase,
   CheckCircle2,
   ChevronRight,
   FileText,
+  Globe,
+  LineChart,
   Loader2,
+  Mail,
+  Megaphone,
+  Monitor,
+  Palette,
   PlayCircle,
+  Search,
+  Share2,
+  ShoppingCart,
   Star,
   TrendingUp,
   Trophy,
@@ -18,8 +35,11 @@ import {
   Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import type { AppNav } from "../App";
 import type { Course } from "../backend.d";
+import { WhatsAppChatbotSection } from "../components/WhatsAppChatbot";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useCourses } from "../hooks/useQueries";
 import { useCreateCheckoutSession } from "../hooks/useStripe";
@@ -30,7 +50,6 @@ interface LandingPageProps {
 
 const TIER_COLORS: Record<string, { bg: string; text: string; label: string }> =
   {
-    basic: { bg: "bg-emerald-100", text: "text-emerald-700", label: "Basic" },
     professional: {
       bg: "bg-blue-100",
       text: "text-blue-700",
@@ -41,90 +60,142 @@ const TIER_COLORS: Record<string, { bg: string; text: string; label: string }> =
       text: "text-purple-700",
       label: "Advanced",
     },
+    performance: {
+      bg: "bg-amber-100",
+      text: "text-amber-700",
+      label: "Performance",
+    },
   };
 
 const STATIC_COURSES = [
   {
     id: "static-1",
-    title: "Social Media Marketing Mastery",
+    title: "Digital Marketing: SEO Mastery",
     description:
-      "Master Facebook, Instagram & LinkedIn advertising with hands-on campaigns",
-    tier: { __kind__: "basic" },
-    priceInr: BigInt(4999),
-    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
-  },
-  {
-    id: "static-2",
-    title: "SEO & Content Marketing Pro",
-    description:
-      "Rank on Google's first page and build a content strategy that converts",
-    tier: { __kind__: "professional" },
-    priceInr: BigInt(9999),
+      "Rank on Google's first page with advanced SEO techniques, keyword research, and technical optimization — AI-powered.",
+    tier: "professional",
+    priceInr: BigInt(24999),
     thumbnailUrl: "/assets/generated/course-seo.dim_400x240.jpg",
   },
   {
-    id: "static-3",
-    title: "Google Ads & PPC Expert",
+    id: "static-2",
+    title: "Social Media Marketing Mastery",
     description:
-      "Run profitable ad campaigns on Google, YouTube and the Display Network",
-    tier: { __kind__: "advanced" },
+      "Master Facebook, Instagram, LinkedIn & WhatsApp advertising with AI-powered targeting and creative tools.",
+    tier: "professional",
     priceInr: BigInt(24999),
+    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
+  },
+  {
+    id: "static-3",
+    title: "Digital Marketing: Google Ads & PPC Expert",
+    description:
+      "Run profitable Google, YouTube and Display Network campaigns with AI bidding strategies and smart automation.",
+    tier: "advanced",
+    priceInr: BigInt(34999),
+    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+  },
+  {
+    id: "static-4",
+    title: "Learn the Art of Designing",
+    description:
+      "From design basics to Photoshop, Illustrator, Figma & AI design tools. Create stunning visuals for any brand.",
+    tier: "professional",
+    priceInr: BigInt(24999),
+    thumbnailUrl: "/assets/generated/course-seo.dim_400x240.jpg",
+  },
+  {
+    id: "static-5",
+    title: "Learn the Art of Sales",
+    description:
+      "Master consultative selling, negotiation, and closing techniques. Includes AI-powered sales scripts and CRM training.",
+    tier: "professional",
+    priceInr: BigInt(24999),
+    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
+  },
+  {
+    id: "static-6",
+    title: "MS Office Complete Course",
+    description:
+      "Professional mastery of Word, Excel, PowerPoint & Teams with Microsoft Copilot AI features for modern workplace productivity.",
+    tier: "professional",
+    priceInr: BigInt(24999),
+    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+  },
+  {
+    id: "static-7",
+    title: "Performance Marketing Mastery",
+    description:
+      "Master Google Ads, Meta Ads, ROI tracking, funnel optimization, CRO, retargeting and performance dashboards. AI-powered advanced course.",
+    tier: "performance",
+    priceInr: BigInt(74999),
     thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
   },
 ];
 
 const PRICING_PLANS = [
   {
-    tier: "Basic",
-    price: "₹4,999",
-    popular: false,
-    priceId: "price_basic_4999",
-    tierKey: "basic",
-    color: "border-emerald-200",
-    badge: "bg-emerald-100 text-emerald-700",
-    features: [
-      "Access to Basic tier courses",
-      "30+ video tutorials",
-      "Weekly assignments",
-      "Certificate of completion",
-      "Community forum access",
-      "Email support",
-    ],
-  },
-  {
     tier: "Professional",
-    price: "₹9,999",
+    price: "\u20b924,999",
+    tagline: "From Scratch to Professional Level",
     popular: true,
-    priceId: "price_pro_9999",
+    priceId: "price_pro_24999",
     tierKey: "professional",
-    color: "border-brand-teal",
-    badge: "bg-brand-teal text-white",
+    color: "border-blue-400",
+    badge: "bg-blue-600 text-white",
     features: [
-      "All Basic features",
-      "100+ video tutorials",
-      "Live Q&A sessions",
-      "Gift card rewards for assignments",
+      "All courses: Digital Marketing, Social Media, Design, Sales & MS Office",
+      "AI-Powered Learning with personalized study paths",
+      "Weekly assignments with gift card rewards",
+      "Live Q&A sessions with industry experts",
       "Govt. recognized certification",
-      "Priority email support",
+      "Priority email & WhatsApp support",
       "1-on-1 mentor session",
+      "Course completion certificate",
+      "Lifetime content access",
     ],
   },
   {
     tier: "Advanced",
-    price: "₹24,999",
+    price: "\u20b934,999",
+    tagline: "From Scratch to Master Level",
     popular: false,
-    priceId: "price_advanced_24999",
+    priceId: "price_advanced_34999",
     tierKey: "advanced",
-    color: "border-purple-200",
-    badge: "bg-purple-100 text-purple-700",
+    color: "border-purple-300",
+    badge: "bg-purple-600 text-white",
     features: [
-      "All Professional features",
-      "250+ video tutorials",
-      "Live workshops & bootcamps",
-      "Internship placement support",
-      "Portfolio review",
+      "Everything in Professional Course",
+      "Advanced AI Tools & Automation Modules",
+      "Live workshops, bootcamps & masterclasses",
+      "Internship & placement support",
+      "Portfolio review by industry experts",
       "Dedicated success manager",
-      "Lifetime content access",
+      "Agency partnership opportunities",
+      "Advanced certifications (Google, Meta)",
+      "Lifetime content + future updates access",
+    ],
+  },
+  {
+    tier: "Performance Marketing",
+    price: "\u20b974,999",
+    tagline: "Master-Level Performance & ROI",
+    popular: false,
+    priceId: "price_performance_74999",
+    tierKey: "performance",
+    color: "border-amber-400",
+    badge: "bg-amber-600 text-white",
+    features: [
+      "Everything in Advanced Course",
+      "Google Ads & Meta Ads Expert Level",
+      "ROI Tracking & Attribution Modeling",
+      "Conversion Rate Optimization (CRO)",
+      "A/B Testing & Funnel Optimization",
+      "Retargeting & Lookalike Audiences",
+      "Performance Dashboards & Reporting",
+      "Agency-level campaign management",
+      "1-on-1 Performance Coach sessions",
+      "Advanced Google & Meta Certifications",
     ],
   },
 ];
@@ -140,17 +211,88 @@ const TESTIMONIALS = [
   {
     name: "Rahul Verma",
     role: "Freelance Marketing Consultant",
-    text: "I was skeptical at first, but the quality of content blew me away. The quizzes after every video keep you sharp, and the gift card rewards for assignments are a great motivator!",
+    text: "I was skeptical at first, but the quality of content blew me away. The AI-powered learning path adapts to my pace, and the quizzes after every video keep you sharp!",
     rating: 5,
     avatar: "RV",
   },
   {
     name: "Ananya Patel",
     role: "Founder, GrowthLab Agency",
-    text: "Best investment I've made in my career. The Govt. recognized certificate helped me close bigger clients. The platform is clean, the content is fresh and the mentors are genuinely helpful.",
+    text: "Best investment I've made in my career. The Govt. recognized certificate helped me close bigger clients. The AI tools training alone is worth the price.",
     rating: 5,
     avatar: "AP",
   },
+];
+
+const DM_CATEGORIES = [
+  { icon: Search, name: "SEO", desc: "Search Engine Optimization" },
+  {
+    icon: Megaphone,
+    name: "Google Ads / SEM",
+    desc: "Pay-Per-Click Advertising",
+  },
+  {
+    icon: Share2,
+    name: "Social Media Ads",
+    desc: "Facebook, Instagram & LinkedIn",
+  },
+  { icon: Mail, name: "Email Marketing", desc: "Campaigns & Automation" },
+  {
+    icon: FileText,
+    name: "Content Marketing",
+    desc: "Blogging, Copywriting & SEO",
+  },
+  {
+    icon: Globe,
+    name: "Affiliate Marketing",
+    desc: "Passive Income Strategies",
+  },
+  {
+    icon: Users,
+    name: "Influencer Marketing",
+    desc: "Nano to Mega Influencers",
+  },
+  { icon: Video, name: "Video Marketing", desc: "YouTube & Reels Strategy" },
+  {
+    icon: BarChart2,
+    name: "Analytics & Data",
+    desc: "GA4, Dashboards & Reporting",
+  },
+  {
+    icon: ShoppingCart,
+    name: "E-Commerce Marketing",
+    desc: "Shopify, Amazon & D2C",
+  },
+];
+
+const ALL_COURSES_LIST = [
+  { icon: Search, name: "Digital Marketing: SEO", tier: "Pro" },
+  { icon: Megaphone, name: "Digital Marketing: Google Ads", tier: "Advanced" },
+  { icon: Share2, name: "Digital Marketing: Social Media Ads", tier: "Pro" },
+  { icon: Mail, name: "Digital Marketing: Email Marketing", tier: "Pro" },
+  { icon: FileText, name: "Digital Marketing: Content Marketing", tier: "Pro" },
+  {
+    icon: Globe,
+    name: "Digital Marketing: Affiliate Marketing",
+    tier: "Advanced",
+  },
+  { icon: Users, name: "Digital Marketing: Influencer Marketing", tier: "Pro" },
+  { icon: Video, name: "Digital Marketing: Video Marketing", tier: "Pro" },
+  {
+    icon: LineChart,
+    name: "Digital Marketing: Analytics & Data",
+    tier: "Advanced",
+  },
+  {
+    icon: ShoppingCart,
+    name: "Digital Marketing: E-Commerce",
+    tier: "Advanced",
+  },
+  { icon: Share2, name: "Social Media Marketing", tier: "Pro" },
+  { icon: Palette, name: "Learn the Art of Designing", tier: "Pro" },
+  { icon: Briefcase, name: "Learn the Art of Sales", tier: "Pro" },
+  { icon: Monitor, name: "MS Office Complete Course", tier: "Pro" },
+  { icon: TrendingUp, name: "Performance Marketing", tier: "Performance" },
 ];
 
 function CourseCard({
@@ -162,15 +304,27 @@ function CourseCard({
     id: string;
     title: string;
     description: string;
-    tier: { __kind__: string };
+    tier: string;
     priceInr: bigint;
     thumbnailUrl: string;
   };
   onEnroll: (id: string, tierKey: string) => void;
   isCheckingOut: boolean;
 }) {
-  const tierKey = course.tier.__kind__ as keyof typeof TIER_COLORS;
-  const tierInfo = TIER_COLORS[tierKey] || TIER_COLORS.basic;
+  const rawTier = course.tier;
+  const baseTierKey =
+    typeof rawTier === "string"
+      ? rawTier
+      : rawTier && typeof rawTier === "object"
+        ? Object.keys(rawTier as object)[0]
+        : "professional";
+  // Performance Marketing is stored as #advanced in backend but identified by high price
+  const tierKey = (
+    baseTierKey === "performance" || Number(course.priceInr) >= 74999
+      ? "performance"
+      : baseTierKey
+  ) as keyof typeof TIER_COLORS;
+  const tierInfo = TIER_COLORS[tierKey] || TIER_COLORS.professional;
 
   return (
     <motion.div
@@ -185,7 +339,7 @@ function CourseCard({
           <img
             src={
               course.thumbnailUrl ||
-              "/assets/generated/course-social-media.dim_400x240.jpg"
+              "/assets/generated/course-seo.dim_400x240.jpg"
             }
             alt={course.title}
             className="w-full h-full object-cover"
@@ -195,6 +349,9 @@ function CourseCard({
             className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold ${tierInfo.bg} ${tierInfo.text}`}
           >
             {tierInfo.label}
+          </div>
+          <div className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold bg-black/70 text-white flex items-center gap-1">
+            <Bot className="w-3 h-3" /> AI
           </div>
         </div>
         <CardContent className="flex-1 flex flex-col p-5">
@@ -206,7 +363,7 @@ function CourseCard({
           </p>
           <div className="mt-auto flex items-center justify-between">
             <span className="font-bold text-brand-heading text-lg">
-              ₹{Number(course.priceInr).toLocaleString("en-IN")}
+              \u20b9{Number(course.priceInr).toLocaleString("en-IN")}
             </span>
             <Button
               data-ocid="courses.primary_button"
@@ -233,38 +390,63 @@ export default function LandingPage({ nav }: LandingPageProps) {
   const { login, identity } = useInternetIdentity();
   const createCheckout = useCreateCheckoutSession();
 
+  useEffect(() => {
+    document.title =
+      "Digital Marketing Course India | AI-Powered Training | The Digital Marketing Foundation";
+    let meta = document.querySelector("meta[name='description']");
+    if (!meta) {
+      meta = document.createElement("meta");
+      (meta as HTMLMetaElement).name = "description";
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute(
+      "content",
+      "India's #1 AI-powered digital marketing course. Professional \u20b924,999 | Advanced \u20b934,999 | Performance Marketing \u20b974,999. Learn SEO, Google Ads, Meta Ads, Social Media, Performance Marketing. Govt. recognized certification. 35,000+ students.",
+    );
+    let keywords = document.querySelector("meta[name='keywords']");
+    if (!keywords) {
+      keywords = document.createElement("meta");
+      (keywords as HTMLMetaElement).name = "keywords";
+      document.head.appendChild(keywords);
+    }
+    keywords.setAttribute(
+      "content",
+      "digital marketing course India, performance marketing course India, performance marketing training, SEO course India, Google Ads training, Meta Ads course, digital marketing certification, online marketing course India, AI marketing course, digital marketing institute India",
+    );
+  }, []);
+
   const TIER_PRICE_MAP: Record<
     string,
     { priceId: string; name: string; amount: number }
   > = {
-    basic: {
-      priceId: "price_basic_4999",
-      name: "Digital Marketing Basics",
-      amount: 499900,
-    },
     professional: {
-      priceId: "price_pro_9999",
-      name: "Professional Digital Marketing",
-      amount: 999900,
+      priceId: "price_pro_24999",
+      name: "Professional Digital Marketing Course",
+      amount: 2499900,
     },
     advanced: {
-      priceId: "price_advanced_24999",
+      priceId: "price_advanced_34999",
       name: "Advanced Digital Marketing Mastery",
-      amount: 2499900,
+      amount: 3499900,
+    },
+    performance: {
+      priceId: "price_performance_74999",
+      name: "Performance Marketing Mastery Course",
+      amount: 7499900,
     },
   };
 
-  const displayCourses = (
-    courses && courses.length > 0 ? courses : STATIC_COURSES
-  ).slice(0, 3);
+  const displayCourses =
+    courses && courses.length > 0 ? courses : STATIC_COURSES;
 
   const handleEnroll = async (courseId: string, tierKey?: string) => {
     if (!identity) {
       login();
       return;
     }
-    const tier = tierKey || "basic";
-    const tierInfo = TIER_PRICE_MAP[tier] || TIER_PRICE_MAP.basic;
+    const tier =
+      tierKey === "basic" ? "professional" : tierKey || "professional";
+    const tierInfo = TIER_PRICE_MAP[tier] || TIER_PRICE_MAP.professional;
     sessionStorage.setItem("pending_course_id", courseId);
     try {
       const session = await createCheckout.mutateAsync([
@@ -278,9 +460,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
       ]);
       if (!session?.url) throw new Error("Stripe session missing url");
       window.location.href = session.url;
-    } catch (err) {
-      console.error("Checkout error:", err);
-      // Fallback to course detail page
+    } catch {
       nav.navigate("course-detail", { courseId });
     }
   };
@@ -290,9 +470,14 @@ export default function LandingPage({ nav }: LandingPageProps) {
       login();
       return;
     }
-    // Find matching course or use a generic ID for the tier
     const allCourses = courses && courses.length > 0 ? courses : STATIC_COURSES;
-    const matchingCourse = allCourses.find((c) => c.tier.__kind__ === tierKey);
+    const matchingCourse = allCourses.find(
+      (c) =>
+        (typeof c.tier === "string"
+          ? c.tier
+          : ((c.tier as unknown as { __kind__: string }).__kind__ ??
+            c.tier)) === tierKey,
+    );
     const courseId = matchingCourse?.id || `tier-${tierKey}`;
     await handleEnroll(courseId, tierKey);
   };
@@ -309,40 +494,45 @@ export default function LandingPage({ nav }: LandingPageProps) {
               transition={{ duration: 0.6 }}
             >
               <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-4 font-medium">
-                🚀 India's #1 Digital Marketing Platform
+                \ud83d\ude80 India's #1 AI-Powered Digital Marketing Platform
               </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-brand-heading leading-tight mb-5">
-                Master Digital Marketing.
-                <span className="text-brand-teal"> Transform</span> Your Career.
+                Master Digital Marketing &amp;
+                <span className="text-brand-teal"> Performance</span>. Transform
+                Your Career.
               </h1>
-              <p className="text-lg text-brand-body leading-relaxed mb-8 max-w-lg">
-                Learn from India's top marketers. Earn Govt. recognized
-                certifications, complete real-world assignments, and land your
-                dream job in digital marketing.
+              <p className="text-lg text-brand-body leading-relaxed mb-2 max-w-lg">
+                From Scratch to Professional, Master, or Performance Marketing
+                Expert — Learn SEO, Google Ads, Meta Ads, Social Media,
+                Designing, Sales & More. AI-powered learning with real-world
+                assignments.
+              </p>
+              <p className="text-sm text-brand-teal font-semibold mb-8">
+                Govt. Recognized Certification | Placement Support | Live
+                Mentoring
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   data-ocid="hero.primary_button"
                   size="lg"
-                  onClick={() => {
+                  onClick={() =>
                     document
                       .getElementById("courses")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-8 font-semibold text-base shadow-orange"
                 >
-                  Explore Courses
-                  <ChevronRight className="ml-1 w-5 h-5" />
+                  Explore Courses <ChevronRight className="ml-1 w-5 h-5" />
                 </Button>
                 <Button
                   data-ocid="hero.secondary_button"
                   variant="outline"
                   size="lg"
-                  onClick={() => {
+                  onClick={() =>
                     document
                       .getElementById("pricing")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
                   className="rounded-full px-8 border-brand-teal text-brand-teal hover:bg-brand-wash font-semibold text-base"
                 >
                   View Pricing
@@ -351,7 +541,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
               <div className="flex gap-6 mt-8">
                 {[
                   { value: "35,000+", label: "Students" },
-                  { value: "250+", label: "Video Lessons" },
+                  { value: "15+", label: "Courses" },
                   { value: "98%", label: "Placement Rate" },
                 ].map((stat) => (
                   <div key={stat.label}>
@@ -374,7 +564,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
                 <div className="absolute inset-0 bg-brand-teal/10 rounded-3xl transform rotate-3" />
                 <img
                   src="/assets/generated/hero-student.dim_600x500.png"
-                  alt="Student learning digital marketing"
+                  alt="Student learning digital marketing with AI tools"
                   className="relative rounded-3xl w-full max-w-lg mx-auto object-cover shadow-2xl"
                 />
                 <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-4 py-3 shadow-xl flex items-center gap-2">
@@ -406,7 +596,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { icon: Users, value: "35,000+", label: "Active Students" },
-              { icon: Video, value: "250+", label: "Video Tutorials" },
+              { icon: BookOpen, value: "15+ Courses", label: "All AI-Powered" },
               {
                 icon: Award,
                 value: "Govt. Recognized",
@@ -435,15 +625,19 @@ export default function LandingPage({ nav }: LandingPageProps) {
             {[
               {
                 icon: PlayCircle,
-                label: "Video Tutorials",
-                desc: "250+ HD videos",
+                label: "HD Video Lessons",
+                desc: "Expert-recorded content",
               },
               {
                 icon: FileText,
                 label: "Quizzes & Assignments",
                 desc: "Weekly challenges",
               },
-              { icon: Zap, label: "Live Sessions", desc: "Expert Q&A" },
+              {
+                icon: Zap,
+                label: "AI-Powered Learning",
+                desc: "Personalized paths",
+              },
               {
                 icon: Trophy,
                 label: "Certifications",
@@ -471,8 +665,51 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
+      {/* All Courses List */}
+      <section className="py-8 bg-brand-wash">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
+              All 15+ Courses
+            </Badge>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-heading">
+              What You'll Learn
+            </h2>
+            <p className="text-brand-body mt-2 max-w-lg mx-auto text-sm">
+              All courses are AI-powered and included in your package
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
+            {ALL_COURSES_LIST.map(({ icon: Icon, name, tier }) => (
+              <div
+                key={name}
+                className="bg-white rounded-xl p-3 text-center shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              >
+                <div className="w-9 h-9 bg-brand-teal/10 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <Icon className="w-5 h-5 text-brand-teal" />
+                </div>
+                <div className="text-xs font-semibold text-brand-heading leading-tight">
+                  {name}
+                </div>
+                <div
+                  className={`text-[10px] mt-1 font-medium ${
+                    tier === "Advanced"
+                      ? "text-purple-600"
+                      : tier === "Performance"
+                        ? "text-amber-600"
+                        : "text-blue-600"
+                  }`}
+                >
+                  {tier}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Featured Courses */}
-      <section id="courses" className="py-16 bg-brand-wash">
+      <section id="courses" className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -481,14 +718,14 @@ export default function LandingPage({ nav }: LandingPageProps) {
             className="text-center mb-12"
           >
             <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
-              Our Programs
+              Featured Programs
             </Badge>
             <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              Featured Courses
+              Our Top Courses
             </h2>
             <p className="text-brand-body max-w-xl mx-auto">
-              Structured programs crafted by industry veterans to take you from
-              beginner to expert.
+              Industry-crafted programs to take you from complete beginner to
+              expert. All AI-powered.
             </p>
           </motion.div>
 
@@ -496,10 +733,9 @@ export default function LandingPage({ nav }: LandingPageProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="space-y-3">
-                  <Skeleton className="h-44 w-full rounded-xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-1/2" />
+                  <div className="h-44 bg-gray-200 rounded-xl animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" />
                 </div>
               ))}
             </div>
@@ -515,28 +751,162 @@ export default function LandingPage({ nav }: LandingPageProps) {
               ))}
             </div>
           )}
+        </div>
+      </section>
 
-          <div className="text-center mt-10">
-            <Button
-              data-ocid="courses.secondary_button"
-              variant="outline"
-              size="lg"
-              onClick={() =>
-                document
-                  .getElementById("courses")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="border-brand-teal text-brand-teal hover:bg-brand-wash rounded-full px-8"
-            >
-              View All Courses
-              <ChevronRight className="ml-1 w-4 h-4" />
-            </Button>
+      {/* Digital Marketing Categories */}
+      <section className="py-16 bg-brand-wash">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <Badge className="bg-brand-orange/10 text-brand-orange border-brand-orange/20 mb-3">
+              Digital Marketing
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
+              10 Categories of Digital Marketing
+            </h2>
+            <p className="text-brand-body max-w-xl mx-auto">
+              Every category is covered in detail, from fundamentals to advanced
+              AI-powered strategies.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-5xl mx-auto">
+            {DM_CATEGORIES.map(({ icon: Icon, name, desc }, i) => (
+              <motion.div
+                key={name}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+                className="bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-teal/30 transition-all cursor-pointer group"
+              >
+                <div className="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-brand-teal/20 transition-colors">
+                  <Icon className="w-6 h-6 text-brand-teal" />
+                </div>
+                <div className="font-bold text-sm text-brand-heading">
+                  {name}
+                </div>
+                <div className="text-xs text-brand-body mt-1">{desc}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us / Competitor Comparison */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <Badge className="bg-brand-orange/10 text-brand-orange border-brand-orange/20 mb-3">
+              Why We Stand Out
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
+              Why Choose Us Over Udemy, Coursera &amp; HubSpot?
+            </h2>
+            <p className="text-brand-body max-w-xl mx-auto">
+              Most global platforms offer generic content. We're built
+              specifically for Indian students and professionals.
+            </p>
+          </motion.div>
+
+          {/* Comparison table */}
+          <div className="overflow-x-auto max-w-5xl mx-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-brand-teal">
+                  <th className="text-left py-3 px-4 text-brand-heading font-bold">
+                    Feature
+                  </th>
+                  <th className="py-3 px-4 text-brand-teal font-bold bg-brand-teal/5 rounded-t-xl">
+                    Digital Marketing Foundation ✓
+                  </th>
+                  <th className="py-3 px-4 text-gray-400 font-semibold">
+                    Udemy
+                  </th>
+                  <th className="py-3 px-4 text-gray-400 font-semibold">
+                    Coursera
+                  </th>
+                  <th className="py-3 px-4 text-gray-400 font-semibold">
+                    HubSpot Academy
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["India-Specific Curriculum", "✅", "❌", "❌", "❌"],
+                  ["Govt. Recognized Certificate", "✅", "❌", "❌", "❌"],
+                  ["AI-Powered Learning", "✅", "❌", "Partial", "❌"],
+                  ["Live Mentor Sessions", "✅", "❌", "Paid Extra", "❌"],
+                  ["INR Pricing (No FX)", "✅", "❌", "❌", "Free (Basic)"],
+                  ["Placement Support", "✅", "❌", "❌", "❌"],
+                  ["WhatsApp Support", "✅", "❌", "❌", "❌"],
+                  [
+                    "Performance Marketing Course",
+                    "✅",
+                    "Partial",
+                    "Partial",
+                    "❌",
+                  ],
+                ].map(([feature, dmf, udemy, coursera, hubspot]) => (
+                  <tr
+                    key={feature}
+                    className="border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="py-3 px-4 font-medium text-brand-heading">
+                      {feature}
+                    </td>
+                    <td className="py-3 px-4 text-center font-semibold text-brand-teal bg-brand-teal/5">
+                      {dmf}
+                    </td>
+                    <td className="py-3 px-4 text-center text-gray-500">
+                      {udemy}
+                    </td>
+                    <td className="py-3 px-4 text-center text-gray-500">
+                      {coursera}
+                    </td>
+                    <td className="py-3 px-4 text-center text-gray-500">
+                      {hubspot}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Trust badges */}
+          <div className="flex flex-wrap justify-center gap-4 mt-10">
+            {[
+              { label: "35,000+ Students Enrolled", icon: Users },
+              { label: "Govt. Recognized", icon: Award },
+              { label: "AI-Powered Platform", icon: Bot },
+              { label: "Placement Support", icon: Briefcase },
+              { label: "4.9★ Average Rating", icon: Star },
+            ].map(({ label, icon: Icon }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 bg-brand-wash border border-brand-teal/20 rounded-full px-4 py-2"
+              >
+                <Icon className="w-4 h-4 text-brand-teal" />
+                <span className="text-sm font-semibold text-brand-heading">
+                  {label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 bg-white">
+      <section id="pricing" className="py-16 bg-brand-wash">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -551,11 +921,12 @@ export default function LandingPage({ nav }: LandingPageProps) {
               Choose Your Learning Path
             </h2>
             <p className="text-brand-body max-w-xl mx-auto">
-              One-time payment. Lifetime access to all course materials.
+              One-time payment. Lifetime access. From complete beginner to
+              certified professional or master.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {PRICING_PLANS.map((plan, i) => (
               <motion.div
                 key={plan.tier}
@@ -563,10 +934,10 @@ export default function LandingPage({ nav }: LandingPageProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className={`relative rounded-2xl border-2 p-6 flex flex-col ${
+                className={`relative rounded-2xl border-2 p-6 flex flex-col bg-white ${
                   plan.popular
-                    ? "border-brand-teal shadow-teal scale-105"
-                    : `${plan.color} shadow-xs`
+                    ? "border-blue-400 shadow-lg"
+                    : `${plan.color} shadow-sm`
                 }`}
               >
                 {plan.popular && (
@@ -577,10 +948,13 @@ export default function LandingPage({ nav }: LandingPageProps) {
                   </div>
                 )}
                 <div
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mb-4 ${plan.badge} w-fit`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-2 ${plan.badge} w-fit`}
                 >
-                  {plan.tier}
+                  <Bot className="w-3.5 h-3.5" /> {plan.tier}
                 </div>
+                <p className="text-xs text-brand-body mb-4 font-medium">
+                  {plan.tagline}
+                </p>
                 <div className="mb-6">
                   <span className="text-4xl font-extrabold text-brand-heading">
                     {plan.price}
@@ -608,13 +982,15 @@ export default function LandingPage({ nav }: LandingPageProps) {
                   className={`w-full rounded-full font-semibold ${
                     plan.popular
                       ? "bg-brand-orange hover:bg-brand-orange-dark text-white shadow-orange"
-                      : "bg-brand-teal hover:bg-brand-teal-dark text-white"
+                      : plan.tierKey === "performance"
+                        ? "bg-amber-600 hover:bg-amber-700 text-white"
+                        : "bg-purple-600 hover:bg-purple-700 text-white"
                   }`}
                 >
                   {createCheckout.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin mx-auto" />
                   ) : (
-                    "Get Started"
+                    `Enroll in ${plan.tier}`
                   )}
                 </Button>
               </motion.div>
@@ -623,8 +999,17 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
+      {/* WhatsApp AI Advisor Section */}
+      <WhatsAppChatbotSection
+        onNavigateToPricing={() => {
+          document
+            .getElementById("pricing")
+            ?.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+
       {/* Testimonials */}
-      <section className="py-16 bg-brand-wash">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -681,6 +1066,73 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
+              FAQ
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-brand-body">
+              Everything you need to know before enrolling
+            </p>
+          </motion.div>
+          <Accordion type="single" collapsible className="space-y-3">
+            {[
+              {
+                q: "Is the certificate government recognized?",
+                a: "Yes. Our certificates are government recognized and widely accepted by top companies in India. They add real credibility to your resume and LinkedIn profile.",
+              },
+              {
+                q: "Can I learn digital marketing from scratch with no experience?",
+                a: "Absolutely. Our Professional course starts from zero — no prior marketing or technical knowledge required. We guide you step by step from basics to professional level.",
+              },
+              {
+                q: "What is the difference between Professional, Advanced, and Performance Marketing?",
+                a: "Professional (\u20b924,999) covers all core digital marketing channels. Advanced (\u20b934,999) adds AI automation, live workshops, and placement support. Performance Marketing (\u20b974,999) is for those who want to master paid advertising, ROI tracking, and agency-level campaign management.",
+              },
+              {
+                q: "Do you provide placement or job support?",
+                a: "Yes! Advanced and Performance Marketing plans include internship and placement support, portfolio review by industry experts, and a dedicated success manager.",
+              },
+              {
+                q: "How is this different from Udemy or Coursera?",
+                a: "Unlike generic global platforms, we are built specifically for Indian students — India-focused curriculum, INR pricing, Govt. recognized certificate, live mentor sessions, WhatsApp support, and AI-powered learning. Udemy and Coursera don't offer government-recognized certificates or direct placement support.",
+              },
+              {
+                q: "What payment methods are accepted?",
+                a: "We accept all major payment methods via Razorpay — UPI, Net Banking, Credit/Debit Cards, EMI options. No foreign currency conversion needed.",
+              },
+              {
+                q: "Do I get lifetime access to course content?",
+                a: "Yes. All plans include lifetime access to course materials, including future updates added to the platform.",
+              },
+            ].map((faq, i) => (
+              <AccordionItem
+                key={faq.q}
+                value={`faq-${i}`}
+                className="border border-gray-100 rounded-xl px-5 shadow-xs"
+              >
+                <AccordionTrigger className="text-left font-semibold text-brand-heading hover:text-brand-teal py-4">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-brand-body text-sm leading-relaxed pb-4">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
       {/* CTA Banner */}
       <section className="gradient-teal py-14">
         <div className="container mx-auto px-4 text-center text-white">
@@ -693,8 +1145,8 @@ export default function LandingPage({ nav }: LandingPageProps) {
               Ready to Launch Your Digital Career?
             </h2>
             <p className="text-white/80 mb-8 max-w-lg mx-auto">
-              Join 35,000+ students who've transformed their careers with The
-              Digital Marketing Foundation.
+              Join 35,000+ students who've transformed their careers from
+              scratch with The Digital Marketing Foundation.
             </p>
             <Button
               data-ocid="cta.primary_button"

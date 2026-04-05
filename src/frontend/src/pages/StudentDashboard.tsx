@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Award,
   BookOpen,
+  Brain,
   CheckCircle2,
   ClipboardList,
   Clock,
@@ -271,10 +272,10 @@ function AssignmentsSection({ courseId }: { courseId: string }) {
                   <p className="text-xs text-brand-body italic">
                     {submitted.submissionText}
                   </p>
-                  {submitted.giftCardCode.__kind__ === "Some" && (
+                  {submitted.giftCardCode && (
                     <div className="mt-2 flex items-center gap-2 text-xs text-brand-orange font-semibold">
                       <Gift className="w-3 h-3" />
-                      Gift Card: {submitted.giftCardCode.value}
+                      Gift Card: {submitted.giftCardCode}
                     </div>
                   )}
                 </div>
@@ -313,7 +314,11 @@ function AssignmentsSection({ courseId }: { courseId: string }) {
   );
 }
 
-function CertificateCard({ cert, i }: { cert: Certificate; i: number }) {
+function CertificateCard({
+  cert,
+  i,
+  nav,
+}: { cert: Certificate; i: number; nav: AppNav }) {
   const issuedDate = new Date(
     Number(cert.issuedAt) / 1_000_000,
   ).toLocaleDateString("en-IN", {
@@ -354,6 +359,7 @@ function CertificateCard({ cert, i }: { cert: Certificate; i: number }) {
           data-ocid="certificates.button"
           size="sm"
           variant="outline"
+          onClick={() => nav.navigate("certificate", { certId: cert.id })}
           className="border-brand-teal text-brand-teal hover:bg-brand-wash flex-shrink-0"
         >
           <ExternalLink className="w-3 h-3 mr-1" />
@@ -510,6 +516,10 @@ export default function StudentDashboard({ nav }: Props) {
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
               <TabsTrigger value="certificates">Certificates</TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
+              <TabsTrigger value="ai-hub" className="flex items-center gap-1">
+                <Brain className="w-3.5 h-3.5" />
+                AI Hub
+              </TabsTrigger>
             </TabsList>
 
             {/* Courses Tab */}
@@ -599,7 +609,12 @@ export default function StudentDashboard({ nav }: Props) {
               ) : (
                 <div className="space-y-4">
                   {certificates.map((cert, i) => (
-                    <CertificateCard key={cert.id} cert={cert} i={i} />
+                    <CertificateCard
+                      key={cert.id}
+                      cert={cert}
+                      i={i}
+                      nav={nav}
+                    />
                   ))}
                 </div>
               )}
@@ -650,10 +665,10 @@ export default function StudentDashboard({ nav }: Props) {
                             >
                               {sub.reviewed ? "Reviewed" : "Pending"}
                             </Badge>
-                            {sub.giftCardCode.__kind__ === "Some" && (
+                            {sub.giftCardCode && (
                               <div className="flex items-center gap-1 text-xs text-brand-orange font-semibold">
                                 <Gift className="w-3 h-3" />
-                                {sub.giftCardCode.value}
+                                {sub.giftCardCode}
                               </div>
                             )}
                           </div>
@@ -663,6 +678,80 @@ export default function StudentDashboard({ nav }: Props) {
                   ))}
                 </div>
               )}
+            </TabsContent>
+            {/* AI Hub Tab */}
+            <TabsContent value="ai-hub">
+              <div className="space-y-6">
+                <div className="text-center py-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-teal to-brand-orange flex items-center justify-center mx-auto mb-4">
+                    <Brain className="w-7 h-7 text-white" />
+                  </div>
+                  <h2 className="text-xl font-extrabold text-white mb-2">
+                    AI Practice Hub
+                  </h2>
+                  <p className="text-white/80 text-sm max-w-md mx-auto">
+                    Practice your AI skills, learn prompt engineering, and get
+                    personalized help from your AI learning assistant.
+                  </p>
+                  <button
+                    type="button"
+                    data-ocid="dashboard.primary_button"
+                    onClick={() => nav.navigate("ai-hub")}
+                    className="mt-4 inline-flex items-center gap-2 bg-brand-orange hover:bg-brand-orange-dark text-white font-semibold px-6 py-2.5 rounded-full shadow-orange transition-colors"
+                  >
+                    <Brain className="w-4 h-4" />
+                    Open AI Practice Hub
+                  </button>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Card
+                    data-ocid="dashboard.card"
+                    className="border border-white/20 bg-white/10 backdrop-blur-sm"
+                  >
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2">💬</div>
+                      <h3 className="font-semibold text-white text-sm mb-1">
+                        Chat with AI
+                      </h3>
+                      <p className="text-white/70 text-xs">
+                        Have conversations with ChatGPT. Ask questions about
+                        SEO, social media, content strategy, and more.
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card
+                    data-ocid="dashboard.card"
+                    className="border border-white/20 bg-white/10 backdrop-blur-sm"
+                  >
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2">⚡</div>
+                      <h3 className="font-semibold text-white text-sm mb-1">
+                        Prompt Engineering
+                      </h3>
+                      <p className="text-white/70 text-xs">
+                        Practice writing effective prompts with 8 guided
+                        exercises designed for digital marketers.
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card
+                    data-ocid="dashboard.card"
+                    className="border border-white/20 bg-white/10 backdrop-blur-sm"
+                  >
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2">🚀</div>
+                      <h3 className="font-semibold text-white text-sm mb-1">
+                        Skill Accelerator
+                      </h3>
+                      <p className="text-white/70 text-xs">
+                        Use AI to create ad copy, blog outlines, social
+                        calendars, and email campaigns instantly.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

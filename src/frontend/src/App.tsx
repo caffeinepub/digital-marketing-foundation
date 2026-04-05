@@ -2,9 +2,16 @@ import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import { WhatsAppChatbotWidget } from "./components/WhatsAppChatbot";
+import AIHubPage from "./pages/AIHubPage";
 import AdminPanel from "./pages/AdminPanel";
+import BlogArticlePage from "./pages/BlogArticlePage";
+import BlogsPage from "./pages/BlogsPage";
+import CertificatePage from "./pages/CertificatePage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import LandingPage from "./pages/LandingPage";
+import NewsArticlePage from "./pages/NewsArticlePage";
+import NewsPage from "./pages/NewsPage";
 import PaymentFailure from "./pages/PaymentFailure";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import StudentDashboard from "./pages/StudentDashboard";
@@ -17,7 +24,13 @@ export type PageName =
   | "dashboard"
   | "admin"
   | "payment-success"
-  | "payment-failure";
+  | "payment-failure"
+  | "blogs"
+  | "news"
+  | "blog-article"
+  | "news-article"
+  | "ai-hub"
+  | "certificate";
 
 export interface AppNav {
   navigate: (page: PageName, params?: Partial<AppParams>) => void;
@@ -27,43 +40,66 @@ export interface AppParams {
   courseId: string;
   videoId: string;
   moduleId: string;
+  articleId: string;
+  certId: string;
 }
 
-function getInitialPage(): PageName {
+function getInitialPage(): { page: PageName; params: Partial<AppParams> } {
   const path = window.location.pathname;
   if (path === "/payment-success" || path.includes("payment-success"))
-    return "payment-success";
+    return { page: "payment-success", params: {} };
   if (path === "/payment-failure" || path.includes("payment-failure"))
-    return "payment-failure";
-  return "landing";
+    return { page: "payment-failure", params: {} };
+  if (path === "/blogs") return { page: "blogs", params: {} };
+  if (path === "/news") return { page: "news", params: {} };
+  const blogMatch = path.match(/^\/blog\/(\d+)/);
+  if (blogMatch)
+    return { page: "blog-article", params: { articleId: blogMatch[1] } };
+  const newsMatch = path.match(/^\/news\/(\d+)/);
+  if (newsMatch)
+    return { page: "news-article", params: { articleId: newsMatch[1] } };
+  if (path === "/ai-hub") return { page: "ai-hub", params: {} };
+  const certMatch = path.match(/^\/certificate\/(.+)/);
+  if (certMatch)
+    return { page: "certificate", params: { certId: certMatch[1] } };
+  return { page: "landing", params: {} };
 }
 
 export default function App() {
-  const [page, setPage] = useState<PageName>(getInitialPage);
-  const [params, setParams] = useState<Partial<AppParams>>({});
+  const initial = getInitialPage();
+  const [page, setPage] = useState<PageName>(initial.page);
+  const [params, setParams] = useState<Partial<AppParams>>(initial.params);
 
-  // Handle browser back/forward and direct URL access
   useEffect(() => {
-    const path = window.location.pathname;
-    if (path === "/payment-success" || path.includes("payment-success")) {
-      setPage("payment-success");
-    } else if (
-      path === "/payment-failure" ||
-      path.includes("payment-failure")
-    ) {
-      setPage("payment-failure");
-    }
+    const { page: p, params: pr } = getInitialPage();
+    setPage(p);
+    setParams(pr);
   }, []);
 
   const navigate = (nextPage: PageName, nextParams?: Partial<AppParams>) => {
     setPage(nextPage);
     setParams(nextParams || {});
     window.scrollTo({ top: 0, behavior: "smooth" });
-    // Update URL for payment pages
     if (nextPage === "payment-success") {
       window.history.pushState({}, "", "/payment-success");
     } else if (nextPage === "payment-failure") {
       window.history.pushState({}, "", "/payment-failure");
+    } else if (nextPage === "blogs") {
+      window.history.pushState({}, "", "/blogs");
+    } else if (nextPage === "news") {
+      window.history.pushState({}, "", "/news");
+    } else if (nextPage === "blog-article") {
+      window.history.pushState({}, "", `/blog/${nextParams?.articleId || ""}`);
+    } else if (nextPage === "news-article") {
+      window.history.pushState({}, "", `/news/${nextParams?.articleId || ""}`);
+    } else if (nextPage === "ai-hub") {
+      window.history.pushState({}, "", "/ai-hub");
+    } else if (nextPage === "certificate") {
+      window.history.pushState(
+        {},
+        "",
+        `/certificate/${nextParams?.certId || ""}`,
+      );
     } else if (nextPage === "landing") {
       window.history.pushState({}, "", "/");
     }
@@ -96,6 +132,22 @@ export default function App() {
         return <PaymentSuccess nav={nav} />;
       case "payment-failure":
         return <PaymentFailure nav={nav} />;
+      case "blogs":
+        return <BlogsPage nav={nav} />;
+      case "news":
+        return <NewsPage nav={nav} />;
+      case "blog-article":
+        return (
+          <BlogArticlePage nav={nav} articleId={params.articleId || "1"} />
+        );
+      case "news-article":
+        return (
+          <NewsArticlePage nav={nav} articleId={params.articleId || "1"} />
+        );
+      case "ai-hub":
+        return <AIHubPage nav={nav} />;
+      case "certificate":
+        return <CertificatePage nav={nav} certId={params.certId || ""} />;
       default:
         return <LandingPage nav={nav} />;
     }
@@ -106,6 +158,8 @@ export default function App() {
       {!isPaymentPage && <Header nav={nav} currentPage={page} />}
       <main className="flex-1">{renderPage()}</main>
       {!isPaymentPage && <Footer nav={nav} />}
+      {/* WhatsApp AI Advisor Chatbot Widget */}
+      <WhatsAppChatbotWidget />
       <Toaster richColors position="top-right" />
     </div>
   );

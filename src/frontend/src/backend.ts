@@ -89,10 +89,1283 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface backendInterface {
+export interface Video {
+    id: string;
+    moduleId: string;
+    title: string;
+    description: string;
+    durationMinutes: bigint;
+    orderPos: bigint;
+    courseId: string;
 }
+export interface PromptTemplate {
+    id: string;
+    title: string;
+    createdAt: bigint;
+    promptText: string;
+    description: string;
+    category: string;
+}
+export interface TransformationOutput {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface _CaffeineStorageRefillInformation {
+    proposed_top_up_amount?: bigint;
+}
+export interface QuizQuestion {
+    id: string;
+    correctIndex: bigint;
+    questionText: string;
+    options: Array<string>;
+    videoId: string;
+}
+export interface Enrollment {
+    id: string;
+    userId: Principal;
+    tier: CourseTier;
+    enrolledAt: bigint;
+    stripeSessionId: string;
+    courseId: string;
+}
+export interface _CaffeineStorageCreateCertificateResult {
+    method: string;
+    blob_hash: string;
+}
+export interface AssignmentSubmission {
+    id: string;
+    userId: Principal;
+    submittedAt: bigint;
+    giftCardCode?: string;
+    assignmentId: string;
+    submissionText: string;
+    reviewed: boolean;
+}
+export interface http_header {
+    value: string;
+    name: string;
+}
+export interface http_request_result {
+    status: bigint;
+    body: Uint8Array;
+    headers: Array<http_header>;
+}
+export interface CourseModule {
+    id: string;
+    title: string;
+    orderPos: bigint;
+    courseId: string;
+}
+export interface Course {
+    id: string;
+    title: string;
+    thumbnailUrl: string;
+    tier: CourseTier;
+    description: string;
+    totalModules: bigint;
+    totalVideos: bigint;
+    priceInr: bigint;
+}
+export interface AIMessage {
+    content: string;
+    role: string;
+}
+export interface ShoppingItem {
+    productName: string;
+    currency: string;
+    quantity: bigint;
+    priceInCents: bigint;
+    productDescription: string;
+}
+export interface VideoWithBlob {
+    id: string;
+    moduleId: string;
+    title: string;
+    description: string;
+    durationMinutes: bigint;
+    blobId: string;
+    orderPos: bigint;
+    courseId: string;
+}
+export interface TransformationInput {
+    context: Uint8Array;
+    response: http_request_result;
+}
+export interface QuizAttempt {
+    id: string;
+    userId: Principal;
+    answers: Array<bigint>;
+    score: bigint;
+    attemptedAt: bigint;
+    passed: boolean;
+    videoId: string;
+}
+export interface Assignment {
+    id: string;
+    title: string;
+    description: string;
+    weekNumber: bigint;
+    courseId: string;
+}
+export type StripeSessionStatus = {
+    __kind__: "completed";
+    completed: {
+        userPrincipal?: string;
+        response: string;
+    };
+} | {
+    __kind__: "failed";
+    failed: {
+        error: string;
+    };
+};
+export interface StripeConfiguration {
+    allowedCountries: Array<string>;
+    secretKey: string;
+}
+export interface Certificate {
+    id: string;
+    studentName: string;
+    userId: Principal;
+    issuedAt: bigint;
+    courseTitle: string;
+    courseId: string;
+}
+export interface UserProfile {
+    name: string;
+}
+export interface _CaffeineStorageRefillResult {
+    success?: boolean;
+    topped_up_amount?: bigint;
+}
+export enum CourseTier {
+    advanced = "advanced",
+    professional = "professional",
+    basic = "basic"
+}
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
+export interface backendInterface {
+    _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
+    _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
+    _caffeineStorageConfirmBlobDeletion(blobs: Array<Uint8Array>): Promise<void>;
+    _caffeineStorageCreateCertificate(blobHash: string): Promise<_CaffeineStorageCreateCertificateResult>;
+    _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
+    _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
+    _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    adminCreateAssignment(courseId: string, weekNumber: bigint, title: string, description: string): Promise<Assignment>;
+    adminCreateCourse(title: string, description: string, tier: CourseTier, priceInr: bigint, thumbnailUrl: string): Promise<Course>;
+    adminCreateModule(courseId: string, title: string, orderPos: bigint): Promise<CourseModule>;
+    adminCreateQuizQuestion(videoId: string, questionText: string, options: Array<string>, correctIndex: bigint): Promise<QuizQuestion>;
+    adminCreateVideo(moduleId: string, courseId: string, title: string, description: string, durationMinutes: bigint, orderPos: bigint): Promise<Video>;
+    adminDeleteQuizQuestion(questionId: string): Promise<void>;
+    adminGetAllEnrollments(): Promise<Array<Enrollment>>;
+    adminGetAllSubmissions(): Promise<Array<AssignmentSubmission>>;
+    adminGetPaymentSettings(): Promise<{
+        keyId: string;
+        keySecret: string;
+    }>;
+    adminReviewSubmission(submissionId: string, giftCardCode: string | null): Promise<void>;
+    adminSetPaymentSettings(keyId: string, keySecret: string): Promise<void>;
+    adminUpdateCourse(courseId: string, title: string, description: string, priceInr: bigint, thumbnailUrl: string): Promise<void>;
+    adminUpdateVideoBlobId(videoId: string, blobId: string): Promise<void>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    chatWithAI(userMessage: string, history: Array<AIMessage>): Promise<string>;
+    claimCertificate(courseId: string, studentName: string): Promise<Certificate>;
+    createCheckoutSession(items: Array<ShoppingItem>, successUrl: string, cancelUrl: string): Promise<string>;
+    deletePromptTemplate(templateId: string): Promise<void>;
+    enrollInCourse(courseId: string, razorpayOrderId: string, razorpayPaymentId: string): Promise<Enrollment>;
+    generateAIContent(contentType: string, topic: string): Promise<string>;
+    getAssignmentsForCourse(courseId: string): Promise<Array<Assignment>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getCompletedVideos(courseId: string): Promise<Array<string>>;
+    getCourse(courseId: string): Promise<Course | null>;
+    getCourses(): Promise<Array<Course>>;
+    getModulesForCourse(courseId: string): Promise<Array<CourseModule>>;
+    getMyCertificates(): Promise<Array<Certificate>>;
+    getMyEnrollments(): Promise<Array<Enrollment>>;
+    getMyQuizAttempts(videoId: string): Promise<Array<QuizAttempt>>;
+    getMySubmissions(): Promise<Array<AssignmentSubmission>>;
+    getPromptTemplates(): Promise<Array<PromptTemplate>>;
+    getQuizQuestionsForVideo(videoId: string): Promise<Array<QuizQuestion>>;
+    getRazorpayKeyId(): Promise<string>;
+    getStripeSessionStatus(sessionId: string): Promise<StripeSessionStatus>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getVideosForCourse(courseId: string): Promise<Array<VideoWithBlob>>;
+    getVideosForModule(moduleId: string): Promise<Array<VideoWithBlob>>;
+    hasPassedQuiz(videoId: string): Promise<boolean>;
+    isCallerAdmin(): Promise<boolean>;
+    isEnrolled(courseId: string): Promise<boolean>;
+    isStripeConfigured(): Promise<boolean>;
+    markVideoComplete(videoId: string, courseId: string): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    savePromptTemplate(title: string, description: string, promptText: string, category: string): Promise<PromptTemplate>;
+    seedSampleData(): Promise<void>;
+    setStripeConfiguration(config: StripeConfiguration): Promise<void>;
+    submitAssignment(assignmentId: string, submissionText: string): Promise<AssignmentSubmission>;
+    submitQuiz(videoId: string, answers: Array<bigint>): Promise<QuizAttempt>;
+    transform(input: TransformationInput): Promise<TransformationOutput>;
+}
+import type { AssignmentSubmission as _AssignmentSubmission, Course as _Course, CourseTier as _CourseTier, Enrollment as _Enrollment, StripeSessionStatus as _StripeSessionStatus, UserProfile as _UserProfile, UserRole as _UserRole, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._caffeineStorageBlobIsLive(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._caffeineStorageBlobIsLive(arg0);
+            return result;
+        }
+    }
+    async _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._caffeineStorageBlobsToDelete();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._caffeineStorageBlobsToDelete();
+            return result;
+        }
+    }
+    async _caffeineStorageConfirmBlobDeletion(arg0: Array<Uint8Array>): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._caffeineStorageConfirmBlobDeletion(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._caffeineStorageConfirmBlobDeletion(arg0);
+            return result;
+        }
+    }
+    async _caffeineStorageCreateCertificate(arg0: string): Promise<_CaffeineStorageCreateCertificateResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._caffeineStorageCreateCertificate(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._caffeineStorageCreateCertificate(arg0);
+            return result;
+        }
+    }
+    async _caffeineStorageRefillCashier(arg0: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._caffeineStorageRefillCashier(to_candid_opt_n1(this._uploadFile, this._downloadFile, arg0));
+                return from_candid__CaffeineStorageRefillResult_n4(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._caffeineStorageRefillCashier(to_candid_opt_n1(this._uploadFile, this._downloadFile, arg0));
+            return from_candid__CaffeineStorageRefillResult_n4(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async _caffeineStorageUpdateGatewayPrincipals(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._caffeineStorageUpdateGatewayPrincipals();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._caffeineStorageUpdateGatewayPrincipals();
+            return result;
+        }
+    }
+    async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._initializeAccessControlWithSecret(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._initializeAccessControlWithSecret(arg0);
+            return result;
+        }
+    }
+    async adminCreateAssignment(arg0: string, arg1: bigint, arg2: string, arg3: string): Promise<Assignment> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminCreateAssignment(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminCreateAssignment(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async adminCreateCourse(arg0: string, arg1: string, arg2: CourseTier, arg3: bigint, arg4: string): Promise<Course> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminCreateCourse(arg0, arg1, to_candid_CourseTier_n8(this._uploadFile, this._downloadFile, arg2), arg3, arg4);
+                return from_candid_Course_n10(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminCreateCourse(arg0, arg1, to_candid_CourseTier_n8(this._uploadFile, this._downloadFile, arg2), arg3, arg4);
+            return from_candid_Course_n10(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async adminCreateModule(arg0: string, arg1: string, arg2: bigint): Promise<CourseModule> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminCreateModule(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminCreateModule(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async adminCreateQuizQuestion(arg0: string, arg1: string, arg2: Array<string>, arg3: bigint): Promise<QuizQuestion> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminCreateQuizQuestion(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminCreateQuizQuestion(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async adminCreateVideo(arg0: string, arg1: string, arg2: string, arg3: string, arg4: bigint, arg5: bigint): Promise<Video> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminCreateVideo(arg0, arg1, arg2, arg3, arg4, arg5);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminCreateVideo(arg0, arg1, arg2, arg3, arg4, arg5);
+            return result;
+        }
+    }
+    async adminDeleteQuizQuestion(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminDeleteQuizQuestion(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminDeleteQuizQuestion(arg0);
+            return result;
+        }
+    }
+    async adminGetAllEnrollments(): Promise<Array<Enrollment>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminGetAllEnrollments();
+                return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminGetAllEnrollments();
+            return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async adminGetAllSubmissions(): Promise<Array<AssignmentSubmission>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminGetAllSubmissions();
+                return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminGetAllSubmissions();
+            return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async adminGetPaymentSettings(): Promise<{
+        keyId: string;
+        keySecret: string;
+    }> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminGetPaymentSettings();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminGetPaymentSettings();
+            return result;
+        }
+    }
+    async adminReviewSubmission(arg0: string, arg1: string | null): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminReviewSubmission(arg0, to_candid_opt_n21(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminReviewSubmission(arg0, to_candid_opt_n21(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async adminSetPaymentSettings(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminSetPaymentSettings(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminSetPaymentSettings(arg0, arg1);
+            return result;
+        }
+    }
+    async adminUpdateCourse(arg0: string, arg1: string, arg2: string, arg3: bigint, arg4: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminUpdateCourse(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminUpdateCourse(arg0, arg1, arg2, arg3, arg4);
+            return result;
+        }
+    }
+    async adminUpdateVideoBlobId(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.adminUpdateVideoBlobId(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.adminUpdateVideoBlobId(arg0, arg1);
+            return result;
+        }
+    }
+    async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n22(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n22(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async chatWithAI(arg0: string, arg1: Array<AIMessage>): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.chatWithAI(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.chatWithAI(arg0, arg1);
+            return result;
+        }
+    }
+    async claimCertificate(arg0: string, arg1: string): Promise<Certificate> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.claimCertificate(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.claimCertificate(arg0, arg1);
+            return result;
+        }
+    }
+    async createCheckoutSession(arg0: Array<ShoppingItem>, arg1: string, arg2: string): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createCheckoutSession(arg0, arg1, arg2);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createCheckoutSession(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async deletePromptTemplate(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deletePromptTemplate(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deletePromptTemplate(arg0);
+            return result;
+        }
+    }
+    async enrollInCourse(arg0: string, arg1: string, arg2: string): Promise<Enrollment> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.enrollInCourse(arg0, arg1, arg2);
+                return from_candid_Enrollment_n15(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.enrollInCourse(arg0, arg1, arg2);
+            return from_candid_Enrollment_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async generateAIContent(arg0: string, arg1: string): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.generateAIContent(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.generateAIContent(arg0, arg1);
+            return result;
+        }
+    }
+    async getAssignmentsForCourse(arg0: string): Promise<Array<Assignment>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAssignmentsForCourse(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAssignmentsForCourse(arg0);
+            return result;
+        }
+    }
+    async getCallerUserProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserProfile();
+                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserProfile();
+            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n25(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCompletedVideos(arg0: string): Promise<Array<string>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCompletedVideos(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCompletedVideos(arg0);
+            return result;
+        }
+    }
+    async getCourse(arg0: string): Promise<Course | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCourse(arg0);
+                return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCourse(arg0);
+            return from_candid_opt_n27(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCourses(): Promise<Array<Course>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCourses();
+                return from_candid_vec_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCourses();
+            return from_candid_vec_n28(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getModulesForCourse(arg0: string): Promise<Array<CourseModule>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getModulesForCourse(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getModulesForCourse(arg0);
+            return result;
+        }
+    }
+    async getMyCertificates(): Promise<Array<Certificate>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyCertificates();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyCertificates();
+            return result;
+        }
+    }
+    async getMyEnrollments(): Promise<Array<Enrollment>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyEnrollments();
+                return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyEnrollments();
+            return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getMyQuizAttempts(arg0: string): Promise<Array<QuizAttempt>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMyQuizAttempts(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMyQuizAttempts(arg0);
+            return result;
+        }
+    }
+    async getMySubmissions(): Promise<Array<AssignmentSubmission>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getMySubmissions();
+                return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMySubmissions();
+            return from_candid_vec_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPromptTemplates(): Promise<Array<PromptTemplate>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPromptTemplates();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPromptTemplates();
+            return result;
+        }
+    }
+    async getQuizQuestionsForVideo(arg0: string): Promise<Array<QuizQuestion>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getQuizQuestionsForVideo(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getQuizQuestionsForVideo(arg0);
+            return result;
+        }
+    }
+    async getRazorpayKeyId(): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getRazorpayKeyId();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getRazorpayKeyId();
+            return result;
+        }
+    }
+    async getStripeSessionStatus(arg0: string): Promise<StripeSessionStatus> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getStripeSessionStatus(arg0);
+                return from_candid_StripeSessionStatus_n29(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getStripeSessionStatus(arg0);
+            return from_candid_StripeSessionStatus_n29(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserProfile(arg0);
+                return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserProfile(arg0);
+            return from_candid_opt_n24(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getVideosForCourse(arg0: string): Promise<Array<VideoWithBlob>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getVideosForCourse(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getVideosForCourse(arg0);
+            return result;
+        }
+    }
+    async getVideosForModule(arg0: string): Promise<Array<VideoWithBlob>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getVideosForModule(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getVideosForModule(arg0);
+            return result;
+        }
+    }
+    async hasPassedQuiz(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.hasPassedQuiz(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.hasPassedQuiz(arg0);
+            return result;
+        }
+    }
+    async isCallerAdmin(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCallerAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async isEnrolled(arg0: string): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isEnrolled(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isEnrolled(arg0);
+            return result;
+        }
+    }
+    async isStripeConfigured(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isStripeConfigured();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isStripeConfigured();
+            return result;
+        }
+    }
+    async markVideoComplete(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.markVideoComplete(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.markVideoComplete(arg0, arg1);
+            return result;
+        }
+    }
+    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.saveCallerUserProfile(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async savePromptTemplate(arg0: string, arg1: string, arg2: string, arg3: string): Promise<PromptTemplate> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.savePromptTemplate(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.savePromptTemplate(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async seedSampleData(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.seedSampleData();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.seedSampleData();
+            return result;
+        }
+    }
+    async setStripeConfiguration(arg0: StripeConfiguration): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setStripeConfiguration(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setStripeConfiguration(arg0);
+            return result;
+        }
+    }
+    async submitAssignment(arg0: string, arg1: string): Promise<AssignmentSubmission> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitAssignment(arg0, arg1);
+                return from_candid_AssignmentSubmission_n18(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitAssignment(arg0, arg1);
+            return from_candid_AssignmentSubmission_n18(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async submitQuiz(arg0: string, arg1: Array<bigint>): Promise<QuizAttempt> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.submitQuiz(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.submitQuiz(arg0, arg1);
+            return result;
+        }
+    }
+    async transform(arg0: TransformationInput): Promise<TransformationOutput> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.transform(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.transform(arg0);
+            return result;
+        }
+    }
+}
+function from_candid_AssignmentSubmission_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AssignmentSubmission): AssignmentSubmission {
+    return from_candid_record_n19(_uploadFile, _downloadFile, value);
+}
+function from_candid_CourseTier_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CourseTier): CourseTier {
+    return from_candid_variant_n13(_uploadFile, _downloadFile, value);
+}
+function from_candid_Course_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Course): Course {
+    return from_candid_record_n11(_uploadFile, _downloadFile, value);
+}
+function from_candid_Enrollment_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Enrollment): Enrollment {
+    return from_candid_record_n16(_uploadFile, _downloadFile, value);
+}
+function from_candid_StripeSessionStatus_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _StripeSessionStatus): StripeSessionStatus {
+    return from_candid_variant_n30(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n26(_uploadFile, _downloadFile, value);
+}
+function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
+    return from_candid_record_n5(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Course]): Course | null {
+    return value.length === 0 ? null : from_candid_Course_n10(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: string;
+    title: string;
+    thumbnailUrl: string;
+    tier: _CourseTier;
+    description: string;
+    totalModules: bigint;
+    totalVideos: bigint;
+    priceInr: bigint;
+}): {
+    id: string;
+    title: string;
+    thumbnailUrl: string;
+    tier: CourseTier;
+    description: string;
+    totalModules: bigint;
+    totalVideos: bigint;
+    priceInr: bigint;
+} {
+    return {
+        id: value.id,
+        title: value.title,
+        thumbnailUrl: value.thumbnailUrl,
+        tier: from_candid_CourseTier_n12(_uploadFile, _downloadFile, value.tier),
+        description: value.description,
+        totalModules: value.totalModules,
+        totalVideos: value.totalVideos,
+        priceInr: value.priceInr
+    };
+}
+function from_candid_record_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: string;
+    userId: Principal;
+    tier: _CourseTier;
+    enrolledAt: bigint;
+    stripeSessionId: string;
+    courseId: string;
+}): {
+    id: string;
+    userId: Principal;
+    tier: CourseTier;
+    enrolledAt: bigint;
+    stripeSessionId: string;
+    courseId: string;
+} {
+    return {
+        id: value.id,
+        userId: value.userId,
+        tier: from_candid_CourseTier_n12(_uploadFile, _downloadFile, value.tier),
+        enrolledAt: value.enrolledAt,
+        stripeSessionId: value.stripeSessionId,
+        courseId: value.courseId
+    };
+}
+function from_candid_record_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: string;
+    userId: Principal;
+    submittedAt: bigint;
+    giftCardCode: [] | [string];
+    assignmentId: string;
+    submissionText: string;
+    reviewed: boolean;
+}): {
+    id: string;
+    userId: Principal;
+    submittedAt: bigint;
+    giftCardCode?: string;
+    assignmentId: string;
+    submissionText: string;
+    reviewed: boolean;
+} {
+    return {
+        id: value.id,
+        userId: value.userId,
+        submittedAt: value.submittedAt,
+        giftCardCode: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.giftCardCode)),
+        assignmentId: value.assignmentId,
+        submissionText: value.submissionText,
+        reviewed: value.reviewed
+    };
+}
+function from_candid_record_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    userPrincipal: [] | [string];
+    response: string;
+}): {
+    userPrincipal?: string;
+    response: string;
+} {
+    return {
+        userPrincipal: record_opt_to_undefined(from_candid_opt_n20(_uploadFile, _downloadFile, value.userPrincipal)),
+        response: value.response
+    };
+}
+function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    success: [] | [boolean];
+    topped_up_amount: [] | [bigint];
+}): {
+    success?: boolean;
+    topped_up_amount?: bigint;
+} {
+    return {
+        success: record_opt_to_undefined(from_candid_opt_n6(_uploadFile, _downloadFile, value.success)),
+        topped_up_amount: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.topped_up_amount))
+    };
+}
+function from_candid_variant_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    advanced: null;
+} | {
+    professional: null;
+} | {
+    basic: null;
+}): CourseTier {
+    return "advanced" in value ? CourseTier.advanced : "professional" in value ? CourseTier.professional : "basic" in value ? CourseTier.basic : value;
+}
+function from_candid_variant_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    completed: {
+        userPrincipal: [] | [string];
+        response: string;
+    };
+} | {
+    failed: {
+        error: string;
+    };
+}): {
+    __kind__: "completed";
+    completed: {
+        userPrincipal?: string;
+        response: string;
+    };
+} | {
+    __kind__: "failed";
+    failed: {
+        error: string;
+    };
+} {
+    return "completed" in value ? {
+        __kind__: "completed",
+        completed: from_candid_record_n31(_uploadFile, _downloadFile, value.completed)
+    } : "failed" in value ? {
+        __kind__: "failed",
+        failed: value.failed
+    } : value;
+}
+function from_candid_vec_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Enrollment>): Array<Enrollment> {
+    return value.map((x)=>from_candid_Enrollment_n15(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_AssignmentSubmission>): Array<AssignmentSubmission> {
+    return value.map((x)=>from_candid_AssignmentSubmission_n18(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Course>): Array<Course> {
+    return value.map((x)=>from_candid_Course_n10(_uploadFile, _downloadFile, x));
+}
+function to_candid_CourseTier_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CourseTier): _CourseTier {
+    return to_candid_variant_n9(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
+    return to_candid_variant_n23(_uploadFile, _downloadFile, value);
+}
+function to_candid__CaffeineStorageRefillInformation_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation): __CaffeineStorageRefillInformation {
+    return to_candid_record_n3(_uploadFile, _downloadFile, value);
+}
+function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation | null): [] | [__CaffeineStorageRefillInformation] {
+    return value === null ? candid_none() : candid_some(to_candid__CaffeineStorageRefillInformation_n2(_uploadFile, _downloadFile, value));
+}
+function to_candid_opt_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
+    return value === null ? candid_none() : candid_some(value);
+}
+function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    proposed_top_up_amount?: bigint;
+}): {
+    proposed_top_up_amount: [] | [bigint];
+} {
+    return {
+        proposed_top_up_amount: value.proposed_top_up_amount ? candid_some(value.proposed_top_up_amount) : candid_none()
+    };
+}
+function to_candid_variant_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+} {
+    return value == UserRole.admin ? {
+        admin: null
+    } : value == UserRole.user ? {
+        user: null
+    } : value == UserRole.guest ? {
+        guest: null
+    } : value;
+}
+function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: CourseTier): {
+    advanced: null;
+} | {
+    professional: null;
+} | {
+    basic: null;
+} {
+    return value == CourseTier.advanced ? {
+        advanced: null
+    } : value == CourseTier.professional ? {
+        professional: null
+    } : value == CourseTier.basic ? {
+        basic: null
+    } : value;
 }
 export interface CreateActorOptions {
     agent?: Agent;

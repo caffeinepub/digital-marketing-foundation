@@ -31,8 +31,9 @@ export default function Footer({ nav }: FooterProps) {
               </span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
-              India's most comprehensive digital marketing learning platform.
-              Govt. recognized certifications, expert mentors, and hands-on
+              India's most comprehensive AI-powered digital marketing learning
+              platform. From Scratch to Professional or Master Level. Govt.
+              recognized certifications, expert mentors, and hands-on
               assignments.
             </p>
             <div className="flex gap-3 mt-5">
@@ -76,6 +77,8 @@ export default function Footer({ nav }: FooterProps) {
                     );
                   },
                 },
+                { label: "Blog", action: () => nav.navigate("blogs") },
+                { label: "Latest News", action: () => nav.navigate("news") },
                 {
                   label: "My Dashboard",
                   action: () => nav.navigate("dashboard"),
@@ -106,6 +109,16 @@ export default function Footer({ nav }: FooterProps) {
             <ul className="space-y-2 text-sm text-gray-400">
               <li>hello@dmfoundation.in</li>
               <li>+91 98765 43210</li>
+              <li>
+                <a
+                  href="https://wa.me/919876543210"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-green-400 transition-colors"
+                >
+                  WhatsApp: +91 98765 43210
+                </a>
+              </li>
               <li>Mon–Sat, 9am–6pm IST</li>
             </ul>
           </div>
@@ -124,7 +137,7 @@ export default function Footer({ nav }: FooterProps) {
             </a>
           </p>
           <p className="text-xs text-gray-500">
-            Govt. recognized certification platform
+            Govt. recognized certification platform | All AI-Powered
           </p>
         </div>
       </div>

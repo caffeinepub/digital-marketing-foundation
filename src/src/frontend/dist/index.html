@@ -1,0 +1,58 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <script>
+      // Disable right-click context menu
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
+
+      // Disable keyboard shortcuts for devtools and view source
+      document.addEventListener('keydown', function(e) {
+        // F12
+        if (e.keyCode === 123) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.keyCode === 85) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+I (DevTools)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+J (Console)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+C (Inspector)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+S (Save page)
+        if (e.ctrlKey && e.keyCode === 83) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+A (Select all) - optional, remove if you want text selection
+        // if (e.ctrlKey && e.keyCode === 65) {
+        //   e.preventDefault();
+        //   return false;
+        // }
+      });
+    </script>
+    <script type="module" crossorigin src="/assets/index-CPv92OVj.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CSwiYmBS.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

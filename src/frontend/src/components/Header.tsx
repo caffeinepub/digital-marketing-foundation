@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
+  Brain,
   GraduationCap,
   LayoutDashboard,
   LogOut,
@@ -24,10 +25,13 @@ export default function Header({ nav, currentPage }: HeaderProps) {
   const isLoggingIn = loginStatus === "logging-in";
   const { data: isAdmin } = useIsAdmin();
 
-  const navLinks = [
-    { label: "Courses", page: "landing" as PageName, hash: "courses" },
-    { label: "Pricing", page: "landing" as PageName, hash: "pricing" },
-    { label: "Dashboard", page: "dashboard" as PageName },
+  const navLinks: { label: string; page: PageName; hash?: string }[] = [
+    { label: "Courses", page: "landing", hash: "courses" },
+    { label: "Pricing", page: "landing", hash: "pricing" },
+    { label: "Blog", page: "blogs" },
+    { label: "News", page: "news" },
+    { label: "Dashboard", page: "dashboard" },
+    ...(isLoggedIn ? [{ label: "AI Hub", page: "ai-hub" as PageName }] : []),
   ];
 
   const handleNavClick = (link: (typeof navLinks)[0]) => {
@@ -35,7 +39,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
     nav.navigate(link.page);
     if (link.hash) {
       setTimeout(() => {
-        const el = document.getElementById(link.hash);
+        const el = document.getElementById(link.hash!);
         if (el) el.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }

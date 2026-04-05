@@ -28,8 +28,29 @@ import {
   useEnrollInCourse,
   useIsEnrolled,
   useModulesForCourse,
+  useRazorpayKeyId,
   useVideosForModule,
 } from "../hooks/useQueries";
+
+declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions) => { open(): void };
+  }
+}
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  handler: (response: {
+    razorpay_payment_id: string;
+    razorpay_order_id?: string;
+  }) => void;
+  prefill?: { name?: string; email?: string; contact?: string };
+  theme?: { color?: string };
+  modal?: { ondismiss?: () => void };
+}
 
 interface CourseDetailPageProps {
   nav: AppNav;
@@ -141,20 +162,76 @@ export default function CourseDetailPage({
   const { data: completedVideos = [] } = useCompletedVideos(courseId);
   const { identity, login } = useInternetIdentity();
   const enrollMutation = useEnrollInCourse();
+  const { data: razorpayKeyId = "" } = useRazorpayKeyId();
   const [enrolling, setEnrolling] = useState(false);
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
   const handleEnroll = async () => {
     if (!identity) {
       login();
       return;
     }
+    if (!razorpayKeyId) {
+      toast.error("Payment gateway not configured. Please contact support.");
+      return;
+    }
     setEnrolling(true);
     try {
-      await enrollMutation.mutateAsync({ courseId });
-      toast.success("Enrolled successfully! Welcome to the course.");
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error("Failed to load payment gateway. Please try again.");
+        setEnrolling(false);
+        return;
+      }
+      const options: RazorpayOptions = {
+        key: razorpayKeyId,
+        amount: Number(course?.priceInr || 0) * 100,
+        currency: "INR",
+        name: "The Digital Marketing Foundation",
+        description: course?.title || "Course Enrollment",
+        handler: async (response) => {
+          try {
+            await enrollMutation.mutateAsync({
+              courseId,
+              razorpayOrderId: response.razorpay_order_id || "",
+              razorpayPaymentId: response.razorpay_payment_id,
+            });
+            toast.success("Payment successful! Welcome to the course.");
+            nav.navigate("dashboard");
+          } catch {
+            toast.error(
+              "Enrollment failed after payment. Please contact support.",
+            );
+          } finally {
+            setEnrolling(false);
+          }
+        },
+        prefill: { name: "", email: "", contact: "" },
+        theme: { color: "#0F172A" },
+        modal: {
+          ondismiss: () => {
+            setEnrolling(false);
+            toast.info("Payment cancelled.");
+          },
+        },
+      };
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch {
-      toast.error("Enrollment failed. Please try again.");
-    } finally {
+      toast.error("Could not initiate payment. Please try again.");
       setEnrolling(false);
     }
   };
@@ -193,7 +270,7 @@ export default function CourseDetailPage({
     );
   }
 
-  const tierKey = course.tier.__kind__ as string;
+  const tierKey = course.tier as string;
   const tierLabel = TIER_LABELS[tierKey] || tierKey;
   const tierColor = TIER_COLORS[tierKey] || TIER_COLORS.basic;
   const progress =
@@ -297,15 +374,15 @@ export default function CourseDetailPage({
                   {enrolling ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
-                      Enrolling...
+                      Processing...
                     </>
                   ) : (
-                    "Enroll Now"
+                    "Enroll Now — Pay with Razorpay"
                   )}
                 </Button>
               )}
               <p className="text-xs text-center text-brand-body mt-3">
-                30-day money-back guarantee
+                Secure payment via Razorpay · 30-day guarantee
               </p>
             </motion.div>
           </div>

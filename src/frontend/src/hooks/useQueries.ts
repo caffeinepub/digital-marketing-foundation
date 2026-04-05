@@ -10,6 +10,7 @@ import type {
   Option,
   QuizQuestion,
   Video,
+  VideoWithBlob,
 } from "../backend.d";
 import { useActor } from "./useActor";
 
@@ -36,7 +37,7 @@ export function useCourse(courseId: string) {
     queryFn: async () => {
       if (!actor || !courseId) return null;
       const result = await api(actor).getCourse(courseId);
-      return result.__kind__ === "Some" ? result.value : null;
+      return result ?? null;
     },
     enabled: !!actor && !isFetching && !!courseId,
   });
@@ -56,13 +57,25 @@ export function useModulesForCourse(courseId: string) {
 
 export function useVideosForModule(moduleId: string) {
   const { actor, isFetching } = useActor();
-  return useQuery<Video[]>({
+  return useQuery<VideoWithBlob[]>({
     queryKey: ["videos", moduleId],
     queryFn: async () => {
       if (!actor || !moduleId) return [];
       return api(actor).getVideosForModule(moduleId);
     },
     enabled: !!actor && !isFetching && !!moduleId,
+  });
+}
+
+export function useVideosForCourse(courseId: string) {
+  const { actor, isFetching } = useActor();
+  return useQuery<VideoWithBlob[]>({
+    queryKey: ["videosForCourse", courseId],
+    queryFn: async () => {
+      if (!actor || !courseId) return [];
+      return api(actor).getVideosForCourse(courseId);
+    },
+    enabled: !!actor && !isFetching && !!courseId,
   });
 }
 
@@ -99,6 +112,18 @@ export function useIsEnrolled(courseId: string) {
       return api(actor).isEnrolled(courseId);
     },
     enabled: !!actor && !isFetching && !!courseId,
+  });
+}
+
+export function useRazorpayKeyId() {
+  const { actor, isFetching } = useActor();
+  return useQuery<string>({
+    queryKey: ["razorpayKeyId"],
+    queryFn: async () => {
+      if (!actor) return "";
+      return api(actor).getRazorpayKeyId();
+    },
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -186,14 +211,44 @@ export function useAdminAllSubmissions() {
   });
 }
 
+export function useGetCertificateById(certId: string) {
+  const { actor, isFetching } = useActor();
+  return useQuery<Certificate | null>({
+    queryKey: ["certificate", certId],
+    queryFn: async () => {
+      if (!actor || !certId) return null;
+      // Try getCertificateById if available on actor
+      const actorAny = actor as any;
+      if (typeof actorAny.getCertificateById === "function") {
+        const result = await actorAny.getCertificateById(certId);
+        return Array.isArray(result) ? (result[0] ?? null) : null;
+      }
+      return null;
+    },
+    enabled: !!actor && !isFetching && !!certId,
+  });
+}
+
 // Mutations
 export function useEnrollInCourse() {
   const { actor } = useActor();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ courseId }: { courseId: string }) => {
+    mutationFn: async ({
+      courseId,
+      razorpayOrderId,
+      razorpayPaymentId,
+    }: {
+      courseId: string;
+      razorpayOrderId: string;
+      razorpayPaymentId: string;
+    }) => {
       if (!actor) throw new Error("Not connected");
-      return api(actor).enrollInCourse(courseId, "demo-session");
+      return api(actor).enrollInCourse(
+        courseId,
+        razorpayOrderId,
+        razorpayPaymentId,
+      );
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["enrollments"] });
@@ -287,7 +342,7 @@ export function useAdminReviewSubmission() {
     mutationFn: async ({
       submissionId,
       giftCardCode,
-    }: { submissionId: string; giftCardCode: Option<string> }) => {
+    }: { submissionId: string; giftCardCode: string | null }) => {
       if (!actor) throw new Error("Not connected");
       return api(actor).adminReviewSubmission(submissionId, giftCardCode);
     },
@@ -373,6 +428,24 @@ export function useAdminCreateVideo() {
   });
 }
 
+export function useAdminUpdateVideoBlobId() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      videoId,
+      blobId,
+      moduleId: _moduleId,
+    }: { videoId: string; blobId: string; moduleId: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).adminUpdateVideoBlobId(videoId, blobId);
+    },
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ["videos", vars.moduleId] });
+    },
+  });
+}
+
 export function useAdminCreateQuizQuestion() {
   const { actor } = useActor();
   const qc = useQueryClient();
@@ -397,6 +470,36 @@ export function useAdminCreateQuizQuestion() {
   });
 }
 
+export function useAdminDeleteQuizQuestion() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      questionId,
+      videoId: _videoId,
+    }: { questionId: string; videoId: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).adminDeleteQuizQuestion(questionId);
+    },
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ["quiz", vars.videoId] });
+    },
+  });
+}
+
+export function useAdminSetPaymentSettings() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async ({
+      keyId,
+      keySecret,
+    }: { keyId: string; keySecret: string }) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).adminSetPaymentSettings(keyId, keySecret);
+    },
+  });
+}
+
 export function useAdminCreateAssignment() {
   const { actor } = useActor();
   const qc = useQueryClient();
@@ -417,6 +520,90 @@ export function useAdminCreateAssignment() {
     },
     onSuccess: (_data, vars) => {
       qc.invalidateQueries({ queryKey: ["assignments", vars.courseId] });
+    },
+  });
+}
+
+// ── AI Hub Hooks ──────────────────────────────────────────────────────────────
+
+export function useChatWithAI() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async ({
+      message,
+      history,
+    }: {
+      message: string;
+      history: Array<{ role: string; content: string }>;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).chatWithAI(message, history);
+    },
+  });
+}
+
+export function useGenerateAIContent() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async ({
+      contentType,
+      topic,
+    }: {
+      contentType: string;
+      topic: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).generateAIContent(contentType, topic);
+    },
+  });
+}
+
+export function usePromptTemplates() {
+  const { actor, isFetching } = useActor();
+  return useQuery({
+    queryKey: ["promptTemplates"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return api(actor).getPromptTemplates();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSavePromptTemplate() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      title: string;
+      description: string;
+      promptText: string;
+      category: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).savePromptTemplate(
+        params.title,
+        params.description,
+        params.promptText,
+        params.category,
+      );
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["promptTemplates"] });
+    },
+  });
+}
+
+export function useDeletePromptTemplate() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (templateId: string) => {
+      if (!actor) throw new Error("Not connected");
+      return api(actor).deletePromptTemplate(templateId);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["promptTemplates"] });
     },
   });
 }

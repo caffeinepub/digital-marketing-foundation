@@ -70,14 +70,17 @@ export default {
           ring: "oklch(var(--sidebar-ring))",
         },
         brand: {
-          teal: "oklch(0.637 0.125 192.7)",
-          "teal-light": "oklch(0.850 0.080 192.7)",
-          "teal-dark": "oklch(0.374 0.080 210)",
-          orange: "oklch(0.702 0.191 47.3)",
-          "orange-dark": "oklch(0.580 0.180 47.3)",
-          wash: "oklch(0.970 0.012 195)",
-          heading: "oklch(0.155 0.012 265)",
-          body: "oklch(0.325 0.022 265)",
+          // WhatsApp green family
+          teal: "oklch(0.698 0.196 152.5)",           /* #25D366 WhatsApp green */
+          "teal-light": "oklch(0.860 0.090 152.5)",   /* light green */
+          "teal-dark": "oklch(0.521 0.113 174.5)",     /* #128C7E dark teal-green */
+          // YouTube red family
+          orange: "oklch(0.628 0.258 29.2)",           /* #FF0000 YouTube red */
+          "orange-dark": "oklch(0.535 0.217 29.2)",    /* #CC0000 */
+          // Backgrounds & text
+          wash: "oklch(0.978 0.018 158.0)",            /* #f0faf4 very light green */
+          heading: "oklch(0.371 0.087 175.5)",          /* #075E54 deep green headings */
+          body: "oklch(0.32 0.022 175.5)",             /* #1a1a1a near-black body */
         },
       },
       borderRadius: {
@@ -87,8 +90,8 @@ export default {
       },
       boxShadow: {
         xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        teal: "0 4px 20px oklch(0.637 0.125 192.7 / 0.20)",
-        orange: "0 4px 20px oklch(0.702 0.191 47.3 / 0.25)",
+        teal: "0 4px 20px oklch(0.698 0.196 152.5 / 0.25)",
+        orange: "0 4px 20px oklch(0.628 0.258 29.2 / 0.30)",
       },
       keyframes: {
         "accordion-down": {

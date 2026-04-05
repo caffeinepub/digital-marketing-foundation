@@ -31,7 +31,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   BookOpen,
+  Brain,
+  CheckCheck,
   ClipboardList,
+  Copy,
   CreditCard,
   Database,
   FileQuestion,
@@ -39,6 +42,9 @@ import {
   Loader2,
   Plus,
   ShieldCheck,
+  Sparkles,
+  Trash2,
+  Upload,
   Users,
   Video,
 } from "lucide-react";
@@ -46,7 +52,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
-import type { CourseTier } from "../backend.d";
+import { CourseTier } from "../backend.d";
 import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
@@ -57,16 +63,22 @@ import {
   useAdminCreateModule,
   useAdminCreateQuizQuestion,
   useAdminCreateVideo,
+  useAdminDeleteQuizQuestion,
   useAdminReviewSubmission,
+  useAdminSetPaymentSettings,
+  useAdminUpdateVideoBlobId,
   useAssignmentsForCourse,
   useCourses,
+  useDeletePromptTemplate,
+  useGenerateAIContent,
   useIsAdmin,
   useModulesForCourse,
+  usePromptTemplates,
   useQuizQuestions,
+  useSavePromptTemplate,
   useSeedSampleData,
   useVideosForModule,
 } from "../hooks/useQueries";
-import { useStripeConfig } from "../hooks/useStripe";
 
 interface Props {
   nav: AppNav;
@@ -107,7 +119,7 @@ function CoursesTab() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    tier: "basic",
+    tier: "professional",
     price: "",
     thumbnailUrl: "",
   });
@@ -117,9 +129,8 @@ function CoursesTab() {
     if (!form.title || !form.price) return;
     try {
       const tierMap: Record<string, CourseTier> = {
-        basic: { __kind__: "basic" },
-        professional: { __kind__: "professional" },
-        advanced: { __kind__: "advanced" },
+        professional: CourseTier.professional,
+        advanced: CourseTier.advanced,
       };
       await createCourse.mutateAsync({
         title: form.title,
@@ -132,7 +143,7 @@ function CoursesTab() {
       setForm({
         title: "",
         description: "",
-        tier: "basic",
+        tier: "professional",
         price: "",
         thumbnailUrl: "",
       });
@@ -195,7 +206,6 @@ function CoursesTab() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="basic">Basic</SelectItem>
                     <SelectItem value="professional">Professional</SelectItem>
                     <SelectItem value="advanced">Advanced</SelectItem>
                   </SelectContent>
@@ -281,7 +291,7 @@ function CoursesTab() {
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
-                        {c.tier.__kind__}
+                        {c.tier}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -422,6 +432,93 @@ function ModulesTab() {
           </Table>
         </div>
       )}
+    </div>
+  );
+}
+
+function VideoUploadCell({
+  videoId,
+  moduleId,
+  blobId,
+}: { videoId: string; moduleId: string; blobId: string }) {
+  const updateBlobId = useAdminUpdateVideoBlobId();
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setProgress(0);
+    try {
+      const { loadConfig } = await import("../config");
+      const { StorageClient } = await import("../utils/StorageClient");
+      const { HttpAgent } = await import("@icp-sdk/core/agent");
+      const config = await loadConfig();
+      const agent = new HttpAgent({
+        host: config.backend_host || "https://ic0.app",
+      });
+      const storageClient = new StorageClient(
+        config.bucket_name,
+        config.storage_gateway_url || "https://blob.caffeine.ai",
+        config.backend_canister_id,
+        config.project_id,
+        agent,
+      );
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const { hash } = await storageClient.putFile(bytes, (pct) =>
+        setProgress(Math.round(pct)),
+      );
+      await updateBlobId.mutateAsync({ videoId, blobId: hash, moduleId });
+      toast.success("Video uploaded successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+    e.target.value = "";
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {blobId ? (
+        <span className="text-xs text-brand-teal font-medium flex items-center gap-1">
+          <Video className="w-3 h-3" /> Uploaded
+        </span>
+      ) : (
+        <span className="text-xs text-gray-400">No file</span>
+      )}
+      <label className="cursor-pointer">
+        <input
+          type="file"
+          accept="video/*"
+          className="hidden"
+          onChange={handleFileChange}
+          disabled={uploading}
+        />
+        <Button
+          data-ocid="admin.upload_button"
+          size="sm"
+          variant="outline"
+          className="text-xs h-7 px-2 pointer-events-none"
+          disabled={uploading}
+          asChild={false}
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              {progress}%
+            </>
+          ) : (
+            <>
+              <Upload className="w-3 h-3 mr-1" />
+              {blobId ? "Replace" : "Upload"}
+            </>
+          )}
+        </Button>
+      </label>
     </div>
   );
 }
@@ -577,6 +674,7 @@ function VideosTab() {
               <TableRow className="bg-gray-50">
                 <TableHead>Title</TableHead>
                 <TableHead>Duration</TableHead>
+                <TableHead>Video File</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -596,6 +694,13 @@ function VideosTab() {
                       {v.title}
                     </TableCell>
                     <TableCell>{Number(v.durationMinutes)}m</TableCell>
+                    <TableCell>
+                      <VideoUploadCell
+                        videoId={v.id}
+                        moduleId={selectedModule}
+                        blobId={v.blobId}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -616,6 +721,7 @@ function QuizzesTab() {
   const [selectedVideo, setSelectedVideo] = useState("");
   const { data: questions = [] } = useQuizQuestions(selectedVideo);
   const createQ = useAdminCreateQuizQuestion();
+  const deleteQ = useAdminDeleteQuizQuestion();
   const [form, setForm] = useState({
     question: "",
     opt0: "",
@@ -819,6 +925,26 @@ function QuizzesTab() {
                       </span>
                     ))}
                   </div>
+                  <div className="mt-2 flex justify-end">
+                    <Button
+                      data-ocid={`admin.delete_button.${i + 1}`}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        deleteQ.mutate(
+                          { questionId: q.id, videoId: selectedVideo },
+                          {
+                            onSuccess: () => toast.success("Question deleted."),
+                            onError: () => toast.error("Failed."),
+                          },
+                        )
+                      }
+                      disabled={deleteQ.isPending}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 text-xs h-7 px-2"
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" /> Delete
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))
@@ -988,9 +1114,7 @@ function SubmissionsTab() {
     try {
       await reviewMutation.mutateAsync({
         submissionId,
-        giftCardCode: code
-          ? { __kind__: "Some" as const, value: code }
-          : { __kind__: "None" as const },
+        giftCardCode: code || null,
       });
       toast.success("Gift card awarded!");
     } catch {
@@ -1044,10 +1168,10 @@ function SubmissionsTab() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {sub.giftCardCode.__kind__ === "Some" ? (
+                  {sub.giftCardCode ? (
                     <span className="text-xs text-brand-orange font-semibold flex items-center gap-1">
                       <Gift className="w-3 h-3" />
-                      {sub.giftCardCode.value}
+                      {sub.giftCardCode}
                     </span>
                   ) : (
                     <span className="text-xs text-gray-400">—</span>
@@ -1130,7 +1254,7 @@ function EnrollmentsTab() {
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className="text-xs">
-                    {e.tier.__kind__}
+                    {e.tier}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-xs">
@@ -1147,127 +1271,86 @@ function EnrollmentsTab() {
   );
 }
 
-function StripeConfigTab() {
-  const { checkConfigured, configure } = useStripeConfig();
-  const [secretKey, setSecretKey] = useState("");
-  const [countries, setCountries] = useState("US,CA,GB,IN,AU");
-  const [isConfigured, setIsConfigured] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
-
-  const checkStatus = async () => {
-    setChecking(true);
-    const result = await checkConfigured();
-    setIsConfigured(result);
-    setChecking(false);
-  };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional
-  useEffect(() => {
-    checkStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount
+function RazorpayConfigTab() {
+  const setSettings = useAdminSetPaymentSettings();
+  const [keyId, setKeyId] = useState("");
+  const [keySecret, setKeySecret] = useState("");
+  const [saved, setSaved] = useState(false);
 
   const handleSave = async () => {
-    if (!secretKey.trim()) return;
-    setLoading(true);
     try {
-      const allowedCountries = countries
-        .split(",")
-        .map((c) => c.trim())
-        .filter(Boolean);
-      await configure(secretKey, allowedCountries);
-      setIsConfigured(true);
-      setSecretKey("");
-      toast.success("Stripe configured successfully!");
-    } catch (_err) {
-      toast.error("Failed to configure Stripe. Check your secret key.");
-    } finally {
-      setLoading(false);
+      await setSettings.mutateAsync({ keyId, keySecret });
+      setSaved(true);
+      toast.success("Razorpay payment settings saved!");
+    } catch {
+      toast.error("Failed to save payment settings.");
     }
   };
-
-  if (checking) {
-    return (
-      <div className="flex items-center gap-2 text-brand-body py-4">
-        <Loader2 className="w-4 h-4 animate-spin" />
-        Checking Stripe status...
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 max-w-lg">
       <div className="flex items-center gap-3 mb-4">
         <CreditCard className="w-6 h-6 text-brand-teal" />
         <h3 className="text-lg font-bold text-brand-heading">
-          Payment Gateway (Stripe)
+          Payment Gateway (Razorpay)
         </h3>
       </div>
-      {isConfigured ? (
+      {saved && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          </div>
+          <ShieldCheck className="w-5 h-5 text-emerald-600" />
           <div>
             <div className="font-semibold text-emerald-700 text-sm">
-              Stripe is configured
+              Razorpay is configured
             </div>
             <div className="text-xs text-emerald-600 mt-0.5">
               Payment processing is active. Students can now pay for courses.
             </div>
           </div>
         </div>
-      ) : (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
-          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-            <CreditCard className="w-4 h-4 text-amber-600" />
-          </div>
-          <div>
-            <div className="font-semibold text-amber-700 text-sm">
-              Stripe not configured
-            </div>
-            <div className="text-xs text-amber-600 mt-0.5">
-              Configure Stripe to enable course payments.
-            </div>
-          </div>
-        </div>
       )}
-
+      <p className="text-sm text-brand-body">
+        Enter your Razorpay API keys to enable course payments. Find these in
+        your Razorpay Dashboard → Settings → API Keys.
+      </p>
       <div className="space-y-4">
         <div>
           <Label className="text-sm font-medium text-brand-heading mb-1.5 block">
-            Stripe Secret Key
+            Razorpay Key ID
           </Label>
           <Input
-            data-ocid="stripe.input"
-            type="password"
-            placeholder="sk_live_... or sk_test_..."
-            value={secretKey}
-            onChange={(e) => setSecretKey(e.target.value)}
+            data-ocid="payments.input"
+            value={keyId}
+            onChange={(e) => setKeyId(e.target.value)}
+            placeholder="rzp_live_xxxxxxxxxxxx"
+            className="font-mono text-sm"
           />
-          <p className="text-xs text-brand-body mt-1">
-            Find this in your Stripe Dashboard → Developers → API Keys
+          <p className="text-xs text-gray-400 mt-1">
+            Starts with rzp_live_ or rzp_test_
           </p>
         </div>
         <div>
           <Label className="text-sm font-medium text-brand-heading mb-1.5 block">
-            Allowed Countries (comma-separated)
+            Razorpay Key Secret
           </Label>
           <Input
-            data-ocid="stripe.countries_input"
-            placeholder="US,CA,GB,IN,AU"
-            value={countries}
-            onChange={(e) => setCountries(e.target.value)}
+            data-ocid="payments.input"
+            type="password"
+            value={keySecret}
+            onChange={(e) => setKeySecret(e.target.value)}
+            placeholder="Your Razorpay secret key"
+            className="font-mono text-sm"
           />
+          <p className="text-xs text-gray-400 mt-1">
+            Keep this secret — never share it publicly.
+          </p>
         </div>
         <Button
-          data-ocid="stripe.submit_button"
+          data-ocid="payments.submit_button"
           onClick={handleSave}
-          disabled={loading || !secretKey.trim()}
+          disabled={setSettings.isPending || !keyId || !keySecret}
           className="bg-brand-teal hover:bg-brand-teal-dark text-white"
         >
-          {loading ? (
+          {setSettings.isPending ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Saving...
@@ -1275,13 +1358,368 @@ function StripeConfigTab() {
           ) : (
             <>
               <CreditCard className="w-4 h-4 mr-2" />
-              {isConfigured
-                ? "Update Stripe Config"
-                : "Activate Stripe Payments"}
+              Save Payment Settings
             </>
           )}
         </Button>
       </div>
+    </div>
+  );
+}
+
+// ── AI Tools Tab ─────────────────────────────────────────────────────────────
+
+const CONTENT_TYPES = [
+  { value: "quiz", label: "Quiz Questions" },
+  { value: "course_outline", label: "Course Outline" },
+  { value: "lesson_plan", label: "Lesson Plan" },
+  { value: "blog_post", label: "Blog Post" },
+  { value: "marketing_copy", label: "Marketing Copy" },
+];
+
+const TEMPLATE_CATEGORIES = [
+  "Content Creation",
+  "Quiz Generation",
+  "SEO",
+  "Social Media",
+  "Email Marketing",
+  "Course Planning",
+];
+
+function AIToolsTab() {
+  const generateContent = useGenerateAIContent();
+  const { data: templates = [], isLoading: templatesLoading } =
+    usePromptTemplates();
+  const saveTemplate = useSavePromptTemplate();
+  const deleteTemplate = useDeletePromptTemplate();
+
+  // Generator state
+  const [contentType, setContentType] = useState("quiz");
+  const [topic, setTopic] = useState("");
+  const [generatedContent, setGeneratedContent] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  // Template form state
+  const [tplTitle, setTplTitle] = useState("");
+  const [tplCategory, setTplCategory] = useState(TEMPLATE_CATEGORIES[0]);
+  const [tplDescription, setTplDescription] = useState("");
+  const [tplPromptText, setTplPromptText] = useState("");
+  const [copiedTpl, setCopiedTpl] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    if (!topic.trim()) return;
+    try {
+      const result = await generateContent.mutateAsync({
+        contentType,
+        topic: topic.trim(),
+      });
+      setGeneratedContent(result);
+    } catch {
+      toast.error("Generation failed. Please try again.");
+    }
+  };
+
+  const handleCopyGenerated = () => {
+    navigator.clipboard.writeText(generatedContent);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!tplTitle.trim() || !tplPromptText.trim()) {
+      toast.error("Title and prompt text are required.");
+      return;
+    }
+    try {
+      await saveTemplate.mutateAsync({
+        title: tplTitle.trim(),
+        description: tplDescription.trim(),
+        promptText: tplPromptText.trim(),
+        category: tplCategory,
+      });
+      toast.success("Template saved!");
+      setTplTitle("");
+      setTplDescription("");
+      setTplPromptText("");
+    } catch {
+      toast.error("Failed to save template.");
+    }
+  };
+
+  const handleDeleteTemplate = async (id: string) => {
+    try {
+      await deleteTemplate.mutateAsync(id);
+      toast.success("Template deleted.");
+    } catch {
+      toast.error("Failed to delete template.");
+    }
+  };
+
+  const handleCopyTemplate = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedTpl(id);
+    setTimeout(() => setCopiedTpl(null), 2000);
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Section A: Content Generator */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-5 h-5 text-brand-orange" />
+          <h2 className="text-lg font-bold text-brand-heading">
+            AI Content Generator
+          </h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 mb-4">
+          <div className="space-y-2">
+            <Label>Content Type</Label>
+            <Select value={contentType} onValueChange={setContentType}>
+              <SelectTrigger data-ocid="admin.select">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {CONTENT_TYPES.map((ct) => (
+                  <SelectItem key={ct.value} value={ct.value}>
+                    {ct.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Topic / Subject</Label>
+            <Input
+              data-ocid="admin.input"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g. Introduction to SEO"
+              onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+            />
+          </div>
+        </div>
+        <Button
+          data-ocid="admin.primary_button"
+          onClick={handleGenerate}
+          disabled={generateContent.isPending || !topic.trim()}
+          className="bg-brand-orange hover:bg-brand-orange-dark text-white"
+        >
+          {generateContent.isPending ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Generate
+            </>
+          )}
+        </Button>
+
+        {generatedContent && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-brand-heading font-semibold">
+                Generated Content
+              </Label>
+              <Button
+                data-ocid="admin.secondary_button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopyGenerated}
+                className="text-xs border-brand-teal text-brand-teal hover:bg-brand-wash"
+              >
+                {copied ? (
+                  <CheckCheck className="w-3.5 h-3.5 mr-1" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 mr-1" />
+                )}
+                {copied ? "Copied!" : "Copy"}
+              </Button>
+            </div>
+            <Textarea
+              data-ocid="admin.textarea"
+              value={generatedContent}
+              onChange={(e) => setGeneratedContent(e.target.value)}
+              className="min-h-[200px] font-mono text-sm bg-gray-50 border-gray-200"
+            />
+          </div>
+        )}
+      </section>
+
+      <div className="border-t border-gray-100" />
+
+      {/* Section B: Prompt Library */}
+      <section>
+        <div className="flex items-center gap-2 mb-4">
+          <Brain className="w-5 h-5 text-brand-teal" />
+          <h2 className="text-lg font-bold text-brand-heading">
+            Prompt Library
+          </h2>
+        </div>
+
+        {/* Save new template */}
+        <Card className="border border-gray-100 bg-gray-50 mb-6">
+          <CardContent className="p-4 space-y-3">
+            <h3 className="font-semibold text-brand-heading text-sm">
+              Save New Template
+            </h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Title *</Label>
+                <Input
+                  data-ocid="admin.input"
+                  value={tplTitle}
+                  onChange={(e) => setTplTitle(e.target.value)}
+                  placeholder="Template name"
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Category</Label>
+                <Select value={tplCategory} onValueChange={setTplCategory}>
+                  <SelectTrigger
+                    data-ocid="admin.select"
+                    className="h-9 text-sm"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TEMPLATE_CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Description</Label>
+              <Input
+                data-ocid="admin.input"
+                value={tplDescription}
+                onChange={(e) => setTplDescription(e.target.value)}
+                placeholder="Brief description of what this prompt does"
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Prompt Text *</Label>
+              <Textarea
+                data-ocid="admin.textarea"
+                value={tplPromptText}
+                onChange={(e) => setTplPromptText(e.target.value)}
+                placeholder="Enter the full prompt text here..."
+                className="min-h-[80px] text-sm"
+              />
+            </div>
+            <Button
+              data-ocid="admin.save_button"
+              onClick={handleSaveTemplate}
+              disabled={saveTemplate.isPending}
+              size="sm"
+              className="bg-brand-teal hover:bg-brand-teal-dark text-white"
+            >
+              {saveTemplate.isPending ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-3.5 h-3.5 mr-1.5" />
+                  Save Template
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Templates list */}
+        {templatesLoading ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-20 bg-gray-100 rounded-xl animate-pulse"
+              />
+            ))}
+          </div>
+        ) : templates.length === 0 ? (
+          <div
+            data-ocid="admin.empty_state"
+            className="text-center py-10 text-brand-body"
+          >
+            <Brain className="w-10 h-10 mx-auto text-gray-200 mb-3" />
+            <p className="font-medium text-brand-heading mb-1">
+              No templates yet
+            </p>
+            <p className="text-sm">Save your first prompt template above.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {templates.map((tpl, i) => (
+              <Card
+                key={tpl.id}
+                data-ocid={`admin.item.${i + 1}`}
+                className="border border-gray-100"
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="font-semibold text-brand-heading text-sm">
+                          {tpl.title}
+                        </span>
+                        <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 text-xs">
+                          {tpl.category}
+                        </Badge>
+                      </div>
+                      {tpl.description && (
+                        <p className="text-xs text-brand-body mb-2">
+                          {tpl.description}
+                        </p>
+                      )}
+                      <div className="bg-gray-50 rounded-lg p-2 text-xs font-mono text-brand-body line-clamp-2 border border-gray-100">
+                        {tpl.promptText}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <Button
+                        data-ocid="admin.secondary_button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          handleCopyTemplate(tpl.promptText, tpl.id)
+                        }
+                        className="h-8 w-8 p-0 border-brand-teal text-brand-teal hover:bg-brand-wash"
+                      >
+                        {copiedTpl === tpl.id ? (
+                          <CheckCheck className="w-3.5 h-3.5" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </Button>
+                      <Button
+                        data-ocid="admin.delete_button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteTemplate(tpl.id)}
+                        disabled={deleteTemplate.isPending}
+                        className="h-8 w-8 p-0 border-red-200 text-red-500 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
@@ -1403,9 +1841,13 @@ export default function AdminPanel({ nav }: Props) {
               <Users className="w-4 h-4 mr-1" />
               Enrollments
             </TabsTrigger>
-            <TabsTrigger value="stripe" className="text-xs sm:text-sm">
+            <TabsTrigger value="payments" className="text-xs sm:text-sm">
               <CreditCard className="w-4 h-4 mr-1" />
               Payments
+            </TabsTrigger>
+            <TabsTrigger value="ai-tools" className="text-xs sm:text-sm">
+              <Brain className="w-4 h-4 mr-1" />
+              AI Tools
             </TabsTrigger>
           </TabsList>
 
@@ -1431,8 +1873,11 @@ export default function AdminPanel({ nav }: Props) {
             <TabsContent value="enrollments">
               <EnrollmentsTab />
             </TabsContent>
-            <TabsContent value="stripe">
-              <StripeConfigTab />
+            <TabsContent value="payments">
+              <RazorpayConfigTab />
+            </TabsContent>
+            <TabsContent value="ai-tools">
+              <AIToolsTab />
             </TabsContent>
           </div>
         </Tabs>
