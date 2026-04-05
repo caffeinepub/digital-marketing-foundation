@@ -27,7 +27,10 @@ import {
   GraduationCap,
   Loader2,
   LogIn,
+  MessageCircle,
+  TrendingUp,
   Trophy,
+  Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
@@ -83,7 +86,7 @@ function EnrolledCourseCard({
         courseId: enrollment.courseId,
         name: studentName.trim(),
       });
-      toast.success("Certificate claimed! 🎉");
+      toast.success("Certificate claimed!");
       setCertDialogOpen(false);
     } catch {
       toast.error("Failed to claim certificate.");
@@ -721,7 +724,7 @@ export default function StudentDashboard({ nav }: Props) {
                     className="border border-white/20 bg-white/10 backdrop-blur-sm"
                   >
                     <CardContent className="p-4">
-                      <div className="text-2xl mb-2">💬</div>
+                      <MessageCircle className="w-6 h-6 mb-2 text-white" />
                       <h3 className="font-semibold text-white text-sm mb-1">
                         Chat with AI
                       </h3>
@@ -736,7 +739,7 @@ export default function StudentDashboard({ nav }: Props) {
                     className="border border-white/20 bg-white/10 backdrop-blur-sm"
                   >
                     <CardContent className="p-4">
-                      <div className="text-2xl mb-2">⚡</div>
+                      <Zap className="w-6 h-6 mb-2 text-white" />
                       <h3 className="font-semibold text-white text-sm mb-1">
                         Prompt Engineering
                       </h3>
@@ -751,7 +754,7 @@ export default function StudentDashboard({ nav }: Props) {
                     className="border border-white/20 bg-white/10 backdrop-blur-sm"
                   >
                     <CardContent className="p-4">
-                      <div className="text-2xl mb-2">🚀</div>
+                      <TrendingUp className="w-6 h-6 mb-2 text-white" />
                       <h3 className="font-semibold text-white text-sm mb-1">
                         Skill Accelerator
                       </h3>

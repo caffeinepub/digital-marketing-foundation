@@ -317,7 +317,7 @@ const ALL_BLOGS: BlogPost[] = [
   },
   {
     id: 18,
-    title: "Affiliate Marketing in India: How to Earn \u20b950,000+ Per Month",
+    title: "Affiliate Marketing in India: How to Earn ₹50,000+ Per Month",
     category: "Content Marketing",
     date: "Feb 12, 2025",
     excerpt:
@@ -668,7 +668,7 @@ const ALL_BLOGS: BlogPost[] = [
   },
   {
     id: 55,
-    title: "How to Build a \u20b91 Crore Digital Marketing Agency from Scratch",
+    title: "How to Build a ₹1 Crore Digital Marketing Agency from Scratch",
     category: "Career Tips",
     date: "Nov 28, 2024",
     excerpt:

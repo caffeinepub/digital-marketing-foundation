@@ -518,7 +518,7 @@ export default function BlogArticlePage({ nav, articleId }: Props) {
             {content.tips && content.tips.length > 0 && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 my-8">
                 <h3 className="font-bold text-amber-800 mb-3 text-base">
-                  💡 Pro Tips
+                  Pro Tips
                 </h3>
                 <ul className="space-y-2">
                   {content.tips.map((tip, i) => (

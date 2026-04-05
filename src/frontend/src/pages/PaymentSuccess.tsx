@@ -71,7 +71,7 @@ export default function PaymentSuccess({ nav }: Props) {
               <CheckCircle2 className="w-12 h-12 text-emerald-500" />
             </motion.div>
             <h1 className="text-3xl font-extrabold text-brand-heading mb-3">
-              Payment Successful! 🎉
+              Payment Successful!
             </h1>
             <p className="text-brand-body mb-8">
               Your enrollment is confirmed. Start learning today and transform

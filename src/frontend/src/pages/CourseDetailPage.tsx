@@ -151,6 +151,26 @@ function ModuleSection({
   );
 }
 
+const COURSE_IMAGE_MAP: Record<string, string> = {
+  "Digital Marketing":
+    "/assets/generated/course-digital-marketing.dim_800x450.jpg",
+  SEO: "/assets/generated/course-seo.dim_800x450.jpg",
+  "SEO Mastery": "/assets/generated/course-seo.dim_800x450.jpg",
+  "Social Media Marketing":
+    "/assets/generated/course-social-media.dim_800x450.jpg",
+  "Performance Marketing":
+    "/assets/generated/course-performance-marketing.dim_800x450.jpg",
+  "Performance Marketing Mastery":
+    "/assets/generated/course-performance-marketing.dim_800x450.jpg",
+  "Learn the Art of Designing":
+    "/assets/generated/course-designing.dim_800x450.jpg",
+  "Learn the Art of Sales": "/assets/generated/course-sales.dim_800x450.jpg",
+  "MS Office": "/assets/generated/course-ms-office.dim_800x450.jpg",
+  "MS Office Complete Course":
+    "/assets/generated/course-ms-office.dim_800x450.jpg",
+  "Google Ads": "/assets/generated/course-google-ads.dim_800x450.jpg",
+};
+
 export default function CourseDetailPage({
   nav,
   courseId,
@@ -330,7 +350,8 @@ export default function CourseDetailPage({
               <img
                 src={
                   course.thumbnailUrl ||
-                  "/assets/generated/course-social-media.dim_400x240.jpg"
+                  COURSE_IMAGE_MAP[course.title] ||
+                  "/assets/generated/course-digital-marketing.dim_800x450.jpg"
                 }
                 alt={course.title}
                 className="w-full h-32 object-cover rounded-xl mb-4"

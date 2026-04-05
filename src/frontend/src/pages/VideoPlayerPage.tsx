@@ -268,7 +268,7 @@ export default function VideoPlayerPage({
                     <XCircle className="w-14 h-14 text-red-400 mx-auto mb-4" />
                   )}
                   <h2 className="text-2xl font-extrabold text-brand-heading mb-2">
-                    {quizResult.passed ? "Quiz Passed! 🎉" : "Quiz Not Passed"}
+                    {quizResult.passed ? "Quiz Passed!" : "Quiz Not Passed"}
                   </h2>
                   <p className="text-brand-body mb-2">
                     You scored {quizResult.score}%

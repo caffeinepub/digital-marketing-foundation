@@ -75,7 +75,7 @@ const STATIC_COURSES = [
       "Rank on Google's first page with advanced SEO techniques, keyword research, and technical optimization — AI-powered.",
     tier: "professional",
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-seo.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-seo.dim_800x450.jpg",
   },
   {
     id: "static-2",
@@ -84,7 +84,7 @@ const STATIC_COURSES = [
       "Master Facebook, Instagram, LinkedIn & WhatsApp advertising with AI-powered targeting and creative tools.",
     tier: "professional",
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-social-media.dim_800x450.jpg",
   },
   {
     id: "static-3",
@@ -93,7 +93,7 @@ const STATIC_COURSES = [
       "Run profitable Google, YouTube and Display Network campaigns with AI bidding strategies and smart automation.",
     tier: "advanced",
     priceInr: BigInt(34999),
-    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-google-ads.dim_800x450.jpg",
   },
   {
     id: "static-4",
@@ -102,7 +102,7 @@ const STATIC_COURSES = [
       "From design basics to Photoshop, Illustrator, Figma & AI design tools. Create stunning visuals for any brand.",
     tier: "professional",
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-seo.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-designing.dim_800x450.jpg",
   },
   {
     id: "static-5",
@@ -111,7 +111,7 @@ const STATIC_COURSES = [
       "Master consultative selling, negotiation, and closing techniques. Includes AI-powered sales scripts and CRM training.",
     tier: "professional",
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-sales.dim_800x450.jpg",
   },
   {
     id: "static-6",
@@ -120,7 +120,7 @@ const STATIC_COURSES = [
       "Professional mastery of Word, Excel, PowerPoint & Teams with Microsoft Copilot AI features for modern workplace productivity.",
     tier: "professional",
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-ms-office.dim_800x450.jpg",
   },
   {
     id: "static-7",
@@ -129,14 +129,15 @@ const STATIC_COURSES = [
       "Master Google Ads, Meta Ads, ROI tracking, funnel optimization, CRO, retargeting and performance dashboards. AI-powered advanced course.",
     tier: "performance",
     priceInr: BigInt(74999),
-    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+    thumbnailUrl:
+      "/assets/generated/course-performance-marketing.dim_800x450.jpg",
   },
 ];
 
 const PRICING_PLANS = [
   {
     tier: "Professional",
-    price: "\u20b924,999",
+    price: "₹24,999",
     tagline: "From Scratch to Professional Level",
     popular: true,
     priceId: "price_pro_24999",
@@ -157,7 +158,7 @@ const PRICING_PLANS = [
   },
   {
     tier: "Advanced",
-    price: "\u20b934,999",
+    price: "₹34,999",
     tagline: "From Scratch to Master Level",
     popular: false,
     priceId: "price_advanced_34999",
@@ -178,7 +179,7 @@ const PRICING_PLANS = [
   },
   {
     tier: "Performance Marketing",
-    price: "\u20b974,999",
+    price: "₹74,999",
     tagline: "Master-Level Performance & ROI",
     popular: false,
     priceId: "price_performance_74999",
@@ -295,6 +296,32 @@ const ALL_COURSES_LIST = [
   { icon: TrendingUp, name: "Performance Marketing", tier: "Performance" },
 ];
 
+const COURSE_IMAGE_MAP: Record<string, string> = {
+  "Digital Marketing":
+    "/assets/generated/course-digital-marketing.dim_800x450.jpg",
+  SEO: "/assets/generated/course-seo.dim_800x450.jpg",
+  "SEO Mastery": "/assets/generated/course-seo.dim_800x450.jpg",
+  "Digital Marketing: SEO Mastery":
+    "/assets/generated/course-seo.dim_800x450.jpg",
+  "Social Media Marketing":
+    "/assets/generated/course-social-media.dim_800x450.jpg",
+  "Social Media Marketing Mastery":
+    "/assets/generated/course-social-media.dim_800x450.jpg",
+  "Performance Marketing":
+    "/assets/generated/course-performance-marketing.dim_800x450.jpg",
+  "Performance Marketing Mastery":
+    "/assets/generated/course-performance-marketing.dim_800x450.jpg",
+  "Learn the Art of Designing":
+    "/assets/generated/course-designing.dim_800x450.jpg",
+  "Learn the Art of Sales": "/assets/generated/course-sales.dim_800x450.jpg",
+  "MS Office": "/assets/generated/course-ms-office.dim_800x450.jpg",
+  "MS Office Complete Course":
+    "/assets/generated/course-ms-office.dim_800x450.jpg",
+  "Google Ads": "/assets/generated/course-google-ads.dim_800x450.jpg",
+  "Digital Marketing: Google Ads & PPC Expert":
+    "/assets/generated/course-google-ads.dim_800x450.jpg",
+};
+
 function CourseCard({
   course,
   onEnroll,
@@ -339,7 +366,8 @@ function CourseCard({
           <img
             src={
               course.thumbnailUrl ||
-              "/assets/generated/course-seo.dim_400x240.jpg"
+              COURSE_IMAGE_MAP[course.title] ||
+              "/assets/generated/course-digital-marketing.dim_800x450.jpg"
             }
             alt={course.title}
             className="w-full h-full object-cover"
@@ -363,7 +391,7 @@ function CourseCard({
           </p>
           <div className="mt-auto flex items-center justify-between">
             <span className="font-bold text-brand-heading text-lg">
-              \u20b9{Number(course.priceInr).toLocaleString("en-IN")}
+              ₹{Number(course.priceInr).toLocaleString("en-IN")}
             </span>
             <Button
               data-ocid="courses.primary_button"
@@ -401,7 +429,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
     }
     meta.setAttribute(
       "content",
-      "India's #1 AI-powered digital marketing course. Professional \u20b924,999 | Advanced \u20b934,999 | Performance Marketing \u20b974,999. Learn SEO, Google Ads, Meta Ads, Social Media, Performance Marketing. Govt. recognized certification. 35,000+ students.",
+      "India's #1 AI-powered digital marketing course. Professional ₹24,999 | Advanced ₹34,999 | Performance Marketing ₹74,999. Learn SEO, Google Ads, Meta Ads, Social Media, Performance Marketing. Govt. recognized certification. 35,000+ students.",
     );
     let keywords = document.querySelector("meta[name='keywords']");
     if (!keywords) {
@@ -494,7 +522,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
               transition={{ duration: 0.6 }}
             >
               <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-4 font-medium">
-                \ud83d\ude80 India's #1 AI-Powered Digital Marketing Platform
+                India's #1 AI-Powered Digital Marketing Platform
               </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-brand-heading leading-tight mb-5">
                 Master Digital Marketing &amp;
@@ -842,19 +870,19 @@ export default function LandingPage({ nav }: LandingPageProps) {
               </thead>
               <tbody>
                 {[
-                  ["India-Specific Curriculum", "✅", "❌", "❌", "❌"],
-                  ["Govt. Recognized Certificate", "✅", "❌", "❌", "❌"],
-                  ["AI-Powered Learning", "✅", "❌", "Partial", "❌"],
-                  ["Live Mentor Sessions", "✅", "❌", "Paid Extra", "❌"],
-                  ["INR Pricing (No FX)", "✅", "❌", "❌", "Free (Basic)"],
-                  ["Placement Support", "✅", "❌", "❌", "❌"],
-                  ["WhatsApp Support", "✅", "❌", "❌", "❌"],
+                  ["India-Specific Curriculum", "Yes", "No", "No", "No"],
+                  ["Govt. Recognized Certificate", "Yes", "No", "No", "No"],
+                  ["AI-Powered Learning", "Yes", "No", "Partial", "No"],
+                  ["Live Mentor Sessions", "Yes", "No", "Paid Extra", "No"],
+                  ["INR Pricing (No FX)", "Yes", "No", "No", "Free (Basic)"],
+                  ["Placement Support", "Yes", "No", "No", "No"],
+                  ["WhatsApp Support", "Yes", "No", "No", "No"],
                   [
                     "Performance Marketing Course",
-                    "✅",
+                    "Yes",
                     "Partial",
                     "Partial",
-                    "❌",
+                    "No",
                   ],
                 ].map(([feature, dmf, udemy, coursera, hubspot]) => (
                   <tr
@@ -864,17 +892,57 @@ export default function LandingPage({ nav }: LandingPageProps) {
                     <td className="py-3 px-4 font-medium text-brand-heading">
                       {feature}
                     </td>
-                    <td className="py-3 px-4 text-center font-semibold text-brand-teal bg-brand-teal/5">
-                      {dmf}
+                    <td className="py-3 px-4 text-center font-semibold bg-brand-teal/5">
+                      <span
+                        className={
+                          dmf === "Yes"
+                            ? "text-green-600 font-bold"
+                            : dmf === "No"
+                              ? "text-red-500"
+                              : "text-brand-teal font-semibold"
+                        }
+                      >
+                        {dmf}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-center text-gray-500">
-                      {udemy}
+                    <td className="py-3 px-4 text-center">
+                      <span
+                        className={
+                          udemy === "Yes"
+                            ? "text-green-600 font-bold"
+                            : udemy === "No"
+                              ? "text-red-400"
+                              : "text-gray-500"
+                        }
+                      >
+                        {udemy}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-center text-gray-500">
-                      {coursera}
+                    <td className="py-3 px-4 text-center">
+                      <span
+                        className={
+                          coursera === "Yes"
+                            ? "text-green-600 font-bold"
+                            : coursera === "No"
+                              ? "text-red-400"
+                              : "text-gray-500"
+                        }
+                      >
+                        {coursera}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-center text-gray-500">
-                      {hubspot}
+                    <td className="py-3 px-4 text-center">
+                      <span
+                        className={
+                          hubspot === "Yes"
+                            ? "text-green-600 font-bold"
+                            : hubspot === "No"
+                              ? "text-red-400"
+                              : "text-gray-500"
+                        }
+                      >
+                        {hubspot}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -1097,7 +1165,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
               },
               {
                 q: "What is the difference between Professional, Advanced, and Performance Marketing?",
-                a: "Professional (\u20b924,999) covers all core digital marketing channels. Advanced (\u20b934,999) adds AI automation, live workshops, and placement support. Performance Marketing (\u20b974,999) is for those who want to master paid advertising, ROI tracking, and agency-level campaign management.",
+                a: "Professional (₹24,999) covers all core digital marketing channels. Advanced (₹34,999) adds AI automation, live workshops, and placement support. Performance Marketing (₹74,999) is for those who want to master paid advertising, ROI tracking, and agency-level campaign management.",
               },
               {
                 q: "Do you provide placement or job support?",
