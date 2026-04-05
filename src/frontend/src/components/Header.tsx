@@ -81,16 +81,16 @@ export default function Header({ nav, currentPage }: HeaderProps) {
         className="sticky top-0 z-50 transition-all duration-300"
         style={{
           background: scrolled
-            ? "oklch(5% 0.01 250 / 0.96)"
-            : "oklch(5% 0.01 250 / 0.6)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
+            ? "oklch(4% 0.008 250 / 0.97)"
+            : "oklch(4% 0.008 250 / 0.55)",
+          backdropFilter: "blur(28px)",
+          WebkitBackdropFilter: "blur(28px)",
           borderBottom: scrolled
-            ? "1px solid oklch(60% 0.25 230 / 0.2)"
+            ? "1px solid oklch(60% 0.25 230 / 0.18)"
             : "1px solid transparent",
         }}
       >
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <button
             type="button"
@@ -98,27 +98,22 @@ export default function Header({ nav, currentPage }: HeaderProps) {
             onClick={() => nav.navigate("landing")}
             className="flex items-center gap-3 group"
           >
-            {/* Icon mark */}
             <div
-              className="relative w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105"
+              className="relative w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105 logo-glow-pulse"
               style={{
-                background: "oklch(60% 0.25 230 / 0.15)",
-                border: "1px solid oklch(60% 0.25 230 / 0.45)",
-                boxShadow: scrolled
-                  ? "0 0 14px oklch(60% 0.25 230 / 0.3)"
-                  : "0 0 10px oklch(60% 0.25 230 / 0.2)",
+                background: "oklch(60% 0.25 230 / 0.12)",
+                border: "1px solid oklch(60% 0.25 230 / 0.4)",
               }}
             >
               <Cpu className="w-4 h-4 text-primary" />
             </div>
-            {/* Wordmark */}
             <div className="flex flex-col leading-none">
-              <span className="font-bold text-sm font-mono text-primary tracking-widest uppercase glow-blue-text">
+              <span className="font-black text-sm font-mono text-primary tracking-widest uppercase">
                 DMF
               </span>
               <span
                 className="hidden sm:block text-[10px] font-medium tracking-wide mt-0.5"
-                style={{ color: "oklch(50% 0.01 250)" }}
+                style={{ color: "oklch(40% 0.01 250)" }}
               >
                 Digital Marketing Foundation
               </span>
@@ -222,7 +217,13 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   data-ocid="header.primary_button"
                   size="sm"
                   onClick={() => openEmailModal("signup")}
-                  className="btn-gold rounded-full px-5 font-semibold text-xs"
+                  className="rounded-full px-5 font-bold text-xs text-white"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, oklch(55% 0.28 230), oklch(45% 0.22 290))",
+                    boxShadow: "0 0 14px oklch(60% 0.25 230 / 0.3)",
+                    border: "none",
+                  }}
                 >
                   <UserPlus className="w-3.5 h-3.5 mr-1" />
                   Sign Up
@@ -250,9 +251,9 @@ export default function Header({ nav, currentPage }: HeaderProps) {
         {/* Mobile Menu */}
         {menuOpen && (
           <div
-            className="md:hidden px-4 py-4 flex flex-col gap-3"
+            className="md:hidden px-6 py-5 flex flex-col gap-3"
             style={{
-              background: "oklch(5% 0.01 250 / 0.98)",
+              background: "oklch(4% 0.008 250 / 0.98)",
               borderTop: "1px solid oklch(60% 0.25 230 / 0.12)",
             }}
           >
@@ -262,7 +263,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                 key={link.label}
                 data-ocid="header.link"
                 onClick={() => handleNavClick(link)}
-                className="text-left text-sm font-medium py-1 text-muted-foreground hover:text-foreground transition-colors"
+                className="text-left text-sm font-medium py-1.5 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {link.label}
               </button>
@@ -275,12 +276,15 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   nav.navigate("admin");
                   setMenuOpen(false);
                 }}
-                className="text-left text-sm font-medium py-1 text-muted-foreground hover:text-foreground transition-colors"
+                className="text-left text-sm font-medium py-1.5 text-muted-foreground hover:text-foreground transition-colors"
               >
                 Admin Panel
               </button>
             )}
-            <div className="flex flex-col gap-2 pt-2">
+            <div
+              className="flex flex-col gap-2 pt-2 border-t"
+              style={{ borderColor: "oklch(60% 0.25 230 / 0.1)" }}
+            >
               {isLoggedIn ? (
                 <>
                   {isEmailLoggedIn && emailUser && (
@@ -342,7 +346,12 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                     data-ocid="header.primary_button"
                     size="sm"
                     onClick={() => openEmailModal("signup")}
-                    className="btn-gold rounded-full"
+                    className="rounded-full font-bold text-white"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, oklch(55% 0.28 230), oklch(45% 0.22 290))",
+                      border: "none",
+                    }}
                   >
                     <UserPlus className="w-4 h-4 mr-1" />
                     Sign Up

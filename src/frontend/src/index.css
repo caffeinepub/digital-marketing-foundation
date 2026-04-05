@@ -106,15 +106,16 @@
       oklch(60% 0.25 230 / 0.15);
   }
   .glow-blue-text {
-    text-shadow: 0 0 24px oklch(60% 0.25 230 / 0.9);
+    text-shadow: 0 0 40px oklch(60% 0.25 230 / 0.7);
   }
 
   /* ─── Neural grid background ──────────────────────── */
   .neural-grid {
     background-image: linear-gradient(
-        oklch(60% 0.25 230 / 0.04) 1px,
+        oklch(60% 0.25 230 / 0.035) 1px,
         transparent 1px
-      ), linear-gradient(90deg, oklch(60% 0.25 230 / 0.04) 1px, transparent 1px);
+      ),
+      linear-gradient(90deg, oklch(60% 0.25 230 / 0.035) 1px, transparent 1px);
     background-size: 60px 60px;
   }
 
@@ -241,42 +242,217 @@
     content: "";
     position: absolute;
     bottom: -2px;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     height: 1px;
     width: 0;
     background: oklch(60% 0.25 230);
-    transition: width 0.2s ease;
+    transition: width 0.25s ease;
   }
   .nav-link-underline:hover::after {
     width: 100%;
   }
   .nav-link-underline.active::after {
     width: 100%;
-    background: oklch(70% 0.2 200);
   }
 
-  /* ─── Animations ─────────────────────────────────────── */
-  @keyframes neural-pulse {
+  /* ─── Scroll progress bar ──────────────────────────── */
+  .scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: calc(var(--scroll-progress, 0) * 100%);
+    background: linear-gradient(
+      90deg,
+      oklch(60% 0.25 230),
+      oklch(70% 0.2 200),
+      oklch(45% 0.22 290)
+    );
+    z-index: 9999;
+    pointer-events: none;
+    transition: width 0.05s linear;
+  }
+
+  /* ─── Section counter watermark ────────────────────── */
+  .section-counter {
+    position: absolute;
+    top: -0.1em;
+    left: -0.05em;
+    font-size: clamp(100px, 18vw, 200px);
+    font-weight: 900;
+    font-family: "JetBrains Mono", monospace;
+    color: oklch(60% 0.25 230 / 0.04);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.05em;
+    z-index: 0;
+  }
+
+  /* ─── Marquee ───────────────────────────────────────── */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes marquee-reverse {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  .animate-marquee-reverse {
+    animation: marquee-reverse 40s linear infinite;
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+
+  /* ─── Course card editorial hover ──────────────────── */
+  .course-card-editorial {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.3s
+      ease, border-color 0.3s ease;
+    border: 1px solid oklch(60% 0.25 230 / 0.12);
+    background: oklch(7% 0.013 250);
+  }
+  .course-card-editorial:hover {
+    transform: translateY(-10px);
+    border-color: oklch(60% 0.25 230 / 0.45);
+    box-shadow: 0 20px 60px oklch(0% 0 0 / 0.5), 0 0 30px
+      oklch(60% 0.25 230 / 0.12);
+  }
+  .course-card-editorial .card-img {
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  .course-card-editorial:hover .card-img {
+    transform: scale(1.05);
+  }
+  .course-card-editorial .card-arrow {
+    opacity: 0;
+    transform: translate(-4px, 4px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .course-card-editorial:hover .card-arrow {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  .course-card-editorial .card-enroll-overlay {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .course-card-editorial:hover .card-enroll-overlay {
+    opacity: 1;
+  }
+
+  /* ─── Tilt card ─────────────────────────────────────── */
+  .tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 0.15s ease-out;
+    will-change: transform;
+  }
+
+  /* ─── Process step ──────────────────────────────────── */
+  .process-step {
+    position: relative;
+  }
+  .process-step::before {
+    content: attr(data-step);
+    position: absolute;
+    top: -0.15em;
+    left: -0.05em;
+    font-size: clamp(80px, 12vw, 140px);
+    font-weight: 900;
+    font-family: "JetBrains Mono", monospace;
+    color: oklch(60% 0.25 230 / 0.05);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    letter-spacing: -0.05em;
+    z-index: 0;
+  }
+
+  /* ─── Animated gradient border ─────────────────────── */
+  @keyframes gradient-spin {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  .animated-gradient-border {
+    position: relative;
+  }
+  .animated-gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      oklch(60% 0.25 230),
+      oklch(45% 0.22 290),
+      oklch(70% 0.2 200),
+      oklch(60% 0.25 230)
+    );
+    background-size: 300% 300%;
+    animation: gradient-spin 4s ease infinite;
+    z-index: -1;
+  }
+  .animated-gradient-border::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: calc(inherit - 1px);
+    background: oklch(9% 0.02 250);
+    z-index: -1;
+  }
+
+  /* ─── Stat counter glow ring ─────────────────────────  */
+  @keyframes ring-pulse {
     0%,
     100% {
-      opacity: 0.6;
+      opacity: 0.3;
       transform: scale(1);
     }
     50% {
-      opacity: 1;
-      transform: scale(1.05);
+      opacity: 0.7;
+      transform: scale(1.06);
     }
   }
+  .stat-ring {
+    animation: ring-pulse 3s ease-in-out infinite;
+  }
+  .stat-ring-delay {
+    animation: ring-pulse 3s ease-in-out 1.5s infinite;
+  }
 
+  /* ─── Keyframes ─────────────────────────────────────── */
   @keyframes pulse-ring {
     0% {
-      box-shadow: 0 0 0 0 oklch(60% 0.25 230 / 0.55);
-    }
-    70% {
-      box-shadow: 0 0 0 14px oklch(60% 0.25 230 / 0);
+      transform: scale(1);
+      opacity: 0.7;
     }
     100% {
-      box-shadow: 0 0 0 0 oklch(60% 0.25 230 / 0);
+      transform: scale(2);
+      opacity: 0;
     }
   }
 
@@ -303,6 +479,21 @@
 
   .badge-pulse {
     animation: badge-glow 3s ease-in-out infinite;
+  }
+
+  /* ─── Logo glow pulse ───────────────────────────────── */
+  @keyframes logo-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 10px oklch(60% 0.25 230 / 0.25);
+    }
+    50% {
+      box-shadow: 0 0 22px oklch(60% 0.25 230 / 0.55), 0 0 40px
+        oklch(60% 0.25 230 / 0.15);
+    }
+  }
+  .logo-glow-pulse {
+    animation: logo-glow 4s ease-in-out infinite;
   }
 
   /* Legacy aliases */

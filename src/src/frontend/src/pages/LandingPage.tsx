@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
+  Gift,
   Globe,
   LineChart,
   Loader2,
@@ -68,7 +69,7 @@ const STATIC_COURSES = [
       "Rank on Google's first page with advanced SEO techniques, keyword research, and technical optimization — AI-powered.",
     tier: { __kind__: "professional" },
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-seo.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-seo-hitech.dim_800x450.jpg",
   },
   {
     id: "static-2",
@@ -77,7 +78,8 @@ const STATIC_COURSES = [
       "Master Facebook, Instagram, LinkedIn & WhatsApp advertising with AI-powered targeting and creative tools.",
     tier: { __kind__: "professional" },
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
+    thumbnailUrl:
+      "/assets/generated/course-social-media-hitech.dim_800x450.jpg",
   },
   {
     id: "static-3",
@@ -86,7 +88,7 @@ const STATIC_COURSES = [
       "Run profitable Google, YouTube and Display Network campaigns with AI bidding strategies and smart automation.",
     tier: { __kind__: "advanced" },
     priceInr: BigInt(34999),
-    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-google-ads-hitech.dim_800x450.jpg",
   },
   {
     id: "static-4",
@@ -95,7 +97,7 @@ const STATIC_COURSES = [
       "From design basics to Photoshop, Illustrator, Figma & AI design tools. Create stunning visuals for any brand.",
     tier: { __kind__: "professional" },
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-seo.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-designing-hitech.dim_800x450.jpg",
   },
   {
     id: "static-5",
@@ -104,7 +106,7 @@ const STATIC_COURSES = [
       "Master consultative selling, negotiation, and closing techniques. Includes AI-powered sales scripts and CRM training.",
     tier: { __kind__: "professional" },
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-social-media.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-sales-hitech.dim_800x450.jpg",
   },
   {
     id: "static-6",
@@ -113,7 +115,7 @@ const STATIC_COURSES = [
       "Professional mastery of Word, Excel, PowerPoint & Teams with Microsoft Copilot AI features for modern workplace productivity.",
     tier: { __kind__: "professional" },
     priceInr: BigInt(24999),
-    thumbnailUrl: "/assets/generated/course-google-ads.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-ms-office-hitech.dim_800x450.jpg",
   },
   {
     id: "static-7",
@@ -122,7 +124,7 @@ const STATIC_COURSES = [
       "High-ticket Meta Ads, Google Ads, ROI optimization, conversion rate optimization. Scale campaigns to Rs.10L+ monthly ad spend.",
     tier: { __kind__: "performance" },
     priceInr: BigInt(74999),
-    thumbnailUrl: "/assets/generated/course-performance.dim_400x240.jpg",
+    thumbnailUrl: "/assets/generated/course-performance-hitech.dim_800x450.jpg",
   },
 ];
 
@@ -318,7 +320,7 @@ function CourseCard({
           <img
             src={
               course.thumbnailUrl ||
-              "/assets/generated/course-seo.dim_400x240.jpg"
+              "/assets/generated/course-seo-hitech.dim_800x450.jpg"
             }
             alt={course.title}
             className="w-full h-full object-cover"
@@ -601,19 +603,19 @@ export default function LandingPage({ nav }: LandingPageProps) {
                 desc: "Expert-recorded content",
               },
               {
-                icon: FileText,
-                label: "Quizzes & Assignments",
-                desc: "Weekly challenges",
+                icon: Gift,
+                label: "Weekly Assignments",
+                desc: "With gift card rewards",
               },
               {
                 icon: Zap,
-                label: "AI-Powered Learning",
-                desc: "Personalized paths",
+                label: "AI-Powered Quizzes",
+                desc: "Adaptive post-video tests",
               },
               {
-                icon: Trophy,
-                label: "Certifications",
-                desc: "Govt. recognized",
+                icon: Users,
+                label: "Live Mentoring",
+                desc: "Industry expert sessions",
               },
             ].map(({ icon: Icon, label, desc }) => (
               <motion.div
