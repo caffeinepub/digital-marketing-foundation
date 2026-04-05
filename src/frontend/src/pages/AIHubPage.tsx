@@ -17,6 +17,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { AppNav } from "../App";
+import { useEmailAuth } from "../hooks/useEmailAuth";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useChatWithAI } from "../hooks/useQueries";
 
@@ -42,7 +43,7 @@ const PROMPT_EXERCISES = [
     title: "Facebook Ad Prompt",
     description: "Write a compelling Facebook ad for a new product",
     prompt:
-      "Write me a Facebook ad copy for a digital marketing course targeting small business owners. The course costs ₹24,999 and teaches SEO, social media, and content marketing from scratch.",
+      "Write me a Facebook ad copy for a digital marketing course targeting small business owners. The course costs Rs. 24,999 and teaches SEO, social media, and content marketing from scratch.",
     icon: Target,
     color: "text-blue-500",
     bg: "bg-blue-50",
@@ -96,7 +97,7 @@ const PROMPT_EXERCISES = [
     title: "YouTube Script Hook",
     description: "Write the first 60 seconds of a YouTube video script",
     prompt:
-      "Write the first 60 seconds of a YouTube script for a video titled 'I Earned ₹1 Lakh with Digital Marketing in 30 Days – Here's How'. Start with a strong hook, build curiosity, and end with a subscribe CTA.",
+      "Write the first 60 seconds of a YouTube script for a video titled 'I Earned Rs. 1 Lakh with Digital Marketing in 30 Days - Here's How'. Start with a strong hook, build curiosity, and end with a subscribe CTA.",
     icon: Zap,
     color: "text-red-500",
     bg: "bg-red-50",
@@ -114,7 +115,8 @@ const PROMPT_EXERCISES = [
 
 export default function AIHubPage({ nav: _nav }: Props) {
   const { identity, login, loginStatus } = useInternetIdentity();
-  const isLoggedIn = !!identity;
+  const { isEmailLoggedIn, emailUser } = useEmailAuth();
+  const isLoggedIn = !!identity || isEmailLoggedIn;
   const isLoggingIn = loginStatus === "logging-in";
   const chatWithAI = useChatWithAI();
 
@@ -148,13 +150,13 @@ export default function AIHubPage({ nav: _nav }: Props) {
         ...prev,
         { role: "assistant", content: response, id: `ai-${Date.now()}` },
       ]);
-    } catch {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content:
-            "Sorry, I couldn't process your request right now. Please try again.",
+          content: `Sorry, I couldn't process your request. Error: ${errorMessage}`,
           id: `error-${Date.now()}`,
         },
       ]);
@@ -211,6 +213,11 @@ export default function AIHubPage({ nav: _nav }: Props) {
     );
   }
 
+  const heroTitle =
+    isEmailLoggedIn && emailUser
+      ? `Welcome, ${emailUser.name}`
+      : "AI Practice Hub";
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -225,7 +232,7 @@ export default function AIHubPage({ nav: _nav }: Props) {
               <Brain className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold">AI Practice Hub</h1>
+              <h1 className="text-2xl font-extrabold">{heroTitle}</h1>
               <p className="text-white/80 text-sm">
                 Chat with AI, practice prompts, and level up your digital
                 marketing skills
