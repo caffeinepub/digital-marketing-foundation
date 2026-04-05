@@ -9,7 +9,10 @@ interface Props {
 
 export default function PaymentFailure({ nav }: Props) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50">
+    <div
+      className="min-h-screen flex items-center justify-center neural-grid"
+      style={{ background: "oklch(5% 0.01 250)" }}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -20,14 +23,18 @@ export default function PaymentFailure({ nav }: Props) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 12 }}
-          className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6"
+          className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
+          style={{
+            background: "oklch(55% 0.2 25 / 0.15)",
+            border: "2px solid oklch(55% 0.2 25 / 0.5)",
+          }}
         >
-          <XCircle className="w-12 h-12 text-red-500" />
+          <XCircle className="w-12 h-12 text-destructive" />
         </motion.div>
-        <h1 className="text-3xl font-extrabold text-brand-heading mb-3">
+        <h1 className="text-3xl font-extrabold text-foreground mb-3">
           Payment Cancelled
         </h1>
-        <p className="text-brand-body mb-8">
+        <p className="mb-8" style={{ color: "oklch(55% 0.01 250)" }}>
           Your payment was not completed. No charges were made. You can try
           again whenever you're ready.
         </p>
@@ -36,7 +43,7 @@ export default function PaymentFailure({ nav }: Props) {
             data-ocid="payment_failure.primary_button"
             size="lg"
             onClick={() => nav.navigate("landing")}
-            className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-8 font-semibold shadow-orange"
+            className="btn-gold rounded-full px-8 font-semibold glow-blue"
           >
             Try Again
           </Button>
@@ -45,7 +52,7 @@ export default function PaymentFailure({ nav }: Props) {
             size="lg"
             variant="outline"
             onClick={() => nav.navigate("landing")}
-            className="rounded-full px-8 border-brand-teal text-brand-teal"
+            className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10"
           >
             Browse Courses
           </Button>

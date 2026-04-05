@@ -1,59 +1,106 @@
-# Digital Marketing Foundation - Complete Website
+# Digital Marketing Foundation -- Neural AI Redesign
 
 ## Current State
-The platform is a full-stack digital marketing learning site built on ICP with:
-- Motoko backend with: courses, modules, videos, quiz, enrollments, assignments, certificates, Razorpay payment settings, authorization/blob-storage
-- React frontend with pages: LandingPage, StudentDashboard, AdminPanel, CourseDetailPage, VideoPlayerPage, BlogsPage, NewsPage, BlogArticlePage, NewsArticlePage, PaymentSuccess, PaymentFailure
-- WhatsApp+YouTube green/red color scheme in index.css
-- Pricing shows Professional (Rs.24,999) and Advanced (Rs.34,999) only — Performance Marketing (Rs.74,999) MISSING from pricing/landing page
-- No WhatsApp AI chatbot component (floating widget + homepage section)
-- No email/Gmail login with OTP flow
-- No LinkedIn certificate sharing (unique certificate URLs, "Add to LinkedIn" button)
-- Admin panel has NO Users tab and NO AI Tools tab
-- Student Dashboard has NO AI Hub section
-- No CertificatePage with shareable URL (/certificate/:id)
-- Blog and News articles exist but some 2026 content needs full article text
-- SEO meta tags exist but can be improved
-- Right-click protection present in Header
-- Performance Marketing backend variant exists as #performance in backend but frontend doesn't handle it
+
+The site is a full-stack learning platform (React + Motoko) with:
+- LandingPage.tsx -- full homepage with all sections
+- Header.tsx -- navigation bar
+- Footer.tsx -- site footer
+- WhatsAppChatbot.tsx -- floating chat widget + homepage section (currently WhatsApp green themed)
+- MoleculeBackground.tsx -- existing background (Broadway gold/spotlight, needs full replacement)
+- StageSpotlight.tsx -- Broadway-era spotlights (to be removed/replaced)
+- GoldDivider.tsx -- gold ornamental dividers (to be removed)
+- GlowCard.tsx -- gold glow cards (to be redesigned)
+- StudentDashboard.tsx, AdminPanel.tsx, AIHubPage.tsx, BlogsPage.tsx, NewsPage.tsx, CertificatePage.tsx, CourseDetailPage.tsx, VideoPlayerPage.tsx, PaymentSuccess.tsx, PaymentFailure.tsx, BlogArticlePage.tsx, NewsArticlePage.tsx
+- index.css -- current color tokens (Broadway gold/black)
+
+Current theme: Broadway luxury (gold, crimson velvet, Playfair Display, spotlight beams). This must be completely replaced.
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Performance Marketing tier** (Rs.74,999) to LandingPage pricing section and STATIC_COURSES
-- **WhatsApp AI Advisor chatbot**: floating widget (bottom-right, every page) + homepage full section. WhatsApp-style green UI, ChatGPT-powered (OpenAI API), guided flow (skill level → goal → interests → course recommendation with enroll links), then free-form chat
-- **Email/Gmail login with OTP** alongside Internet Identity in Header and wherever login is shown. Sign-up form collects: name, age, contact number, email. Simulated OTP (6-digit code shown on screen). Store user profiles in localStorage.
-- **CertificatePage** at route `/certificate/:id` — professional A4-style certificate, LinkedIn share button pre-filling all credential fields, print button, copy URL button
-- **LinkedIn "Add to LinkedIn" button** on certificate cards in StudentDashboard linking to `/certificate/:id`
-- **AI Hub section** in StudentDashboard — ChatGPT-powered free-form chat for students
-- **AI Tools tab** in AdminPanel — content generator, quiz generator, marketing copy generator using OpenAI API
-- **Users tab** in AdminPanel — shows list of email-registered users (name, age, contact number, email, registered date)
-- **App.tsx route** for certificate page (`/certificate/:id`)
-- Full article content for 2026 blog posts and news articles
+- Full-screen interactive Canvas neural network animation on the hero that reacts to mouse movement (nodes + connections, electric blue/purple particles, glowing)
+- NeuralNetworkCanvas component -- standalone, performant, uses requestAnimationFrame
+- New design tokens: deep black (#000000, #050510), electric blue (#0066FF, #00AAFF), purple accent (#7B2FBE), neon glow (#00D4FF)
+- Space Grotesk (sans) as primary font, JetBrains Mono as monospace accent (already available as woff2)
+- Glassmorphism cards with electric blue borders and glow on hover
+- Redesigned chatbot widget: dark black/dark-navy panel with electric blue accents, monospace font for labels, AI advisor branding instead of WhatsApp green
+- Subtle grid lines in background (CSS-only)
+- Section reveals on scroll (intersection observer or CSS animations)
+- Stat counters styled in JetBrains Mono
+- Course card badges with electric blue chip style
+- Header: fully transparent with electric blue logo text, blur-on-scroll behavior
+- Pricing cards: dark glassy cards with electric blue glow borders
 
 ### Modify
-- LandingPage: Add Performance Marketing pricing card (Rs.74,999), add Performance Marketing to STATIC_COURSES and featured courses, add WhatsApp AI Advisor homepage section, improve hero section animations
-- StudentDashboard: Add LinkedIn share button to certificate cards, link to /certificate/:id
-- AdminPanel: Add Users tab and AI Tools tab to tabs list
-- Header: Add email login option alongside Internet Identity
-- App.tsx: Add certificate route, WhatsApp floating widget rendered at app level, email user context
-- index.css: Ensure right-click protection is active
-- Backend Motoko: Add `#performance` to CourseTier, add email user registration storage, add getUsersByEmail admin query
+- index.css: completely replace color palette to black/electric-blue/purple system
+- LandingPage.tsx: replace all section styles, swap hero to neural network canvas, restructure stats/courses/pricing/testimonials sections
+- Header.tsx: replace gold/green theme with black + electric blue
+- Footer.tsx: replace gold/green with dark navy + electric blue
+- WhatsAppChatbot.tsx: redesign from WhatsApp green to AI advisor dark + electric blue aesthetic
+- MoleculeBackground.tsx: replace with NeuralNetworkCanvas
+- GlowCard.tsx: replace gold glow with electric blue glow
+- GoldDivider.tsx: replace with subtle electric blue line divider
+- StageSpotlight.tsx: replace with subtle particle drift or remove entirely
+- StudentDashboard.tsx: apply new dark theme tokens
+- AdminPanel.tsx: apply new dark theme tokens
+- All other pages: consistent dark black + electric blue theme
+- tailwind.config.js / index.css: define new design system tokens
 
 ### Remove
-- Nothing to remove
+- All Broadway/gold/crimson styling
+- WhatsApp green (#25D366, #128C7E, #075E54)
+- YouTube red accent
+- Playfair Display font references
+- Stage spotlight beam animations
+- Gold ornamental dividers
+- Velvet card textures
 
 ## Implementation Plan
-1. Update backend main.mo: add `#performance` CourseTier variant, add EmailUser type with name/age/contact/email/registeredAt, add registerEmailUser, getMyEmailProfile, adminGetAllEmailUsers functions. Update seedSampleData to include Performance Marketing course.
-2. Update backend.d.ts to reflect new types and functions
-3. Generate images: performance marketing course thumbnail, hero banner, WhatsApp chatbot illustration
-4. Build frontend:
-   a. Add CertificatePage.tsx (shareable certificate with LinkedIn/print/copy)
-   b. Update LandingPage.tsx: Performance Marketing pricing card + course + WhatsApp AI Advisor chatbot section
-   c. Update StudentDashboard.tsx: LinkedIn share + AI Hub
-   d. Update AdminPanel.tsx: AI Tools tab + Users tab
-   e. Update Header.tsx: Add email login option, OTP flow dialog
-   f. Update App.tsx: Add certificate route, global WhatsApp floating widget
-   g. Create WhatsAppChatbot.tsx component (floating + embedded modes)
-   h. Create EmailLoginDialog.tsx component
-5. Validate and deploy
+
+1. **index.css** -- Define new OKLCH-based design tokens:
+   - Background: near-black #000005, #050510
+   - Primary accent: electric blue oklch(60% 0.25 230)
+   - Secondary: purple oklch(45% 0.22 290)
+   - Neon glow: #00D4FF
+   - Text: white, grey-400
+   - Font families: Space Grotesk (sans), JetBrains Mono (mono)
+   - Remove all gold/green tokens
+
+2. **NeuralNetworkCanvas.tsx** -- New component:
+   - Canvas element, fills viewport
+   - 80-120 nodes with random positions, velocities
+   - Connections drawn when nodes are within threshold distance
+   - Mouse proximity influences node movement (attraction/repulsion)
+   - Node colors: electric blue (#0066FF) + purple (#7B2FBE), glowing
+   - requestAnimationFrame loop, cleanup on unmount
+   - Position: absolute, behind all content
+
+3. **Header.tsx** -- Transparent navbar:
+   - bg-transparent -> bg-black/80 backdrop-blur on scroll
+   - Logo text in electric blue monospace
+   - Nav links white with electric blue hover underline
+   - CTA button: electric blue outline -> filled on hover
+
+4. **LandingPage.tsx** -- Restructure all sections:
+   - Hero: NeuralNetworkCanvas behind bold headline + electric blue CTA
+   - Stats: monospace numbers with electric blue highlight
+   - AI Advisor section: redesigned from WhatsApp to dark AI assistant
+   - Courses: dark cards with electric blue glow on hover
+   - Pricing: 3 tier cards with electric blue premium card highlighted
+   - Testimonials: dark glassmorphism quote cards
+   - Blogs/News preview: minimal dark cards
+
+5. **WhatsAppChatbot.tsx** -- Restyle completely:
+   - Remove all WhatsApp green
+   - Dark panel: bg-[#050510] border border-blue-500/30
+   - Header: AI brain icon + "AI Advisor" in electric blue
+   - Messages: dark bubbles with electric blue for bot, grey for user
+   - Input: dark with blue focus ring
+   - Floating button: electric blue pulsing circle
+
+6. **All other pages** (StudentDashboard, AdminPanel, AIHub, etc.):
+   - Replace green/gold with electric blue
+   - Dark card backgrounds consistent with design system
+
+7. **Fonts**: Use JetBrains Mono (already in public/assets/fonts/) for numbers, badges, stats; Space Grotesk for body/headings (load via @font-face or CDN).

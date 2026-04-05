@@ -416,10 +416,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Email Marketing": "bg-yellow-100 text-yellow-700",
   "Google Ads": "bg-red-100 text-red-700",
   "AI in Marketing": "bg-purple-100 text-purple-700",
-  "Content Marketing": "bg-green-100 text-green-700",
+  "Content Marketing": "bg-primary/10 text-primary",
   Analytics: "bg-indigo-100 text-indigo-700",
   Sales: "bg-orange-100 text-orange-700",
-  Design: "bg-teal-100 text-teal-700",
+  Design: "bg-primary/10 text-primary",
   Career: "bg-emerald-100 text-emerald-700",
 };
 
@@ -439,7 +439,7 @@ export default function BlogArticlePage({ nav, articleId }: Props) {
   ).slice(0, 3);
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ background: "oklch(5% 0.01 250)" }}>
       {/* Hero */}
       <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-14">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -453,7 +453,7 @@ export default function BlogArticlePage({ nav, articleId }: Props) {
             Back to All Articles
           </button>
           <Badge
-            className={`mb-4 text-xs font-semibold px-3 py-1 ${CATEGORY_COLORS[blog.category] || "bg-gray-100 text-gray-700"}`}
+            className={`mb-4 text-xs font-semibold px-3 py-1 ${CATEGORY_COLORS[blog.category] || "bg-muted text-muted-foreground"}`}
           >
             {blog.category}
           </Badge>
@@ -555,7 +555,7 @@ export default function BlogArticlePage({ nav, articleId }: Props) {
               <Button
                 data-ocid="blog.primary_button"
                 onClick={() => nav.navigate("landing")}
-                className="bg-white text-blue-700 hover:bg-blue-50 font-semibold px-6"
+                className="btn-gold font-semibold px-6"
               >
                 Explore Our Courses
               </Button>

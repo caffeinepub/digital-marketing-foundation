@@ -1,47 +1,80 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Satoshi";
+  src: url("/assets/fonts/Satoshi.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 300 700;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrainsMono.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 300 700;
+}
+
+/* theme-color: #000510 */
+
 @layer base {
   :root {
-    --radius: 0.625rem;
-    --background: 1 0 0;
-    --foreground: 0.145 0 0;
-    --card: 1 0 0;
-    --card-foreground: 0.145 0 0;
-    --popover: 1 0 0;
-    --popover-foreground: 0.145 0 0;
-    /* Primary = WhatsApp green */
-    --primary: 0.698 0.196 152.5;
-    --primary-foreground: 1 0 0;
-    /* Secondary = light green wash */
-    --secondary: 0.978 0.018 158.0;
-    --secondary-foreground: 0.371 0.087 175.5;
-    --muted: 0.978 0.018 158.0;
-    --muted-foreground: 0.55 0.035 175.5;
-    /* Accent = YouTube red */
-    --accent: 0.628 0.258 29.2;
-    --accent-foreground: 1 0 0;
-    --destructive: 0.577 0.245 27.325;
-    --destructive-foreground: 0.985 0 0;
-    --border: 0.9 0.015 158.0;
-    --input: 0.9 0.015 158.0;
-    --ring: 0.698 0.196 152.5;
-    --chart-1: 0.698 0.196 152.5;
-    --chart-2: 0.628 0.258 29.2;
-    --chart-3: 0.371 0.087 175.5;
-    --chart-4: 0.521 0.113 174.5;
-    --chart-5: 0.55 0.035 175.5;
-    --sidebar: 0.985 0 0;
-    --sidebar-foreground: 0.145 0 0;
-    --sidebar-primary: 0.698 0.196 152.5;
-    --sidebar-primary-foreground: 1 0 0;
-    --sidebar-accent: 0.978 0.018 158.0;
-    --sidebar-accent-foreground: 0.371 0.087 175.5;
-    --sidebar-border: 0.9 0.015 158.0;
-    --sidebar-ring: 0.698 0.196 152.5;
+    color-scheme: dark;
+    --radius: 0.5rem;
+
+    /* Neural AI Dark Palette */
+    --background: 5% 0.01 250;
+    --foreground: 97% 0.005 250;
+
+    --card: 8% 0.015 250;
+    --card-foreground: 97% 0.005 250;
+
+    --popover: 8% 0.015 250;
+    --popover-foreground: 97% 0.005 250;
+
+    /* Electric blue primary */
+    --primary: 60% 0.25 230;
+    --primary-foreground: 98% 0 0;
+
+    /* Deep purple secondary */
+    --secondary: 45% 0.22 290;
+    --secondary-foreground: 95% 0 0;
+
+    /* Muted dark */
+    --muted: 20% 0.02 250;
+    --muted-foreground: 60% 0.01 250;
+
+    /* Cyan-blue accent */
+    --accent: 70% 0.2 200;
+    --accent-foreground: 5% 0 0;
+
+    --destructive: 55% 0.2 25;
+    --destructive-foreground: 98% 0 0;
+
+    --border: 20% 0.05 250;
+    --input: 12% 0.02 250;
+    --ring: 60% 0.25 230;
+
+    /* Charts */
+    --chart-1: 60% 0.25 230;
+    --chart-2: 45% 0.22 290;
+    --chart-3: 70% 0.2 200;
+    --chart-4: 55% 0.15 260;
+    --chart-5: 40% 0.18 320;
+
+    /* Sidebar */
+    --sidebar: 6% 0.012 250;
+    --sidebar-foreground: 97% 0.005 250;
+    --sidebar-primary: 60% 0.25 230;
+    --sidebar-primary-foreground: 98% 0 0;
+    --sidebar-accent: 12% 0.02 250;
+    --sidebar-accent-foreground: 97% 0.005 250;
+    --sidebar-border: 20% 0.05 250;
+    --sidebar-ring: 60% 0.25 230;
+  }
+
+  html {
+    color-scheme: dark;
   }
 
   * {
@@ -50,9 +83,10 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Satoshi", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: oklch(5% 0.01 250);
   }
 
   h1,
@@ -61,57 +95,228 @@
   h4,
   h5,
   h6 {
-    font-family: "Plus Jakarta Sans", sans-serif;
-    font-weight: 700;
+    font-family: "Satoshi", system-ui, sans-serif;
   }
 }
 
 @layer utilities {
-  .text-heading {
-    color: oklch(0.371 0.087 175.5);
+  /* ─── Electric blue glow ──────────────────────────── */
+  .glow-blue {
+    box-shadow: 0 0 20px oklch(60% 0.25 230 / 0.4), 0 0 40px
+      oklch(60% 0.25 230 / 0.15);
   }
-  .text-body {
-    color: oklch(0.32 0.022 175.5);
-  }
-  .bg-brand-wash {
-    background-color: oklch(0.978 0.018 158.0);
-  }
-  /* WhatsApp green gradient */
-  .gradient-teal {
-    background: linear-gradient(
-      135deg,
-      oklch(0.371 0.087 175.5) 0%,
-      oklch(0.521 0.113 174.5) 50%,
-      oklch(0.698 0.196 152.5) 100%
-    );
-  }
-  /* Hero gradient: deep WhatsApp green to fresh green */
-  .gradient-hero {
-    background: linear-gradient(
-      135deg,
-      oklch(0.975 0.016 150) 0%,
-      oklch(0.96 0.032 152) 100%
-    );
-  }
-  .card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px oklch(0.698 0.196 152.5 / 0.18);
+  .glow-blue-text {
+    text-shadow: 0 0 24px oklch(60% 0.25 230 / 0.9);
   }
 
-  /* Certificate print styles */
+  /* ─── Neural grid background ──────────────────────── */
+  .neural-grid {
+    background-image: linear-gradient(
+        oklch(60% 0.25 230 / 0.04) 1px,
+        transparent 1px
+      ), linear-gradient(90deg, oklch(60% 0.25 230 / 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* ─── Glass card — depth-layered with inner highlight ─ */
+  .glass-card {
+    background: oklch(8% 0.015 250 / 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid oklch(60% 0.25 230 / 0.18);
+    /* inner top-highlight: thin white shimmer at top edge */
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.04), 0 4px 24px
+      oklch(0% 0 0 / 0.35);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s
+      ease;
+  }
+  .glass-card:hover {
+    border-color: oklch(60% 0.25 230 / 0.5);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.06), 0 0 28px
+      oklch(60% 0.25 230 / 0.22), 0 8px 32px oklch(0% 0 0 / 0.4);
+    transform: translateY(-2px);
+  }
+
+  /* Legacy velvet-card alias */
+  .velvet-card {
+    background: oklch(8% 0.015 250 / 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid oklch(60% 0.25 230 / 0.18);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.04), 0 4px 24px
+      oklch(0% 0 0 / 0.35);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s
+      ease;
+  }
+  .velvet-card:hover {
+    border-color: oklch(60% 0.25 230 / 0.45);
+    box-shadow: inset 0 1px 0 oklch(100% 0 0 / 0.06), 0 0 24px
+      oklch(60% 0.25 230 / 0.18), 0 8px 28px oklch(0% 0 0 / 0.4);
+    transform: translateY(-2px);
+  }
+
+  .glow-hover {
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s
+      ease;
+  }
+  .glow-hover:hover {
+    box-shadow: 0 0 30px oklch(60% 0.25 230 / 0.25);
+    transform: translateY(-1px);
+  }
+
+  /* ─── Buttons ──────────────────────────────────────── */
+  .btn-primary {
+    background: oklch(60% 0.25 230);
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover {
+    background: oklch(65% 0.25 230);
+    box-shadow: 0 0 20px oklch(60% 0.25 230 / 0.4);
+  }
+
+  .btn-gold {
+    background: linear-gradient(
+      135deg,
+      oklch(55% 0.28 230),
+      oklch(65% 0.25 230)
+    );
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: all 0.22s ease;
+    box-shadow: 0 0 12px oklch(60% 0.25 230 / 0.35), 0 2px 8px
+      oklch(0% 0 0 / 0.3);
+  }
+  .btn-gold:hover {
+    background: linear-gradient(
+      135deg,
+      oklch(60% 0.28 230),
+      oklch(70% 0.25 230)
+    );
+    box-shadow: 0 0 24px oklch(60% 0.25 230 / 0.55), 0 4px 16px
+      oklch(0% 0 0 / 0.35);
+    transform: translateY(-1px);
+  }
+
+  /* ─── Text gradient ────────────────────────────────── */
+  .gold-text {
+    background: linear-gradient(135deg, oklch(68% 0.26 230), oklch(76% 0.2 200));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ─── Section backgrounds ─────────────────────────── */
+  .bg-grid-dark {
+    background-color: oklch(6% 0.012 250);
+  }
+
+  /* ─── Hero scan-line shimmer ────────────────────────── */
+  .hero-scanline {
+    background: repeating-linear-gradient(
+      0deg,
+      oklch(0% 0 0 / 0) 0px,
+      oklch(0% 0 0 / 0) 2px,
+      oklch(0% 0 0 / 0.03) 2px,
+      oklch(0% 0 0 / 0.03) 4px
+    );
+    pointer-events: none;
+  }
+
+  /* ─── Chatbot FAB ring animation ───────────────────── */
+  .pulse-ring {
+    animation: pulse-ring 2.5s ease-out infinite;
+  }
+  .pulse-ring-delay {
+    animation: pulse-ring 2.5s ease-out 1.25s infinite;
+  }
+
+  /* ─── Nav link hover underline ─────────────────────── */
+  .nav-link-underline {
+    position: relative;
+  }
+  .nav-link-underline::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    height: 1px;
+    width: 0;
+    background: oklch(60% 0.25 230);
+    transition: width 0.2s ease;
+  }
+  .nav-link-underline:hover::after {
+    width: 100%;
+  }
+  .nav-link-underline.active::after {
+    width: 100%;
+    background: oklch(70% 0.2 200);
+  }
+
+  /* ─── Animations ─────────────────────────────────────── */
+  @keyframes neural-pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 oklch(60% 0.25 230 / 0.55);
+    }
+    70% {
+      box-shadow: 0 0 0 14px oklch(60% 0.25 230 / 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 oklch(60% 0.25 230 / 0);
+    }
+  }
+
+  @keyframes float-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes badge-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 8px oklch(60% 0.25 230 / 0.25);
+    }
+    50% {
+      box-shadow: 0 0 18px oklch(60% 0.25 230 / 0.55);
+    }
+  }
+
+  .badge-pulse {
+    animation: badge-glow 3s ease-in-out infinite;
+  }
+
+  /* Legacy aliases */
+  .border-neon-animated {
+    border: 1px solid oklch(60% 0.25 230 / 0.4);
+  }
+
+  /* Print styles for certificate */
   @media print {
     .no-print {
       display: none !important;
     }
     .print-cert {
-      width: 100vw !important;
-      margin: 0 !important;
-      padding: 0 !important;
       box-shadow: none !important;
-      border-radius: 0 !important;
     }
   }
 }

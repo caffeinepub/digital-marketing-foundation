@@ -61,12 +61,14 @@ const TIER_LABELS: Record<string, string> = {
   basic: "Basic",
   professional: "Professional",
   advanced: "Advanced",
+  performance: "Performance",
 };
 
 const TIER_COLORS: Record<string, string> = {
-  basic: "bg-emerald-100 text-emerald-700",
-  professional: "bg-blue-100 text-blue-700",
-  advanced: "bg-purple-100 text-purple-700",
+  basic: "bg-primary/10 text-primary border-primary/20",
+  professional: "bg-primary/10 text-primary border-primary/20",
+  advanced: "bg-secondary/10 text-secondary border-secondary/20",
+  performance: "bg-accent/10 text-accent border-accent/20",
 };
 
 function ModuleSection({
@@ -89,7 +91,11 @@ function ModuleSection({
       </div>
     );
   if (!videos || videos.length === 0)
-    return <div className="text-sm text-brand-body py-2">No videos yet.</div>;
+    return (
+      <div className="text-sm py-2" style={{ color: "oklch(50% 0.01 250)" }}>
+        No videos yet.
+      </div>
+    );
 
   return (
     <ul className="space-y-2">
@@ -98,27 +104,45 @@ function ModuleSection({
         return (
           <li
             key={video.id}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-brand-wash group"
+            className="flex items-center gap-3 p-2 rounded-lg group"
+            style={{ transition: "background 0.2s" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background =
+                "oklch(60% 0.25 230 / 0.06)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+            }}
           >
             {done ? (
-              <CheckCircle2 className="w-5 h-5 text-brand-teal flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
             ) : isEnrolled ? (
-              <PlayCircle className="w-5 h-5 text-brand-body group-hover:text-brand-teal flex-shrink-0" />
+              <PlayCircle
+                className="w-5 h-5 flex-shrink-0"
+                style={{ color: "oklch(50% 0.01 250)" }}
+              />
             ) : (
-              <Lock className="w-5 h-5 text-gray-300 flex-shrink-0" />
+              <Lock
+                className="w-5 h-5 flex-shrink-0"
+                style={{ color: "oklch(35% 0.01 250)" }}
+              />
             )}
             <span
-              className={`text-sm flex-1 ${
-                done
-                  ? "text-brand-teal font-medium"
+              className="text-sm flex-1"
+              style={{
+                color: done
+                  ? "oklch(65% 0.22 230)"
                   : isEnrolled
-                    ? "text-brand-body group-hover:text-brand-heading cursor-pointer"
-                    : "text-gray-400"
-              }`}
+                    ? "oklch(70% 0.01 250)"
+                    : "oklch(35% 0.01 250)",
+              }}
             >
               {video.title}
             </span>
-            <span className="text-xs text-gray-400 flex-shrink-0 flex items-center gap-1">
+            <span
+              className="text-xs flex-shrink-0 flex items-center gap-1"
+              style={{ color: "oklch(40% 0.01 250)" }}
+            >
               <Clock className="w-3 h-3" />
               {Number(video.durationMinutes)}m
             </span>
@@ -128,7 +152,7 @@ function ModuleSection({
                 size="sm"
                 variant="ghost"
                 onClick={() => onWatch(video.id)}
-                className="opacity-0 group-hover:opacity-100 text-brand-teal hover:bg-brand-teal/10 text-xs px-2 py-1 h-auto"
+                className="opacity-0 group-hover:opacity-100 text-primary hover:bg-primary/10 text-xs px-2 py-1 h-auto"
               >
                 Watch
               </Button>
@@ -139,7 +163,7 @@ function ModuleSection({
                 size="sm"
                 variant="ghost"
                 onClick={() => onWatch(video.id)}
-                className="text-brand-teal hover:bg-brand-teal/10 text-xs px-2 py-1 h-auto"
+                className="text-primary hover:bg-primary/10 text-xs px-2 py-1 h-auto"
               >
                 Rewatch
               </Button>
@@ -209,51 +233,38 @@ export default function CourseDetailPage({
       return;
     }
     setEnrolling(true);
-    try {
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        toast.error("Failed to load payment gateway. Please try again.");
-        setEnrolling(false);
-        return;
-      }
-      const options: RazorpayOptions = {
-        key: razorpayKeyId,
-        amount: Number(course?.priceInr || 0) * 100,
-        currency: "INR",
-        name: "The Digital Marketing Foundation",
-        description: course?.title || "Course Enrollment",
-        handler: async (response) => {
-          try {
-            await enrollMutation.mutateAsync({
-              courseId,
-              razorpayOrderId: response.razorpay_order_id || "",
-              razorpayPaymentId: response.razorpay_payment_id,
-            });
-            toast.success("Payment successful! Welcome to the course.");
-            nav.navigate("dashboard");
-          } catch {
-            toast.error(
-              "Enrollment failed after payment. Please contact support.",
-            );
-          } finally {
-            setEnrolling(false);
-          }
-        },
-        prefill: { name: "", email: "", contact: "" },
-        theme: { color: "#0F172A" },
-        modal: {
-          ondismiss: () => {
-            setEnrolling(false);
-            toast.info("Payment cancelled.");
-          },
-        },
-      };
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch {
-      toast.error("Could not initiate payment. Please try again.");
+    const loaded = await loadRazorpayScript();
+    if (!loaded) {
+      toast.error("Could not load payment gateway. Please try again.");
       setEnrolling(false);
+      return;
     }
+    const amount = course ? Number(course.priceInr) * 100 : 2499900;
+    const razorpay = new window.Razorpay({
+      key: razorpayKeyId,
+      amount,
+      currency: "INR",
+      name: "Digital Marketing Foundation",
+      description: course?.title || "Course Enrollment",
+      handler: async (response) => {
+        try {
+          await enrollMutation.mutateAsync({
+            courseId,
+            razorpayOrderId: response.razorpay_order_id || "",
+            razorpayPaymentId: response.razorpay_payment_id,
+          });
+          toast.success("Enrollment successful! Welcome to the course.");
+          nav.navigate("dashboard");
+        } catch {
+          toast.error("Enrollment failed. Please contact support.");
+        } finally {
+          setEnrolling(false);
+        }
+      },
+      theme: { color: "#0066FF" },
+      modal: { ondismiss: () => setEnrolling(false) },
+    });
+    razorpay.open();
   };
 
   const handleWatchVideo = (videoId: string) => {
@@ -262,15 +273,14 @@ export default function CourseDetailPage({
 
   if (courseLoading) {
     return (
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
-        <Skeleton className="h-8 w-32 mb-6" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            <Skeleton className="h-10 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-5/6" />
-          </div>
-          <Skeleton className="h-64 rounded-2xl" />
+      <div
+        className="min-h-screen"
+        style={{ background: "oklch(5% 0.01 250)" }}
+      >
+        <div className="container mx-auto px-4 max-w-5xl py-12 space-y-4">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
         </div>
       </div>
     );
@@ -278,36 +288,54 @@ export default function CourseDetailPage({
 
   if (!course) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-2xl font-bold text-brand-heading mb-4">
-          Course not found
-        </h2>
-        <Button onClick={() => nav.navigate("landing")} variant="outline">
-          <ChevronLeft className="w-4 h-4 mr-1" />
-          Back to Courses
-        </Button>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "oklch(5% 0.01 250)" }}
+      >
+        <div className="text-center">
+          <p className="text-foreground">Course not found.</p>
+          <Button
+            data-ocid="course.link"
+            onClick={() => nav.navigate("landing")}
+            className="mt-4 btn-gold rounded-full"
+          >
+            Browse Courses
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const tierKey = course.tier as string;
-  const tierLabel = TIER_LABELS[tierKey] || tierKey;
-  const tierColor = TIER_COLORS[tierKey] || TIER_COLORS.basic;
+  const rawTier = course.tier;
+  const tierKey =
+    typeof rawTier === "string"
+      ? rawTier
+      : rawTier && typeof rawTier === "object"
+        ? Object.keys(rawTier as object)[0]
+        : "professional";
+  const tierLabel = TIER_LABELS[tierKey] || "Professional";
+  const tierColor = TIER_COLORS[tierKey] || TIER_COLORS.professional;
   const progress =
     course.totalVideos > BigInt(0)
       ? Math.round((completedVideos.length / Number(course.totalVideos)) * 100)
       : 0;
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ background: "oklch(5% 0.01 250)" }}>
       {/* Course Hero */}
-      <div className="bg-brand-heading py-10">
+      <div
+        className="py-10 neural-grid"
+        style={{
+          background: "oklch(6% 0.012 250)",
+          borderBottom: "1px solid oklch(60% 0.25 230 / 0.15)",
+        }}
+      >
         <div className="container mx-auto px-4 max-w-5xl">
           <button
             type="button"
             data-ocid="course.link"
             onClick={() => nav.navigate("landing")}
-            className="flex items-center gap-1 text-white/60 hover:text-white text-sm mb-6 transition-colors"
+            className="flex items-center gap-1 text-primary hover:text-accent text-sm mb-6 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Courses
@@ -315,17 +343,23 @@ export default function CourseDetailPage({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2">
               <div
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${tierColor} mb-3`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold ${tierColor} mb-3`}
               >
                 {tierLabel}
               </div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
+              <h1 className="text-3xl md:text-4xl font-extrabold text-foreground mb-4">
                 {course.title}
               </h1>
-              <p className="text-white/70 leading-relaxed mb-6">
+              <p
+                className="leading-relaxed mb-6"
+                style={{ color: "oklch(60% 0.01 250)" }}
+              >
                 {course.description}
               </p>
-              <div className="flex flex-wrap gap-4 text-sm text-white/60">
+              <div
+                className="flex flex-wrap gap-4 text-sm"
+                style={{ color: "oklch(50% 0.01 250)" }}
+              >
                 <span className="flex items-center gap-1.5">
                   <BookOpen className="w-4 h-4" />
                   {Number(course.totalModules)} modules
@@ -345,7 +379,7 @@ export default function CourseDetailPage({
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-2xl p-6 shadow-xl"
+              className="glass-card rounded-2xl p-6"
             >
               <img
                 src={
@@ -354,12 +388,15 @@ export default function CourseDetailPage({
                   "/assets/generated/course-digital-marketing.dim_800x450.jpg"
                 }
                 alt={course.title}
-                className="w-full h-32 object-cover rounded-xl mb-4"
+                className="w-full h-32 object-cover rounded-xl mb-4 opacity-80"
               />
-              <div className="text-3xl font-extrabold text-brand-heading mb-1">
-                ₹{Number(course.priceInr).toLocaleString("en-IN")}
+              <div className="text-3xl font-extrabold text-primary font-mono mb-1">
+                Rs.{Number(course.priceInr).toLocaleString("en-IN")}
               </div>
-              <div className="text-xs text-brand-body mb-4">
+              <div
+                className="text-xs mb-4"
+                style={{ color: "oklch(45% 0.01 250)" }}
+              >
                 One-time payment · Lifetime access
               </div>
 
@@ -367,19 +404,29 @@ export default function CourseDetailPage({
                 <>
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-brand-body">Your Progress</span>
-                      <span className="font-semibold text-brand-teal">
+                      <span style={{ color: "oklch(50% 0.01 250)" }}>
+                        Your Progress
+                      </span>
+                      <span className="font-mono font-semibold text-primary">
                         {progress}%
                       </span>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-2 rounded-full overflow-hidden"
+                      style={{ background: "oklch(20% 0.02 250)" }}
+                    >
                       <div
-                        className="h-full bg-brand-teal rounded-full transition-all"
-                        style={{ width: `${progress}%` }}
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${progress}%`,
+                          background: "oklch(60% 0.25 230)",
+                        }}
                       />
                     </div>
                   </div>
-                  <Badge className="w-full justify-center py-2 bg-brand-teal/10 text-brand-teal border-brand-teal/20 rounded-xl">
+                  <Badge
+                    className={`w-full justify-center py-2 rounded-xl ${tierColor}`}
+                  >
                     <CheckCircle2 className="w-4 h-4 mr-1" />
                     Enrolled
                   </Badge>
@@ -390,7 +437,7 @@ export default function CourseDetailPage({
                   size="lg"
                   onClick={handleEnroll}
                   disabled={enrolling}
-                  className="w-full bg-brand-orange hover:bg-brand-orange-dark text-white rounded-xl font-semibold shadow-orange"
+                  className="w-full btn-gold rounded-xl font-semibold glow-blue"
                 >
                   {enrolling ? (
                     <>
@@ -402,7 +449,10 @@ export default function CourseDetailPage({
                   )}
                 </Button>
               )}
-              <p className="text-xs text-center text-brand-body mt-3">
+              <p
+                className="text-xs text-center mt-3"
+                style={{ color: "oklch(40% 0.01 250)" }}
+              >
                 Secure payment via Razorpay · 30-day guarantee
               </p>
             </motion.div>
@@ -412,7 +462,7 @@ export default function CourseDetailPage({
 
       {/* Curriculum */}
       <div className="container mx-auto px-4 max-w-5xl py-12">
-        <h2 className="text-2xl font-extrabold text-brand-heading mb-6">
+        <h2 className="text-2xl font-extrabold text-foreground mb-6">
           Course Curriculum
         </h2>
         {modulesLoading ? (
@@ -431,14 +481,21 @@ export default function CourseDetailPage({
               <AccordionItem
                 key={mod.id}
                 value={mod.id}
-                className="border border-gray-100 rounded-xl overflow-hidden px-4 data-[state=open]:shadow-xs"
+                className="glass-card rounded-xl overflow-hidden px-4"
+                style={{ border: "1px solid oklch(60% 0.25 230 / 0.15)" }}
               >
                 <AccordionTrigger className="hover:no-underline py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-brand-teal/10 text-brand-teal text-xs font-bold flex items-center justify-center">
+                    <div
+                      className="w-7 h-7 rounded-full text-xs font-mono font-bold flex items-center justify-center text-primary"
+                      style={{
+                        background: "oklch(60% 0.25 230 / 0.1)",
+                        border: "1px solid oklch(60% 0.25 230 / 0.25)",
+                      }}
+                    >
                       {idx + 1}
                     </div>
-                    <span className="font-semibold text-brand-heading text-sm">
+                    <span className="font-semibold text-foreground text-sm">
                       {mod.title}
                     </span>
                   </div>
@@ -455,8 +512,14 @@ export default function CourseDetailPage({
             ))}
           </Accordion>
         ) : (
-          <div className="text-center py-12 text-brand-body">
-            <BookOpen className="w-12 h-12 mx-auto text-gray-200 mb-3" />
+          <div
+            className="text-center py-12"
+            style={{ color: "oklch(45% 0.01 250)" }}
+          >
+            <BookOpen
+              className="w-12 h-12 mx-auto mb-3"
+              style={{ color: "oklch(30% 0.01 250)" }}
+            />
             <p>Curriculum will be available soon.</p>
           </div>
         )}

@@ -87,7 +87,7 @@ export default function VideoPlayerPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 max-w-4xl py-8">
         {/* Back */}
         <button
@@ -101,11 +101,11 @@ export default function VideoPlayerPage({
         </button>
 
         {/* Video Player Area */}
-        <div className="bg-white rounded-2xl overflow-hidden shadow-xs border border-gray-100 mb-6">
+        <div className="glass-card rounded-2xl overflow-hidden mb-6">
           {/* Fake video player */}
           <div className="aspect-video bg-brand-heading flex items-center justify-center relative">
             <div className="text-center text-white">
-              <div className="w-20 h-20 rounded-full bg-brand-teal/30 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-brand-teal/50 transition-colors">
+              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-primary/30 transition-colors">
                 <PlayCircle className="w-10 h-10 text-white" />
               </div>
               <p className="text-sm text-white/60">Video Player</p>
@@ -113,7 +113,7 @@ export default function VideoPlayerPage({
             </div>
             <div className="absolute bottom-4 left-4 right-4 bg-black/40 rounded-lg px-4 py-2 flex items-center gap-3">
               <div className="flex-1 h-1 bg-white/20 rounded-full">
-                <div className="w-1/3 h-full bg-brand-teal rounded-full" />
+                <div className="w-1/3 h-full bg-primary rounded-full" />
               </div>
               <span className="text-white/60 text-xs">5:32 / 18:00</span>
             </div>
@@ -135,7 +135,7 @@ export default function VideoPlayerPage({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-white rounded-2xl p-6 border border-gray-100"
+              className="glass-card rounded-2xl p-6"
             >
               <h2 className="font-semibold text-brand-heading mb-2">
                 Finished watching?
@@ -171,10 +171,10 @@ export default function VideoPlayerPage({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-white rounded-2xl p-6 border border-gray-100"
+              className="glass-card rounded-2xl p-6"
             >
               <div className="flex items-center gap-2 mb-6">
-                <Badge className="bg-brand-orange/10 text-brand-orange border-brand-orange/20">
+                <Badge className="bg-primary/10 text-primary border-primary/20">
                   Quick Quiz
                 </Badge>
                 <span className="text-sm text-brand-body">
@@ -209,7 +209,7 @@ export default function VideoPlayerPage({
                         {q.options.map((opt, oi) => (
                           <div
                             key={opt}
-                            className="flex items-center space-x-2 p-3 rounded-lg border border-gray-100 hover:border-brand-teal/40 hover:bg-brand-wash transition-colors"
+                            className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
                           >
                             <RadioGroupItem
                               data-ocid="quiz.radio"
@@ -258,7 +258,7 @@ export default function VideoPlayerPage({
               key="complete"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-2xl p-8 border border-gray-100 text-center"
+              className="glass-card rounded-2xl p-8 text-center"
             >
               {quizResult ? (
                 <>

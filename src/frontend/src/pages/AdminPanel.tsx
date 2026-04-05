@@ -162,7 +162,7 @@ function UsersTab() {
                   </TableCell>
                   <TableCell>
                     {u.otpVerified ? (
-                      <Badge className="bg-green-50 text-green-700 border-green-200 text-xs">
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">
                         <CheckCheck className="w-3 h-3 mr-1" /> Verified
                       </Badge>
                     ) : (
@@ -369,7 +369,7 @@ function CoursesTab() {
         <div className="rounded-xl border border-gray-100 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted/30">
                 <TableHead>Title</TableHead>
                 <TableHead>Tier</TableHead>
                 <TableHead>Price</TableHead>
@@ -507,7 +507,7 @@ function ModulesTab() {
         <div className="rounded-xl border border-gray-100 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted/30">
                 <TableHead>#</TableHead>
                 <TableHead>Module Title</TableHead>
               </TableRow>
@@ -775,7 +775,7 @@ function VideosTab() {
         <div className="rounded-xl border border-gray-100 overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-gray-50">
+              <TableRow className="bg-muted/30">
                 <TableHead>Title</TableHead>
                 <TableHead>Duration</TableHead>
                 <TableHead>Video File</TableHead>
@@ -1234,7 +1234,7 @@ function SubmissionsTab() {
     <div className="rounded-xl border border-gray-100 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
+          <TableRow className="bg-muted/30">
             <TableHead>Submission</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Gift Card</TableHead>
@@ -1330,7 +1330,7 @@ function EnrollmentsTab() {
     <div className="rounded-xl border border-gray-100 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
+          <TableRow className="bg-muted/30">
             <TableHead>User (Principal)</TableHead>
             <TableHead>Course ID</TableHead>
             <TableHead>Tier</TableHead>
@@ -1646,7 +1646,7 @@ function AIToolsTab() {
               data-ocid="admin.textarea"
               value={generatedContent}
               onChange={(e) => setGeneratedContent(e.target.value)}
-              className="min-h-[200px] font-mono text-sm bg-gray-50 border-gray-200"
+              className="min-h-[200px] font-mono text-sm bg-muted/30 border-gray-200"
             />
           </div>
         )}
@@ -1664,7 +1664,7 @@ function AIToolsTab() {
         </div>
 
         {/* Save new template */}
-        <Card className="border border-gray-100 bg-gray-50 mb-6">
+        <Card className="border border-gray-100 bg-muted/30 mb-6">
           <CardContent className="p-4 space-y-3">
             <h3 className="font-semibold text-brand-heading text-sm">
               Save New Template
@@ -1786,7 +1786,7 @@ function AIToolsTab() {
                           {tpl.description}
                         </p>
                       )}
-                      <div className="bg-gray-50 rounded-lg p-2 text-xs font-mono text-brand-body line-clamp-2 border border-gray-100">
+                      <div className="bg-muted/30 rounded-lg p-2 text-xs font-mono text-brand-body line-clamp-2 border border-gray-100">
                         {tpl.promptText}
                       </div>
                     </div>
@@ -1893,7 +1893,7 @@ export default function AdminPanel({ nav }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8">
       <div className="container mx-auto px-4 max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -1915,7 +1915,7 @@ export default function AdminPanel({ nav }: Props) {
         <Tabs defaultValue="courses" className="space-y-6">
           <TabsList
             data-ocid="admin.tab"
-            className="bg-white border border-gray-100 flex-wrap h-auto gap-1 p-1"
+            className="glass-card flex-wrap h-auto gap-1 p-1"
           >
             <TabsTrigger value="courses" className="text-xs sm:text-sm">
               <BookOpen className="w-4 h-4 mr-1" />
@@ -1959,7 +1959,7 @@ export default function AdminPanel({ nav }: Props) {
             </TabsTrigger>
           </TabsList>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="glass-card rounded-2xl p-6">
             <TabsContent value="courses">
               <CoursesTab />
             </TabsContent>

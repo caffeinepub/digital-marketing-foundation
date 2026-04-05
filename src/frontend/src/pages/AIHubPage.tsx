@@ -8,6 +8,7 @@ import {
   BookOpen,
   Bot,
   Brain,
+  Cpu,
   LogIn,
   Send,
   Sparkles,
@@ -45,8 +46,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Write me a Facebook ad copy for a digital marketing course targeting small business owners. The course costs Rs. 24,999 and teaches SEO, social media, and content marketing from scratch.",
     icon: Target,
-    color: "text-blue-500",
-    bg: "bg-blue-50",
   },
   {
     title: "SEO Blog Outline",
@@ -54,8 +53,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Create a detailed blog post outline for the topic 'How to rank on Google Page 1 in 2025'. Include H1, H2, H3 headings, target keywords, and estimated word count for each section.",
     icon: BookOpen,
-    color: "text-green-500",
-    bg: "bg-green-50",
   },
   {
     title: "Social Media Calendar",
@@ -63,8 +60,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Create a 7-day social media content calendar for a digital marketing agency. Include post ideas for Instagram, LinkedIn, and Twitter with captions, hashtags, and best posting times.",
     icon: Zap,
-    color: "text-brand-orange",
-    bg: "bg-orange-50",
   },
   {
     title: "Email Newsletter",
@@ -72,8 +67,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Write a promotional email newsletter for The Digital Marketing Foundation announcing our Advanced course. Include a subject line, pre-header, body copy, and CTA button text. Tone: professional but friendly.",
     icon: Brain,
-    color: "text-purple-500",
-    bg: "bg-purple-50",
   },
   {
     title: "Instagram Bio",
@@ -81,8 +74,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Write 3 variations of an Instagram bio for a digital marketing consultant who specializes in helping Indian small businesses grow online. Keep each under 150 characters and include a CTA.",
     icon: Sparkles,
-    color: "text-pink-500",
-    bg: "bg-pink-50",
   },
   {
     title: "Google Ads Copy",
@@ -90,8 +81,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Generate 5 Google Search Ad headlines (max 30 chars each) and 3 descriptions (max 90 chars each) for a digital marketing course. Target keywords: 'digital marketing course India', 'learn SEO online'.",
     icon: Target,
-    color: "text-brand-teal",
-    bg: "bg-teal-50",
   },
   {
     title: "YouTube Script Hook",
@@ -99,8 +88,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Write the first 60 seconds of a YouTube script for a video titled 'I Earned Rs. 1 Lakh with Digital Marketing in 30 Days - Here's How'. Start with a strong hook, build curiosity, and end with a subscribe CTA.",
     icon: Zap,
-    color: "text-red-500",
-    bg: "bg-red-50",
   },
   {
     title: "Competitor Analysis Prompt",
@@ -108,8 +95,6 @@ const PROMPT_EXERCISES = [
     prompt:
       "Help me do a digital competitive analysis for a new online bakery in Mumbai. What aspects should I analyze about competitors: website, SEO, social media, pricing, and content? Give me a framework with specific questions to answer.",
     icon: BookOpen,
-    color: "text-indigo-500",
-    bg: "bg-indigo-50",
   },
 ];
 
@@ -183,19 +168,28 @@ export default function AIHubPage({ nav: _nav }: Props) {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div
+        className="min-h-screen flex items-center justify-center px-4 neural-grid"
+        style={{ background: "oklch(5% 0.01 250)" }}
+      >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-md"
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-teal to-brand-orange flex items-center justify-center mx-auto mb-6">
-            <Bot className="w-8 h-8 text-white" />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 glow-blue"
+            style={{
+              background: "oklch(60% 0.25 230 / 0.15)",
+              border: "1px solid oklch(60% 0.25 230 / 0.4)",
+            }}
+          >
+            <Bot className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-extrabold text-brand-heading mb-3">
+          <h1 className="text-2xl font-extrabold text-foreground mb-3">
             AI Practice Hub
           </h1>
-          <p className="text-brand-body mb-6">
+          <p className="mb-6" style={{ color: "oklch(55% 0.01 250)" }}>
             Login to access your personal AI learning assistant, practice prompt
             engineering, and get expert guidance on digital marketing.
           </p>
@@ -203,7 +197,7 @@ export default function AIHubPage({ nav: _nav }: Props) {
             data-ocid="aihub.primary_button"
             onClick={() => login()}
             disabled={isLoggingIn}
-            className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-8 font-semibold shadow-orange"
+            className="btn-gold rounded-full px-8 font-semibold glow-blue"
           >
             <LogIn className="w-4 h-4 mr-2" />
             {isLoggingIn ? "Logging in..." : "Login to Continue"}
@@ -219,21 +213,35 @@ export default function AIHubPage({ nav: _nav }: Props) {
       : "AI Practice Hub";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "oklch(5% 0.01 250)" }}>
       {/* Hero */}
-      <div className="bg-gradient-to-r from-brand-teal to-brand-teal-dark text-white py-10">
+      <div
+        className="py-10 neural-grid"
+        style={{
+          borderBottom: "1px solid oklch(60% 0.25 230 / 0.15)",
+          background: "oklch(6% 0.012 250)",
+        }}
+      >
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <Brain className="w-6 h-6 text-white" />
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center glow-blue"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.15)",
+                border: "1px solid oklch(60% 0.25 230 / 0.4)",
+              }}
+            >
+              <Brain className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-extrabold">{heroTitle}</h1>
-              <p className="text-white/80 text-sm">
+              <h1 className="text-2xl font-extrabold text-foreground">
+                {heroTitle}
+              </h1>
+              <p className="text-sm" style={{ color: "oklch(50% 0.01 250)" }}>
                 Chat with AI, practice prompts, and level up your digital
                 marketing skills
               </p>
@@ -248,17 +256,17 @@ export default function AIHubPage({ nav: _nav }: Props) {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList
-            data-ocid="aihub.tab"
-            className="bg-white border border-gray-100 shadow-xs"
-          >
-            <TabsTrigger value="chat" className="flex items-center gap-2">
+          <TabsList data-ocid="aihub.tab" className="glass-card border-border">
+            <TabsTrigger
+              value="chat"
+              className="flex items-center gap-2 data-[state=active]:text-primary"
+            >
               <Bot className="w-4 h-4" />
               AI Chat
             </TabsTrigger>
             <TabsTrigger
               value="prompt-training"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 data-[state=active]:text-primary"
             >
               <Sparkles className="w-4 h-4" />
               Prompt Training
@@ -267,23 +275,39 @@ export default function AIHubPage({ nav: _nav }: Props) {
 
           {/* Chat Tab */}
           <TabsContent value="chat">
-            <Card className="border border-gray-100 shadow-xs overflow-hidden">
-              <CardHeader className="border-b border-gray-100 py-3 px-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-teal to-brand-orange flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-sm font-semibold text-brand-heading">
-                      AI Marketing Assistant
-                    </CardTitle>
-                    <p className="text-xs text-green-600 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block" />
-                      Online
-                    </p>
-                  </div>
+            <div
+              className="glass-card rounded-2xl overflow-hidden"
+              style={{ border: "1px solid oklch(60% 0.25 230 / 0.2)" }}
+            >
+              <div
+                className="flex items-center gap-2 border-b py-3 px-4"
+                style={{ borderColor: "oklch(60% 0.25 230 / 0.15)" }}
+              >
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{
+                    background: "oklch(60% 0.25 230 / 0.15)",
+                    border: "1px solid oklch(60% 0.25 230 / 0.3)",
+                  }}
+                >
+                  <Bot className="w-4 h-4 text-primary" />
                 </div>
-              </CardHeader>
+                <div>
+                  <div className="text-sm font-mono font-semibold text-primary">
+                    AI Marketing Assistant
+                  </div>
+                  <p
+                    className="text-xs flex items-center gap-1"
+                    style={{ color: "oklch(55% 0.01 250)" }}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full inline-block animate-pulse"
+                      style={{ background: "oklch(70% 0.2 200)" }}
+                    />
+                    Online
+                  </p>
+                </div>
+              </div>
 
               {/* Messages */}
               <ScrollArea
@@ -303,16 +327,39 @@ export default function AIHubPage({ nav: _nav }: Props) {
                         }`}
                       >
                         {msg.role === "assistant" && (
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-teal to-brand-orange flex items-center justify-center mr-2 flex-shrink-0 mt-1">
-                            <Bot className="w-4 h-4 text-white" />
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center mr-2 flex-shrink-0 mt-1"
+                            style={{
+                              background: "oklch(60% 0.25 230 / 0.15)",
+                              border: "1px solid oklch(60% 0.25 230 / 0.3)",
+                            }}
+                          >
+                            <Bot className="w-4 h-4 text-primary" />
                           </div>
                         )}
                         <div
                           className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                             msg.role === "user"
-                              ? "bg-brand-orange text-white rounded-tr-sm"
-                              : "bg-gray-100 text-brand-heading rounded-tl-sm"
+                              ? "rounded-tr-sm"
+                              : "rounded-tl-sm"
                           }`}
+                          style={
+                            msg.role === "user"
+                              ? {
+                                  background: "oklch(60% 0.25 230 / 0.2)",
+                                  border:
+                                    "1px solid oklch(60% 0.25 230 / 0.35)",
+                                  color: "oklch(90% 0.005 250)",
+                                }
+                              : {
+                                  background: "oklch(12% 0.02 250)",
+                                  border:
+                                    "1px solid oklch(60% 0.25 230 / 0.15)",
+                                  borderLeft:
+                                    "3px solid oklch(60% 0.25 230 / 0.6)",
+                                  color: "oklch(85% 0.005 250)",
+                                }
+                          }
                         >
                           <span
                             // biome-ignore lint: safe HTML, no user-controlled tags
@@ -331,12 +378,24 @@ export default function AIHubPage({ nav: _nav }: Props) {
                       animate={{ opacity: 1 }}
                       className="flex items-center gap-2"
                     >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-teal to-brand-orange flex items-center justify-center">
-                        <Bot className="w-4 h-4 text-white" />
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center"
+                        style={{
+                          background: "oklch(60% 0.25 230 / 0.15)",
+                          border: "1px solid oklch(60% 0.25 230 / 0.3)",
+                        }}
+                      >
+                        <Bot className="w-4 h-4 text-primary" />
                       </div>
                       <div
                         data-ocid="aihub.loading_state"
-                        className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-brand-body"
+                        className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm"
+                        style={{
+                          background: "oklch(12% 0.02 250)",
+                          border: "1px solid oklch(60% 0.25 230 / 0.15)",
+                          borderLeft: "3px solid oklch(60% 0.25 230 / 0.6)",
+                          color: "oklch(55% 0.01 250)",
+                        }}
                       >
                         <span className="inline-flex items-center gap-1">
                           AI is thinking
@@ -362,39 +421,45 @@ export default function AIHubPage({ nav: _nav }: Props) {
               </ScrollArea>
 
               {/* Input */}
-              <div className="border-t border-gray-100 p-3 flex gap-2 items-end">
+              <div
+                className="border-t p-3 flex gap-2 items-end"
+                style={{ borderColor: "oklch(60% 0.25 230 / 0.15)" }}
+              >
                 <Textarea
                   data-ocid="aihub.textarea"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask about digital marketing, SEO, social media... (Enter to send)"
-                  className="flex-1 min-h-[44px] max-h-[120px] resize-none border-gray-200 focus:border-brand-teal focus:ring-brand-teal text-sm"
+                  className="flex-1 min-h-[44px] max-h-[120px] resize-none border-border focus:border-primary focus:ring-primary text-sm bg-input"
                   rows={1}
                 />
                 <Button
                   data-ocid="aihub.primary_button"
                   onClick={handleSend}
                   disabled={chatWithAI.isPending || !inputValue.trim()}
-                  className="bg-brand-orange hover:bg-brand-orange-dark text-white h-11 w-11 p-0 rounded-xl flex-shrink-0"
+                  className="btn-gold h-11 w-11 p-0 rounded-xl flex-shrink-0"
                   size="icon"
                 >
                   <Send className="w-4 h-4" />
                 </Button>
               </div>
-            </Card>
+            </div>
           </TabsContent>
 
           {/* Prompt Training Tab */}
           <TabsContent value="prompt-training">
             <div className="space-y-4">
               <div className="flex items-center gap-3 mb-2">
-                <Sparkles className="w-5 h-5 text-brand-orange" />
+                <Sparkles className="w-5 h-5 text-primary" />
                 <div>
-                  <h2 className="font-bold text-brand-heading">
+                  <h2 className="font-bold text-foreground">
                     Prompt Engineering Exercises
                   </h2>
-                  <p className="text-sm text-brand-body">
+                  <p
+                    className="text-sm"
+                    style={{ color: "oklch(50% 0.01 250)" }}
+                  >
                     Practice writing effective AI prompts for digital marketing
                     tasks
                   </p>
@@ -412,38 +477,55 @@ export default function AIHubPage({ nav: _nav }: Props) {
                       transition={{ delay: i * 0.05 }}
                       data-ocid={`aihub.item.${i + 1}`}
                     >
-                      <Card className="border border-gray-100 shadow-xs hover:shadow-md transition-shadow h-full">
-                        <CardContent className="p-4 flex flex-col h-full">
-                          <div className="flex items-start gap-3 mb-3">
-                            <div
-                              className={`w-9 h-9 rounded-xl ${exercise.bg} flex items-center justify-center flex-shrink-0`}
-                            >
-                              <Icon className={`w-5 h-5 ${exercise.color}`} />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-brand-heading text-sm">
-                                {exercise.title}
-                              </h3>
-                              <p className="text-xs text-brand-body mt-0.5">
-                                {exercise.description}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-3 text-xs text-brand-body font-mono leading-relaxed flex-1 mb-3 line-clamp-3">
-                            {exercise.prompt}
-                          </div>
-                          <Button
-                            data-ocid="aihub.secondary_button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleTryPrompt(exercise.prompt)}
-                            className="w-full border-brand-teal text-brand-teal hover:bg-brand-wash text-xs"
+                      <div
+                        className="glass-card rounded-xl p-4 flex flex-col h-full"
+                        style={{
+                          border: "1px solid oklch(60% 0.25 230 / 0.15)",
+                        }}
+                      >
+                        <div className="flex items-start gap-3 mb-3">
+                          <div
+                            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style={{
+                              background: "oklch(60% 0.25 230 / 0.1)",
+                              border: "1px solid oklch(60% 0.25 230 / 0.2)",
+                            }}
                           >
-                            <Zap className="w-3 h-3 mr-1" />
-                            Try This Prompt
-                          </Button>
-                        </CardContent>
-                      </Card>
+                            <Icon className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-foreground text-sm">
+                              {exercise.title}
+                            </h3>
+                            <p
+                              className="text-xs mt-0.5"
+                              style={{ color: "oklch(50% 0.01 250)" }}
+                            >
+                              {exercise.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          className="rounded-lg p-3 text-xs font-mono leading-relaxed flex-1 mb-3 line-clamp-3"
+                          style={{
+                            background: "oklch(8% 0.015 250)",
+                            border: "1px solid oklch(60% 0.25 230 / 0.1)",
+                            color: "oklch(55% 0.01 250)",
+                          }}
+                        >
+                          {exercise.prompt}
+                        </div>
+                        <Button
+                          data-ocid="aihub.secondary_button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTryPrompt(exercise.prompt)}
+                          className="w-full border-primary/30 text-primary hover:bg-primary/10 text-xs"
+                        >
+                          <Zap className="w-3 h-3 mr-1" />
+                          Try This Prompt
+                        </Button>
+                      </div>
                     </motion.div>
                   );
                 })}

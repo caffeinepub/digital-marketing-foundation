@@ -283,7 +283,7 @@ const COURSE_COLORS: Record<string, string> = {
   "Social Media Marketing": "bg-pink-100 text-pink-700",
   "Learn the Art of Designing": "bg-purple-100 text-purple-700",
   "Learn the Art of Sales": "bg-orange-100 text-orange-700",
-  "MS Office": "bg-green-100 text-green-700",
+  "MS Office": "bg-primary/10 text-primary",
 };
 
 interface Props {
@@ -300,7 +300,7 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
   ).slice(0, 3);
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="min-h-screen" style={{ background: "oklch(5% 0.01 250)" }}>
       {/* Hero */}
       <div className="bg-gradient-to-br from-teal-900 via-emerald-950 to-slate-900 py-14">
         <div className="container mx-auto px-4 max-w-4xl">
@@ -314,7 +314,7 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
             Back to All News
           </button>
           {item.isNew && (
-            <span className="inline-flex items-center gap-1 bg-teal-400/20 text-teal-300 text-xs font-semibold px-3 py-1 rounded-full mb-3">
+            <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-3">
               <Bell className="w-3 h-3" /> Latest Update
             </span>
           )}
@@ -343,7 +343,7 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           {/* Main content */}
           <div className="lg:col-span-3">
-            <p className="text-lg text-gray-700 leading-relaxed mb-8 font-medium border-l-4 border-teal-500 pl-5 bg-teal-50 py-3 pr-3 rounded-r-lg">
+            <p className="text-lg leading-relaxed mb-8 font-medium border-l-4 border-primary/50 pl-5 py-3 pr-3 rounded-r-lg">
               {content.intro}
             </p>
 
@@ -362,7 +362,7 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
                         key={b}
                         className="flex items-start gap-2 text-gray-700"
                       >
-                        <span className="w-2 h-2 rounded-full bg-teal-500 mt-2 flex-shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
                         {b}
                       </li>
                     ))}
@@ -371,11 +371,11 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
               </div>
             ))}
 
-            <div className="mt-8 p-5 bg-teal-50 rounded-xl border border-teal-200">
-              <h3 className="font-bold text-teal-900 mb-2 flex items-center gap-2">
+            <div className="mt-8 p-5 glass-card rounded-xl">
+              <h3 className="font-bold text-foreground mb-2 flex items-center gap-2">
                 <Bell className="w-4 h-4" /> What This Means for You
               </h3>
-              <p className="text-teal-900 leading-relaxed text-sm">
+              <p className="text-foreground/80 leading-relaxed text-sm">
                 {content.impact}
               </p>
             </div>
@@ -392,7 +392,7 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
               <Button
                 data-ocid="news.primary_button"
                 onClick={() => nav.navigate("landing")}
-                className="bg-white text-teal-700 hover:bg-teal-50 font-semibold px-6"
+                className="btn-gold font-semibold px-6"
               >
                 View Courses & Enroll
               </Button>
@@ -416,14 +416,14 @@ export default function NewsArticlePage({ nav, articleId }: Props) {
                   >
                     <CardContent className="p-3">
                       {r.isNew && (
-                        <Badge className="text-xs mb-2 bg-teal-100 text-teal-700">
+                        <Badge className="text-xs mb-2 bg-primary/10 text-primary">
                           New
                         </Badge>
                       )}
                       <p className="text-xs font-semibold text-slate-800 leading-snug line-clamp-3">
                         {r.headline}
                       </p>
-                      <div className="flex items-center gap-1 mt-2 text-teal-600 text-xs font-medium">
+                      <div className="flex items-center gap-1 mt-2 text-primary text-xs font-medium">
                         Read update <ChevronRight className="w-3 h-3" />
                       </div>
                     </CardContent>

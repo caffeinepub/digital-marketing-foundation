@@ -36,7 +36,7 @@ export default function PaymentSuccess({ nav }: Props) {
         toast.success("You're now enrolled! Welcome to the course.");
       } catch (err) {
         console.error(err);
-        setEnrolled(true); // still show success page
+        setEnrolled(true);
       } finally {
         setEnrolling(false);
       }
@@ -45,7 +45,10 @@ export default function PaymentSuccess({ nav }: Props) {
   }, [actor, identity]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50">
+    <div
+      className="min-h-screen flex items-center justify-center neural-grid"
+      style={{ background: "oklch(5% 0.01 250)" }}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -54,11 +57,21 @@ export default function PaymentSuccess({ nav }: Props) {
       >
         {enrolling ? (
           <>
-            <Loader2 className="w-16 h-16 text-brand-teal mx-auto mb-6 animate-spin" />
-            <h1 className="text-2xl font-extrabold text-brand-heading mb-3">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.15)",
+                border: "1px solid oklch(60% 0.25 230 / 0.4)",
+              }}
+            >
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+            </div>
+            <h1 className="text-2xl font-extrabold text-foreground mb-3">
               Processing your enrollment...
             </h1>
-            <p className="text-brand-body">Please wait a moment.</p>
+            <p style={{ color: "oklch(55% 0.01 250)" }}>
+              Please wait a moment.
+            </p>
           </>
         ) : (
           <>
@@ -66,14 +79,18 @@ export default function PaymentSuccess({ nav }: Props) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 200, damping: 12 }}
-              className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6"
+              className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 glow-blue"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.15)",
+                border: "2px solid oklch(60% 0.25 230 / 0.6)",
+              }}
             >
-              <CheckCircle2 className="w-12 h-12 text-emerald-500" />
+              <CheckCircle2 className="w-12 h-12 text-primary" />
             </motion.div>
-            <h1 className="text-3xl font-extrabold text-brand-heading mb-3">
+            <h1 className="text-3xl font-extrabold text-foreground mb-3">
               Payment Successful!
             </h1>
-            <p className="text-brand-body mb-8">
+            <p className="mb-8" style={{ color: "oklch(55% 0.01 250)" }}>
               Your enrollment is confirmed. Start learning today and transform
               your digital marketing career!
             </p>
@@ -82,7 +99,7 @@ export default function PaymentSuccess({ nav }: Props) {
                 data-ocid="payment_success.primary_button"
                 size="lg"
                 onClick={() => nav.navigate("dashboard")}
-                className="bg-brand-teal hover:bg-brand-teal-dark text-white rounded-full px-8 font-semibold"
+                className="btn-gold rounded-full px-8 font-semibold glow-blue"
               >
                 Go to Dashboard
               </Button>
@@ -91,7 +108,7 @@ export default function PaymentSuccess({ nav }: Props) {
                 size="lg"
                 variant="outline"
                 onClick={() => nav.navigate("landing")}
-                className="rounded-full px-8 border-brand-teal text-brand-teal"
+                className="rounded-full px-8 border-primary/30 text-primary hover:bg-primary/10"
               >
                 Browse More Courses
               </Button>

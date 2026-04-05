@@ -182,7 +182,7 @@ export default function EmailAuthModal({
         data-ocid="email_auth.dialog"
         className="max-w-md w-full p-0 overflow-hidden"
       >
-        <div className="bg-gradient-to-br from-[#075E54] to-[#128C7E] p-6 text-white">
+        <div className="bg-gradient-to-br from-[oklch(8%_0.02_250)] to-[oklch(12%_0.03_250)] p-6 text-white">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
               <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
@@ -256,7 +256,7 @@ export default function EmailAuthModal({
                 data-ocid="email_auth.submit_button"
                 onClick={handleLogin}
                 disabled={loginLoading || !actor}
-                className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold"
+                className="w-full btn-gold hover:opacity-90 text-white font-semibold"
               >
                 {loginLoading ? (
                   <>
@@ -363,7 +363,7 @@ export default function EmailAuthModal({
                     data-ocid="email_auth.submit_button"
                     onClick={handleSignup}
                     disabled={signupLoading || !actor}
-                    className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold"
+                    className="w-full btn-gold hover:opacity-90 text-white font-semibold"
                   >
                     {signupLoading ? (
                       <>
@@ -409,7 +409,7 @@ export default function EmailAuthModal({
                     data-ocid="email_auth.confirm_button"
                     onClick={handleVerifyOtp}
                     disabled={verifyLoading || !otpInput.trim()}
-                    className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-semibold"
+                    className="w-full btn-gold hover:opacity-90 text-white font-semibold"
                   >
                     {verifyLoading ? (
                       <>

@@ -1,6 +1,4 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Calendar, ChevronRight, Search, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AppNav } from "../App";
@@ -98,7 +96,7 @@ const ALL_BLOGS: BlogPost[] = [
     category: "Performance Marketing",
     date: "Mar 2026",
     excerpt:
-      "Curious about what India's most comprehensive Performance Marketing course covers? This detailed breakdown of the ₹74,999 course syllabus walks you through every module — from Google Search and Shopping Ads to Meta Advantage+, programmatic buying, attribution, and live campaign management with real budgets.",
+      "Curious about what India's most comprehensive Performance Marketing course covers? This detailed breakdown of the Rs.74,999 course syllabus walks you through every module — from Google Search and Shopping Ads to Meta Advantage+, programmatic buying, attribution, and live campaign management with real budgets.",
     readTime: "8 min read",
   },
   {
@@ -145,7 +143,7 @@ const ALL_BLOGS: BlogPost[] = [
     category: "Career",
     date: "Mar 2026",
     excerpt:
-      "Digital marketing is one of India's highest-demand career fields in 2026, with entry-level roles starting at ₹4–6 LPA and senior performance marketers commanding ₹18–30 LPA. This comprehensive guide covers the top 12 digital marketing roles, required skills for each, salary benchmarks by city, and the fastest path to landing your first job.",
+      "Digital marketing is one of India's highest-demand career fields in 2026, with entry-level roles starting at Rs.4-6 LPA and senior performance marketers commanding Rs.18-30 LPA. This comprehensive guide covers the top 12 digital marketing roles, required skills for each, salary benchmarks by city, and the fastest path to landing your first job.",
     readTime: "11 min read",
   },
   {
@@ -154,7 +152,7 @@ const ALL_BLOGS: BlogPost[] = [
     category: "Performance Marketing",
     date: "Mar 2026",
     excerpt:
-      "Performance marketing is the highest-paid digital marketing specialisation in India — but breaking into it can feel overwhelming without a clear roadmap. This practical 90-day plan tells you exactly what to learn, build, and practise each week, from understanding ad auction mechanics in Week 1 to running live ₹50,000 campaigns by Week 12.",
+      "Performance marketing is the highest-paid digital marketing specialisation in India — but breaking into it can feel overwhelming without a clear roadmap. This practical 90-day plan tells you exactly what to learn, build, and practise each week, from understanding ad auction mechanics in Week 1 to running live Rs.50,000 campaigns by Week 12.",
     readTime: "13 min read",
   },
   {
@@ -317,7 +315,7 @@ const ALL_BLOGS: BlogPost[] = [
   },
   {
     id: 18,
-    title: "Affiliate Marketing in India: How to Earn ₹50,000+ Per Month",
+    title: "Affiliate Marketing in India: How to Earn Rs.50,000+ Per Month",
     category: "Content Marketing",
     date: "Feb 12, 2025",
     excerpt:
@@ -668,7 +666,7 @@ const ALL_BLOGS: BlogPost[] = [
   },
   {
     id: 55,
-    title: "How to Build a ₹1 Crore Digital Marketing Agency from Scratch",
+    title: "How to Build a Rs.1 Crore Digital Marketing Agency from Scratch",
     category: "Career Tips",
     date: "Nov 28, 2024",
     excerpt:
@@ -687,14 +685,18 @@ const CATEGORIES = [
   "Career Tips",
   "AI in Marketing",
 ];
-const CATEGORY_COLORS: Record<string, string> = {
-  SEO: "bg-blue-100 text-blue-700",
-  "Social Media": "bg-pink-100 text-pink-700",
-  "Content Marketing": "bg-green-100 text-green-700",
-  "Google Ads": "bg-yellow-100 text-yellow-700",
-  "Email Marketing": "bg-purple-100 text-purple-700",
-  "Career Tips": "bg-orange-100 text-orange-700",
-  "AI in Marketing": "bg-cyan-100 text-cyan-700",
+
+const CATEGORY_NEON: Record<string, string> = {
+  SEO: "#4d79ff",
+  "Social Media": "#ff4d9f",
+  "Content Marketing": "#39ff14",
+  "Google Ads": "#f59e0b",
+  "Email Marketing": "#a855f7",
+  "Career Tips": "#ff6b35",
+  "AI in Marketing": "#00ffff",
+  "Performance Marketing": "#f59e0b",
+  Analytics: "#00ffff",
+  Career: "#ff6b35",
 };
 
 interface BlogsPageProps {
@@ -736,22 +738,41 @@ export default function BlogsPage({ nav }: BlogsPageProps) {
   const visible = filtered.slice(0, visibleCount);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "#000" }}>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-16 text-white">
+      <section
+        className="py-16 bg-grid-dark"
+        style={{ borderBottom: "1px solid rgba(0,255,255,0.1)" }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 mb-4">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4"
+            style={{
+              background: "rgba(0, 255, 255, 0.08)",
+              border: "1px solid rgba(0, 255, 255, 0.2)",
+              color: "#00ffff",
+            }}
+          >
             Knowledge Hub
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-            Digital Marketing Blog
+          </div>
+          <h1
+            className="text-4xl md:text-5xl font-extrabold mb-4"
+            style={{ color: "#e0f7ff" }}
+          >
+            Digital Marketing <span className="text-neon-gradient">Blog</span>
           </h1>
-          <p className="text-white/70 max-w-2xl mx-auto text-lg mb-8">
+          <p
+            className="max-w-2xl mx-auto text-lg mb-8"
+            style={{ color: "rgba(200,220,235,0.65)" }}
+          >
             Expert insights, proven strategies, and actionable guides to grow
             your skills and career in digital marketing.
           </p>
           <div className="max-w-lg mx-auto relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5"
+              style={{ color: "rgba(0,255,255,0.5)" }}
+            />
             <input
               type="text"
               placeholder="Search blog posts..."
@@ -760,14 +781,26 @@ export default function BlogsPage({ nav }: BlogsPageProps) {
                 setSearchQuery(e.target.value);
                 setVisibleCount(12);
               }}
-              className="w-full pl-12 pr-4 py-3 rounded-full bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full pl-12 pr-4 py-3 rounded-full text-sm focus:outline-none"
+              style={{
+                background: "rgba(10,12,20,0.8)",
+                border: "1px solid rgba(0,255,255,0.2)",
+                color: "#e0f7ff",
+              }}
             />
           </div>
         </div>
       </section>
 
       {/* Category Filters */}
-      <section className="bg-white border-b border-gray-200 sticky top-16 z-30">
+      <section
+        className="sticky top-16 z-30"
+        style={{
+          background: "rgba(0,0,0,0.92)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(0,255,255,0.08)",
+        }}
+      >
         <div className="container mx-auto px-4 py-4">
           <div className="flex gap-2 flex-wrap">
             {CATEGORIES.map((cat) => (
@@ -778,11 +811,21 @@ export default function BlogsPage({ nav }: BlogsPageProps) {
                   setActiveCategory(cat);
                   setVisibleCount(12);
                 }}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  activeCategory === cat
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className="px-4 py-1.5 rounded-full text-sm font-medium transition-all"
+                style={{
+                  background:
+                    activeCategory === cat
+                      ? "rgba(0, 255, 255, 0.15)"
+                      : "rgba(255,255,255,0.04)",
+                  border:
+                    activeCategory === cat
+                      ? "1px solid rgba(0, 255, 255, 0.4)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                  color:
+                    activeCategory === cat
+                      ? "#00ffff"
+                      : "rgba(200,220,235,0.6)",
+                }}
               >
                 {cat}
               </button>
@@ -792,12 +835,15 @@ export default function BlogsPage({ nav }: BlogsPageProps) {
       </section>
 
       {/* Blog Grid */}
-      <section className="py-12">
+      <section className="py-12 bg-grid-dark">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-blue-600" />
-              <span className="text-sm text-gray-600 font-medium">
+              <BookOpen className="w-5 h-5" style={{ color: "#00ffff" }} />
+              <span
+                className="text-sm font-medium"
+                style={{ color: "rgba(200,220,235,0.6)" }}
+              >
                 {filtered.length} article{filtered.length !== 1 ? "s" : ""}{" "}
                 found
               </span>
@@ -805,7 +851,11 @@ export default function BlogsPage({ nav }: BlogsPageProps) {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="text-center py-16 text-gray-500">
+            <div
+              data-ocid="blogs.empty_state"
+              className="text-center py-16"
+              style={{ color: "rgba(200,220,235,0.5)" }}
+            >
               <p className="text-lg font-medium">No articles found</p>
               <p className="text-sm mt-2">
                 Try a different search term or category
@@ -814,58 +864,88 @@ export default function BlogsPage({ nav }: BlogsPageProps) {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {visible.map((blog) => (
-                  <Card
-                    key={blog.id}
-                    className="border border-gray-200 hover:shadow-lg transition-shadow bg-white h-full flex flex-col"
-                  >
-                    <CardContent className="p-6 flex flex-col h-full">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${CATEGORY_COLORS[blog.category] || "bg-gray-100 text-gray-700"}`}
+                {visible.map((blog) => {
+                  const neonColor = CATEGORY_NEON[blog.category] || "#00ffff";
+                  return (
+                    <div
+                      key={blog.id}
+                      data-ocid={`blogs.item.${blog.id}`}
+                      className="glass-card glow-hover rounded-2xl h-full flex flex-col"
+                    >
+                      <div className="p-6 flex flex-col h-full">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span
+                            className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                            style={{
+                              background: `${neonColor}18`,
+                              border: `1px solid ${neonColor}40`,
+                              color: neonColor,
+                            }}
+                          >
+                            {blog.category}
+                          </span>
+                          <span
+                            className="text-xs flex items-center gap-1"
+                            style={{ color: "rgba(200,220,235,0.4)" }}
+                          >
+                            <Calendar className="w-3 h-3" />
+                            {blog.date}
+                          </span>
+                        </div>
+                        <h2
+                          className="font-bold text-base mb-3 leading-snug line-clamp-3 flex-shrink-0"
+                          style={{ color: "#e0f7ff" }}
                         >
-                          {blog.category}
-                        </span>
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {blog.date}
-                        </span>
-                      </div>
-                      <h2 className="font-bold text-gray-900 text-base mb-3 leading-snug line-clamp-3 flex-shrink-0">
-                        {blog.title}
-                      </h2>
-                      <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-3 flex-1">
-                        {blog.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Tag className="w-3 h-3" />
-                          {blog.readTime}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 text-xs font-semibold p-1"
-                          onClick={() =>
-                            nav.navigate("blog-article", {
-                              articleId: String(blog.id),
-                            })
-                          }
+                          {blog.title}
+                        </h2>
+                        <p
+                          className="text-sm leading-relaxed mb-4 line-clamp-3 flex-1"
+                          style={{ color: "rgba(200,220,235,0.65)" }}
                         >
-                          Read More <ChevronRight className="w-3 h-3 ml-0.5" />
-                        </Button>
+                          {blog.excerpt}
+                        </p>
+                        <div
+                          className="flex items-center justify-between mt-auto pt-3"
+                          style={{
+                            borderTop: "1px solid rgba(0,255,255,0.08)",
+                          }}
+                        >
+                          <span
+                            className="text-xs flex items-center gap-1"
+                            style={{ color: "rgba(200,220,235,0.4)" }}
+                          >
+                            <Tag className="w-3 h-3" />
+                            {blog.readTime}
+                          </span>
+                          <Button
+                            data-ocid="blogs.secondary_button"
+                            size="sm"
+                            variant="ghost"
+                            className="text-xs font-semibold p-1"
+                            style={{ color: "#00ffff" }}
+                            onClick={() =>
+                              nav.navigate("blog-article", {
+                                articleId: String(blog.id),
+                              })
+                            }
+                          >
+                            Read More{" "}
+                            <ChevronRight className="w-3 h-3 ml-0.5" />
+                          </Button>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
 
               {visibleCount < filtered.length && (
                 <div className="text-center mt-10">
                   <Button
+                    data-ocid="blogs.primary_button"
                     size="lg"
                     onClick={() => setVisibleCount((v) => v + 12)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-10 font-semibold"
+                    className="btn-neon rounded-full px-10 font-semibold"
                   >
                     Load More Articles
                   </Button>

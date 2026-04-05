@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Award,
   BarChart2,
@@ -15,6 +14,7 @@ import {
   Briefcase,
   CheckCircle2,
   ChevronRight,
+  Cpu,
   FileText,
   Globe,
   LineChart,
@@ -39,7 +39,10 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
 import type { Course } from "../backend.d";
+import GoldDivider from "../components/GoldDivider";
+import StageSpotlight from "../components/StageSpotlight";
 import { WhatsAppChatbotSection } from "../components/WhatsAppChatbot";
+import { useEmailAuth } from "../hooks/useEmailAuth";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useCourses } from "../hooks/useQueries";
 import { useCreateCheckoutSession } from "../hooks/useStripe";
@@ -48,24 +51,29 @@ interface LandingPageProps {
   nav: AppNav;
 }
 
-const TIER_COLORS: Record<string, { bg: string; text: string; label: string }> =
-  {
-    professional: {
-      bg: "bg-blue-100",
-      text: "text-blue-700",
-      label: "Professional",
-    },
-    advanced: {
-      bg: "bg-purple-100",
-      text: "text-purple-700",
-      label: "Advanced",
-    },
-    performance: {
-      bg: "bg-amber-100",
-      text: "text-amber-700",
-      label: "Performance",
-    },
-  };
+const TIER_COLORS: Record<
+  string,
+  { badge: string; label: string; glow: string; hex: string }
+> = {
+  professional: {
+    badge: "border border-primary/30 text-primary",
+    label: "Professional",
+    glow: "oklch(60% 0.25 230 / 0.3)",
+    hex: "oklch(60% 0.25 230)",
+  },
+  advanced: {
+    badge: "border border-secondary/30 text-secondary",
+    label: "Advanced",
+    glow: "oklch(45% 0.22 290 / 0.4)",
+    hex: "oklch(45% 0.22 290)",
+  },
+  performance: {
+    badge: "border border-accent/30 text-accent",
+    label: "Performance",
+    glow: "oklch(70% 0.2 200 / 0.45)",
+    hex: "oklch(70% 0.2 200)",
+  },
+};
 
 const STATIC_COURSES = [
   {
@@ -137,13 +145,12 @@ const STATIC_COURSES = [
 const PRICING_PLANS = [
   {
     tier: "Professional",
-    price: "₹24,999",
+    price: "Rs.24,999",
     tagline: "From Scratch to Professional Level",
     popular: true,
     priceId: "price_pro_24999",
     tierKey: "professional",
-    color: "border-blue-400",
-    badge: "bg-blue-600 text-white",
+    accentVar: "--primary",
     features: [
       "All courses: Digital Marketing, Social Media, Design, Sales & MS Office",
       "AI-Powered Learning with personalized study paths",
@@ -158,13 +165,12 @@ const PRICING_PLANS = [
   },
   {
     tier: "Advanced",
-    price: "₹34,999",
+    price: "Rs.34,999",
     tagline: "From Scratch to Master Level",
     popular: false,
     priceId: "price_advanced_34999",
     tierKey: "advanced",
-    color: "border-purple-300",
-    badge: "bg-purple-600 text-white",
+    accentVar: "--secondary",
     features: [
       "Everything in Professional Course",
       "Advanced AI Tools & Automation Modules",
@@ -179,13 +185,12 @@ const PRICING_PLANS = [
   },
   {
     tier: "Performance Marketing",
-    price: "₹74,999",
+    price: "Rs.74,999",
     tagline: "Master-Level Performance & ROI",
     popular: false,
     priceId: "price_performance_74999",
     tierKey: "performance",
-    color: "border-amber-400",
-    badge: "bg-amber-600 text-white",
+    accentVar: "--accent",
     features: [
       "Everything in Advanced Course",
       "Google Ads & Meta Ads Expert Level",
@@ -345,7 +350,6 @@ function CourseCard({
       : rawTier && typeof rawTier === "object"
         ? Object.keys(rawTier as object)[0]
         : "professional";
-  // Performance Marketing is stored as #advanced in backend but identified by high price
   const tierKey = (
     baseTierKey === "performance" || Number(course.priceInr) >= 74999
       ? "performance"
@@ -358,11 +362,14 @@ function CourseCard({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-      className="card-hover"
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="snap-start shrink-0 w-72 md:w-80"
     >
-      <Card className="overflow-hidden border border-gray-100 h-full flex flex-col">
-        <div className="h-44 bg-gray-100 overflow-hidden relative">
+      <div
+        className="glass-card rounded-xl overflow-hidden flex flex-col h-full transition-all duration-300"
+        style={{ minHeight: 380 }}
+      >
+        <div className="h-44 overflow-hidden relative">
           <img
             src={
               course.thumbnailUrl ||
@@ -370,35 +377,55 @@ function CourseCard({
               "/assets/generated/course-digital-marketing.dim_800x450.jpg"
             }
             alt={course.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-75"
             loading="lazy"
           />
           <div
-            className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold ${tierInfo.bg} ${tierInfo.text}`}
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to bottom, transparent 40%, oklch(5% 0.01 250 / 0.95) 100%)",
+            }}
+          />
+          <div
+            className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-background/60 backdrop-blur-sm ${tierInfo.badge}`}
           >
             {tierInfo.label}
           </div>
-          <div className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-semibold bg-black/70 text-white flex items-center gap-1">
+          <div
+            className="absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-mono font-semibold flex items-center gap-1 backdrop-blur-sm"
+            style={{
+              background: "oklch(60% 0.25 230 / 0.15)",
+              border: "1px solid oklch(60% 0.25 230 / 0.3)",
+              color: "oklch(70% 0.2 200)",
+            }}
+          >
             <Bot className="w-3 h-3" /> AI
           </div>
         </div>
-        <CardContent className="flex-1 flex flex-col p-5">
-          <h3 className="font-bold text-brand-heading text-base mb-1.5 line-clamp-2">
+        <div className="flex-1 flex flex-col p-5">
+          <h3
+            className="font-bold text-base mb-1.5 line-clamp-2"
+            style={{ color: "oklch(97% 0.005 250)" }}
+          >
             {course.title}
           </h3>
-          <p className="text-sm text-brand-body leading-relaxed mb-4 line-clamp-2">
+          <p
+            className="text-sm leading-relaxed mb-4 line-clamp-2"
+            style={{ color: "oklch(55% 0.01 250)" }}
+          >
             {course.description}
           </p>
           <div className="mt-auto flex items-center justify-between">
-            <span className="font-bold text-brand-heading text-lg">
-              ₹{Number(course.priceInr).toLocaleString("en-IN")}
+            <span className="font-bold text-lg gold-text font-mono">
+              Rs.{Number(course.priceInr).toLocaleString("en-IN")}
             </span>
             <Button
               data-ocid="courses.primary_button"
               size="sm"
               onClick={() => onEnroll(course.id, tierKey)}
               disabled={isCheckingOut}
-              className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-4 font-semibold"
+              className="btn-gold rounded-full px-4 font-semibold text-xs"
             >
               {isCheckingOut ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -407,15 +434,17 @@ function CourseCard({
               )}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </motion.div>
   );
 }
 
 export default function LandingPage({ nav }: LandingPageProps) {
+  const { identity, login } = useInternetIdentity();
+  const { isEmailLoggedIn } = useEmailAuth();
+  const isLoggedIn = !!identity || isEmailLoggedIn;
   const { data: courses, isLoading } = useCourses();
-  const { login, identity } = useInternetIdentity();
   const createCheckout = useCreateCheckoutSession();
 
   useEffect(() => {
@@ -429,17 +458,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
     }
     meta.setAttribute(
       "content",
-      "India's #1 AI-powered digital marketing course. Professional ₹24,999 | Advanced ₹34,999 | Performance Marketing ₹74,999. Learn SEO, Google Ads, Meta Ads, Social Media, Performance Marketing. Govt. recognized certification. 35,000+ students.",
-    );
-    let keywords = document.querySelector("meta[name='keywords']");
-    if (!keywords) {
-      keywords = document.createElement("meta");
-      (keywords as HTMLMetaElement).name = "keywords";
-      document.head.appendChild(keywords);
-    }
-    keywords.setAttribute(
-      "content",
-      "digital marketing course India, performance marketing course India, performance marketing training, SEO course India, Google Ads training, Meta Ads course, digital marketing certification, online marketing course India, AI marketing course, digital marketing institute India",
+      "India's #1 AI-powered digital marketing course. Professional Rs.24,999 | Advanced Rs.34,999 | Performance Marketing Rs.74,999. Learn SEO, Google Ads, Meta Ads, Social Media, Performance Marketing. Govt. recognized certification. 35,000+ students.",
     );
   }, []);
 
@@ -468,7 +487,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
     courses && courses.length > 0 ? courses : STATIC_COURSES;
 
   const handleEnroll = async (courseId: string, tierKey?: string) => {
-    if (!identity) {
+    if (!isLoggedIn) {
       login();
       return;
     }
@@ -486,7 +505,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
           quantity: 1,
         },
       ]);
-      if (!session?.url) throw new Error("Stripe session missing url");
+      if (!session?.url) throw new Error("Session missing url");
       window.location.href = session.url;
     } catch {
       nav.navigate("course-detail", { courseId });
@@ -494,7 +513,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
   };
 
   const handlePricingEnroll = async (tierKey: string) => {
-    if (!identity) {
+    if (!isLoggedIn) {
       login();
       return;
     }
@@ -510,121 +529,185 @@ export default function LandingPage({ nav }: LandingPageProps) {
     await handleEnroll(courseId, tierKey);
   };
 
-  return (
-    <div className="overflow-x-hidden">
-      {/* Hero Section */}
-      <section className="gradient-hero py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-4 font-medium">
-                India's #1 AI-Powered Digital Marketing Platform
-              </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-[52px] font-extrabold text-brand-heading leading-tight mb-5">
-                Master Digital Marketing &amp;
-                <span className="text-brand-teal"> Performance</span>. Transform
-                Your Career.
-              </h1>
-              <p className="text-lg text-brand-body leading-relaxed mb-2 max-w-lg">
-                From Scratch to Professional, Master, or Performance Marketing
-                Expert — Learn SEO, Google Ads, Meta Ads, Social Media,
-                Designing, Sales & More. AI-powered learning with real-world
-                assignments.
-              </p>
-              <p className="text-sm text-brand-teal font-semibold mb-8">
-                Govt. Recognized Certification | Placement Support | Live
-                Mentoring
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  data-ocid="hero.primary_button"
-                  size="lg"
-                  onClick={() =>
-                    document
-                      .getElementById("courses")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-8 font-semibold text-base shadow-orange"
-                >
-                  Explore Courses <ChevronRight className="ml-1 w-5 h-5" />
-                </Button>
-                <Button
-                  data-ocid="hero.secondary_button"
-                  variant="outline"
-                  size="lg"
-                  onClick={() =>
-                    document
-                      .getElementById("pricing")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="rounded-full px-8 border-brand-teal text-brand-teal hover:bg-brand-wash font-semibold text-base"
-                >
-                  View Pricing
-                </Button>
-              </div>
-              <div className="flex gap-6 mt-8">
-                {[
-                  { value: "35,000+", label: "Students" },
-                  { value: "15+", label: "Courses" },
-                  { value: "98%", label: "Placement Rate" },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="font-extrabold text-xl text-brand-teal">
-                      {stat.value}
-                    </div>
-                    <div className="text-xs text-brand-body">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+  const sectionMotion = {
+    initial: { opacity: 0, y: 40 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-80px" } as const,
+    transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] as const },
+  };
 
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="relative hidden lg:block"
+  return (
+    <div
+      className="overflow-x-hidden"
+      style={{ background: "oklch(5% 0.01 250)" }}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {/* ===== HERO SECTION ===== */}
+      <section className="relative min-h-screen flex items-center overflow-hidden neural-grid">
+        <StageSpotlight />
+
+        {/* Hero Content — staggered reveal */}
+        <div
+          className="container mx-auto px-4 relative text-center py-28"
+          style={{ zIndex: 10 }}
+        >
+          {/* Badge — animate first */}
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex justify-center mb-7"
+          >
+            <div
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-mono font-semibold badge-pulse"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.12)",
+                border: "1px solid oklch(60% 0.25 230 / 0.4)",
+                color: "oklch(75% 0.2 200)",
+              }}
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-brand-teal/10 rounded-3xl transform rotate-3" />
-                <img
-                  src="/assets/generated/hero-student.dim_600x500.png"
-                  alt="Student learning digital marketing with AI tools"
-                  className="relative rounded-3xl w-full max-w-lg mx-auto object-cover shadow-2xl"
-                />
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl px-4 py-3 shadow-xl flex items-center gap-2">
-                  <div className="w-8 h-8 bg-brand-teal/10 rounded-full flex items-center justify-center">
-                    <Users className="w-4 h-4 text-brand-teal" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-brand-heading">
-                      35,000+ Students
-                    </div>
-                    <div className="text-[10px] text-brand-body">
-                      Enrolled this year
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -top-4 -right-4 bg-brand-orange text-white rounded-2xl px-4 py-3 shadow-xl">
-                  <div className="text-xs font-bold">Govt. Recognized</div>
-                  <div className="text-[10px] opacity-80">Certification</div>
-                </div>
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0"
+                style={{ background: "oklch(70% 0.2 200)" }}
+              />
+              <Cpu className="w-3.5 h-3.5" />
+              NEURAL &middot; AI &middot; POWERED
+            </div>
+          </motion.div>
+
+          {/* Headline — delayed */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.7,
+              delay: 0.15,
+              ease: [0.25, 0.1, 0.25, 1],
+            }}
+            className="mb-6 tracking-tight"
+          >
+            {/* Line 1: small pre-qualifier */}
+            <span
+              className="block text-lg md:text-xl font-semibold mb-2 font-mono tracking-widest uppercase"
+              style={{ color: "oklch(50% 0.01 250)" }}
+            >
+              India&apos;s #1 AI-Powered
+            </span>
+            {/* Line 2: the hero word */}
+            <span className="block text-5xl md:text-7xl lg:text-8xl font-extrabold leading-[0.95] gold-text glow-blue-text">
+              Digital
+              <br />
+              Marketing
+            </span>
+            {/* Line 3: supporting */}
+            <span
+              className="block text-2xl md:text-3xl lg:text-4xl font-semibold mt-4"
+              style={{ color: "oklch(72% 0.005 250)" }}
+            >
+              Training Platform
+            </span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+            className="text-base md:text-lg leading-relaxed mb-10 max-w-xl mx-auto"
+            style={{ color: "oklch(55% 0.01 250)" }}
+          >
+            From beginner to certified professional. SEO, Google Ads, Meta Ads,
+            Social Media, Design &amp; Performance Marketing — all AI-powered.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.42, ease: "easeOut" }}
+            className="flex flex-col sm:flex-row gap-3 justify-center mb-14"
+          >
+            <Button
+              data-ocid="hero.primary_button"
+              size="lg"
+              onClick={() =>
+                document
+                  .getElementById("courses")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="btn-gold rounded-full px-10 py-6 font-semibold text-base h-auto"
+            >
+              Explore Courses <ChevronRight className="ml-1 w-5 h-5" />
+            </Button>
+            <Button
+              data-ocid="hero.secondary_button"
+              variant="outline"
+              size="lg"
+              onClick={() =>
+                document
+                  .getElementById("pricing")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="rounded-full px-10 py-6 font-semibold text-base h-auto border-primary/25 text-primary hover:bg-primary/10"
+            >
+              View Pricing
+            </Button>
+          </motion.div>
+
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.58 }}
+            className="flex flex-wrap gap-3 justify-center"
+          >
+            {[
+              { value: "35,000+", label: "Students" },
+              { value: "4.9/5", label: "Rating" },
+              { value: "100%", label: "Job Support" },
+              { value: "15+", label: "AI Courses" },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="px-4 py-2 rounded-full text-sm"
+                style={{
+                  background: "oklch(60% 0.25 230 / 0.06)",
+                  border: "1px solid oklch(60% 0.25 230 / 0.15)",
+                  color: "oklch(65% 0.01 250)",
+                }}
+              >
+                <span className="text-primary font-mono font-bold">
+                  {stat.value}
+                </span>{" "}
+                <span className="font-medium">{stat.label}</span>
               </div>
-            </motion.div>
-          </div>
+            ))}
+          </motion.div>
         </div>
+
+        {/* Bottom fade */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+          style={{
+            background: "linear-gradient(transparent, oklch(5% 0.01 250))",
+          }}
+        />
       </section>
 
-      {/* Stats Strip */}
-      <section className="gradient-teal py-8">
+      {/* ===== STATS STRIP ===== */}
+      <section
+        className="py-8"
+        style={{
+          borderTop: "1px solid oklch(60% 0.25 230 / 0.1)",
+          borderBottom: "1px solid oklch(60% 0.25 230 / 0.1)",
+          background: "oklch(6% 0.012 250)",
+        }}
+      >
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { icon: Users, value: "35,000+", label: "Active Students" },
-              { icon: BookOpen, value: "15+ Courses", label: "All AI-Powered" },
+              { icon: BookOpen, value: "15+", label: "AI-Powered Courses" },
               {
                 icon: Award,
                 value: "Govt. Recognized",
@@ -632,13 +715,26 @@ export default function LandingPage({ nav }: LandingPageProps) {
               },
               { icon: Star, value: "Top Mentors", label: "Industry Experts" },
             ].map(({ icon: Icon, value, label }) => (
-              <div key={label} className="flex items-center gap-3 text-white">
-                <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-5 h-5" />
+              <div key={label} className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: "oklch(60% 0.25 230 / 0.1)",
+                    border: "1px solid oklch(60% 0.25 230 / 0.2)",
+                  }}
+                >
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <div className="font-bold text-sm md:text-base">{value}</div>
-                  <div className="text-xs text-white/75">{label}</div>
+                  <div className="font-bold text-sm md:text-base font-mono text-primary">
+                    {value}
+                  </div>
+                  <div
+                    className="text-xs"
+                    style={{ color: "oklch(45% 0.01 250)" }}
+                  >
+                    {label}
+                  </div>
                 </div>
               </div>
             ))}
@@ -646,8 +742,8 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
-      {/* Course Highlights */}
-      <section className="py-14 bg-white">
+      {/* ===== COURSE HIGHLIGHTS ===== */}
+      <section className="py-14 bg-grid-dark">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
@@ -658,117 +754,105 @@ export default function LandingPage({ nav }: LandingPageProps) {
               },
               {
                 icon: FileText,
-                label: "Quizzes & Assignments",
-                desc: "Weekly challenges",
-              },
-              {
-                icon: Zap,
-                label: "AI-Powered Learning",
-                desc: "Personalized paths",
+                label: "Weekly Assignments",
+                desc: "With gift card rewards",
               },
               {
                 icon: Trophy,
-                label: "Certifications",
-                desc: "Govt. recognized",
+                label: "AI-Powered Quizzes",
+                desc: "Adaptive post-video tests",
+              },
+              {
+                icon: Zap,
+                label: "Live Mentoring",
+                desc: "Industry expert sessions",
               },
             ].map(({ icon: Icon, label, desc }) => (
               <motion.div
                 key={label}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.35 }}
-                className="text-center"
+                {...sectionMotion}
+                className="glass-card rounded-xl p-5 text-center"
               >
-                <div className="w-14 h-14 bg-brand-teal/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                  <Icon className="w-7 h-7 text-brand-teal" />
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
+                  style={{
+                    background: "oklch(60% 0.25 230 / 0.1)",
+                    border: "1px solid oklch(60% 0.25 230 / 0.2)",
+                  }}
+                >
+                  <Icon className="w-5 h-5 text-primary" />
                 </div>
-                <div className="font-semibold text-brand-heading text-sm">
+                <div className="font-semibold text-sm text-foreground">
                   {label}
                 </div>
-                <div className="text-xs text-brand-body mt-0.5">{desc}</div>
+                <div
+                  className="text-xs mt-1"
+                  style={{ color: "oklch(45% 0.01 250)" }}
+                >
+                  {desc}
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* All Courses List */}
-      <section className="py-8 bg-brand-wash">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
-              All 15+ Courses
-            </Badge>
-            <h2 className="text-2xl md:text-3xl font-extrabold text-brand-heading">
-              What You'll Learn
-            </h2>
-            <p className="text-brand-body mt-2 max-w-lg mx-auto text-sm">
-              All courses are AI-powered and included in your package
-            </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
-            {ALL_COURSES_LIST.map(({ icon: Icon, name, tier }) => (
-              <div
-                key={name}
-                className="bg-white rounded-xl p-3 text-center shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-              >
-                <div className="w-9 h-9 bg-brand-teal/10 rounded-xl flex items-center justify-center mx-auto mb-2">
-                  <Icon className="w-5 h-5 text-brand-teal" />
-                </div>
-                <div className="text-xs font-semibold text-brand-heading leading-tight">
-                  {name}
-                </div>
-                <div
-                  className={`text-[10px] mt-1 font-medium ${
-                    tier === "Advanced"
-                      ? "text-purple-600"
-                      : tier === "Performance"
-                        ? "text-amber-600"
-                        : "text-blue-600"
-                  }`}
-                >
-                  {tier}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <GoldDivider />
 
-      {/* Featured Courses */}
-      <section id="courses" className="py-16 bg-white">
+      {/* ===== FEATURED COURSES ===== */}
+      <section id="courses" className="py-16">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
+          <motion.div {...sectionMotion} className="text-center mb-12">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-3"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.08)",
+                border: "1px solid oklch(60% 0.25 230 / 0.2)",
+                color: "oklch(70% 0.2 200)",
+              }}
+            >
               Featured Programs
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              Our Top Courses
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">Our Top </span>
+              <span className="gold-text">Courses</span>
             </h2>
-            <p className="text-brand-body max-w-xl mx-auto">
+            <p
+              className="max-w-xl mx-auto"
+              style={{ color: "oklch(50% 0.01 250)" }}
+            >
               Industry-crafted programs to take you from complete beginner to
               expert. All AI-powered.
             </p>
           </motion.div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex gap-6 overflow-hidden pb-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="space-y-3">
-                  <div className="h-44 bg-gray-200 rounded-xl animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                <div
+                  key={i}
+                  className="shrink-0 w-72 md:w-80 glass-card rounded-xl p-4 space-y-3"
+                >
+                  <div
+                    className="h-44 rounded-lg animate-pulse"
+                    style={{ background: "oklch(60% 0.25 230 / 0.06)" }}
+                  />
+                  <div
+                    className="h-4 rounded w-3/4 animate-pulse"
+                    style={{ background: "oklch(60% 0.25 230 / 0.06)" }}
+                  />
+                  <div
+                    className="h-4 rounded animate-pulse"
+                    style={{ background: "oklch(60% 0.25 230 / 0.06)" }}
+                  />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4"
+              style={{ cursor: "grab", WebkitOverflowScrolling: "touch" }}
+            >
               {displayCourses.map((course) => (
                 <CourseCard
                   key={course.id}
@@ -782,22 +866,30 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
-      {/* Digital Marketing Categories */}
-      <section className="py-16 bg-brand-wash">
+      <GoldDivider />
+
+      {/* ===== DM CATEGORIES ===== */}
+      <section className="py-16 bg-grid-dark">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-10"
-          >
-            <Badge className="bg-brand-orange/10 text-brand-orange border-brand-orange/20 mb-3">
+          <motion.div {...sectionMotion} className="text-center mb-10">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-3"
+              style={{
+                background: "oklch(45% 0.22 290 / 0.12)",
+                border: "1px solid oklch(45% 0.22 290 / 0.3)",
+                color: "oklch(65% 0.18 290)",
+              }}
+            >
               Digital Marketing
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              10 Categories of Digital Marketing
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">10 Categories of </span>
+              <span className="gold-text">Digital Marketing</span>
             </h2>
-            <p className="text-brand-body max-w-xl mx-auto">
+            <p
+              className="max-w-xl mx-auto"
+              style={{ color: "oklch(50% 0.01 250)" }}
+            >
               Every category is covered in detail, from fundamentals to advanced
               AI-powered strategies.
             </p>
@@ -809,137 +901,218 @@ export default function LandingPage({ nav }: LandingPageProps) {
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.06 }}
-                className="bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-teal/30 transition-all cursor-pointer group"
+                transition={{ delay: i * 0.06, duration: 0.5 }}
+                className="glass-card glow-hover rounded-2xl p-5 text-center cursor-pointer"
               >
-                <div className="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-brand-teal/20 transition-colors">
-                  <Icon className="w-6 h-6 text-brand-teal" />
+                <div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                  style={{ background: "oklch(60% 0.25 230 / 0.08)" }}
+                >
+                  <Icon className="w-6 h-6 text-primary" />
                 </div>
-                <div className="font-bold text-sm text-brand-heading">
-                  {name}
+                <div className="font-bold text-sm text-foreground">{name}</div>
+                <div
+                  className="text-xs mt-1"
+                  style={{ color: "oklch(45% 0.01 250)" }}
+                >
+                  {desc}
                 </div>
-                <div className="text-xs text-brand-body mt-1">{desc}</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why Choose Us / Competitor Comparison */}
-      <section className="py-16 bg-white">
+      {/* ===== ALL COURSES LIST ===== */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="bg-brand-orange/10 text-brand-orange border-brand-orange/20 mb-3">
-              Why We Stand Out
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              Why Choose Us Over Udemy, Coursera &amp; HubSpot?
+          <motion.div {...sectionMotion} className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">Complete Course </span>
+              <span className="gold-text">Library</span>
             </h2>
-            <p className="text-brand-body max-w-xl mx-auto">
-              Most global platforms offer generic content. We're built
+            <p
+              className="max-w-xl mx-auto"
+              style={{ color: "oklch(50% 0.01 250)" }}
+            >
+              15 comprehensive courses spanning every facet of digital marketing
+              and beyond.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
+            {ALL_COURSES_LIST.map(({ icon: Icon, name, tier }, i) => (
+              <motion.div
+                key={name}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04, duration: 0.4 }}
+                className="glass-card rounded-xl p-3 text-center"
+              >
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-2"
+                  style={{ background: "oklch(60% 0.25 230 / 0.08)" }}
+                >
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-xs font-semibold leading-tight text-foreground">
+                  {name}
+                </div>
+                <div
+                  className="text-[10px] mt-1 font-mono font-medium"
+                  style={{
+                    color:
+                      tier === "Advanced"
+                        ? "oklch(65% 0.18 290)"
+                        : tier === "Performance"
+                          ? "oklch(70% 0.2 200)"
+                          : "oklch(65% 0.22 230)",
+                  }}
+                >
+                  {tier}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <GoldDivider />
+
+      {/* ===== COMPARISON TABLE ===== */}
+      <section className="py-16 bg-grid-dark">
+        <div className="container mx-auto px-4">
+          <motion.div {...sectionMotion} className="text-center mb-12">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-3"
+              style={{
+                background: "oklch(45% 0.22 290 / 0.1)",
+                border: "1px solid oklch(45% 0.22 290 / 0.25)",
+                color: "oklch(65% 0.18 290)",
+              }}
+            >
+              Why We Stand Out
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">Why Choose Us Over </span>
+              <span className="gold-text">Udemy, Coursera &amp; HubSpot?</span>
+            </h2>
+            <p
+              className="max-w-xl mx-auto"
+              style={{ color: "oklch(50% 0.01 250)" }}
+            >
+              Most global platforms offer generic content. We&apos;re built
               specifically for Indian students and professionals.
             </p>
           </motion.div>
 
-          {/* Comparison table */}
           <div className="overflow-x-auto max-w-5xl mx-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b-2 border-brand-teal">
-                  <th className="text-left py-3 px-4 text-brand-heading font-bold">
+                <tr
+                  style={{
+                    borderBottom: "2px solid oklch(60% 0.25 230 / 0.3)",
+                  }}
+                >
+                  <th className="text-left py-3 px-4 font-bold text-foreground">
                     Feature
                   </th>
-                  <th className="py-3 px-4 text-brand-teal font-bold bg-brand-teal/5 rounded-t-xl">
-                    Digital Marketing Foundation ✓
+                  <th
+                    className="py-3 px-4 font-bold rounded-t-xl text-primary"
+                    style={{ background: "oklch(60% 0.25 230 / 0.06)" }}
+                  >
+                    Digital Marketing Foundation
                   </th>
-                  <th className="py-3 px-4 text-gray-400 font-semibold">
+                  <th
+                    className="py-3 px-4 font-semibold"
+                    style={{ color: "oklch(45% 0.01 250)" }}
+                  >
                     Udemy
                   </th>
-                  <th className="py-3 px-4 text-gray-400 font-semibold">
+                  <th
+                    className="py-3 px-4 font-semibold"
+                    style={{ color: "oklch(45% 0.01 250)" }}
+                  >
                     Coursera
                   </th>
-                  <th className="py-3 px-4 text-gray-400 font-semibold">
-                    HubSpot Academy
+                  <th
+                    className="py-3 px-4 font-semibold"
+                    style={{ color: "oklch(45% 0.01 250)" }}
+                  >
+                    HubSpot
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  ["India-Specific Curriculum", "Yes", "No", "No", "No"],
-                  ["Govt. Recognized Certificate", "Yes", "No", "No", "No"],
+                  ["India-focused curriculum", "Yes", "Partial", "No", "No"],
+                  ["INR Pricing", "Yes", "Yes", "USD only", "Free limited"],
+                  ["Govt. recognized certificate", "Yes", "No", "No", "No"],
                   ["AI-Powered Learning", "Yes", "No", "Partial", "No"],
-                  ["Live Mentor Sessions", "Yes", "No", "Paid Extra", "No"],
-                  ["INR Pricing (No FX)", "Yes", "No", "No", "Free (Basic)"],
-                  ["Placement Support", "Yes", "No", "No", "No"],
-                  ["WhatsApp Support", "Yes", "No", "No", "No"],
-                  [
-                    "Performance Marketing Course",
-                    "Yes",
-                    "Partial",
-                    "Partial",
-                    "No",
-                  ],
-                ].map(([feature, dmf, udemy, coursera, hubspot]) => (
+                  ["Live mentor sessions", "Yes", "No", "Partial", "No"],
+                  ["Placement support", "Yes", "No", "No", "No"],
+                  ["WhatsApp support", "Yes", "No", "No", "No"],
+                ].map(([feature, dmf, udemy, coursera, hubspot], i) => (
                   <tr
                     key={feature}
-                    className="border-b border-gray-100 hover:bg-gray-50"
+                    style={{
+                      borderBottom: "1px solid oklch(60% 0.25 230 / 0.07)",
+                      background:
+                        i % 2 === 0
+                          ? "transparent"
+                          : "oklch(60% 0.25 230 / 0.02)",
+                    }}
                   >
-                    <td className="py-3 px-4 font-medium text-brand-heading">
+                    <td
+                      className="py-3 px-4"
+                      style={{ color: "oklch(70% 0.01 250)" }}
+                    >
                       {feature}
                     </td>
-                    <td className="py-3 px-4 text-center font-semibold bg-brand-teal/5">
-                      <span
-                        className={
-                          dmf === "Yes"
-                            ? "text-green-600 font-bold"
-                            : dmf === "No"
-                              ? "text-red-500"
-                              : "text-brand-teal font-semibold"
-                        }
-                      >
-                        {dmf}
-                      </span>
+                    <td
+                      className="py-3 px-4 text-center font-mono font-semibold text-primary"
+                      style={{ background: "oklch(60% 0.25 230 / 0.04)" }}
+                    >
+                      {dmf}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span
-                        className={
-                          udemy === "Yes"
-                            ? "text-green-600 font-bold"
-                            : udemy === "No"
-                              ? "text-red-400"
-                              : "text-gray-500"
-                        }
+                        style={{
+                          color:
+                            udemy === "Yes"
+                              ? "oklch(70% 0.15 145)"
+                              : udemy === "No"
+                                ? "oklch(55% 0.2 25)"
+                                : "oklch(45% 0.01 250)",
+                        }}
                       >
                         {udemy}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span
-                        className={
-                          coursera === "Yes"
-                            ? "text-green-600 font-bold"
-                            : coursera === "No"
-                              ? "text-red-400"
-                              : "text-gray-500"
-                        }
+                        style={{
+                          color:
+                            coursera === "Yes"
+                              ? "oklch(70% 0.15 145)"
+                              : coursera === "No"
+                                ? "oklch(55% 0.2 25)"
+                                : "oklch(45% 0.01 250)",
+                        }}
                       >
                         {coursera}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span
-                        className={
-                          hubspot === "Yes"
-                            ? "text-green-600 font-bold"
-                            : hubspot === "No"
-                              ? "text-red-400"
-                              : "text-gray-500"
-                        }
+                        style={{
+                          color:
+                            hubspot === "Yes"
+                              ? "oklch(70% 0.15 145)"
+                              : hubspot === "No"
+                                ? "oklch(55% 0.2 25)"
+                                : "oklch(45% 0.01 250)",
+                        }}
                       >
                         {hubspot}
                       </span>
@@ -950,21 +1123,24 @@ export default function LandingPage({ nav }: LandingPageProps) {
             </table>
           </div>
 
-          {/* Trust badges */}
           <div className="flex flex-wrap justify-center gap-4 mt-10">
             {[
               { label: "35,000+ Students Enrolled", icon: Users },
               { label: "Govt. Recognized", icon: Award },
               { label: "AI-Powered Platform", icon: Bot },
               { label: "Placement Support", icon: Briefcase },
-              { label: "4.9★ Average Rating", icon: Star },
+              { label: "4.9 Star Average Rating", icon: Star },
             ].map(({ label, icon: Icon }) => (
               <div
                 key={label}
-                className="flex items-center gap-2 bg-brand-wash border border-brand-teal/20 rounded-full px-4 py-2"
+                className="flex items-center gap-2 rounded-full px-4 py-2"
+                style={{
+                  background: "oklch(60% 0.25 230 / 0.06)",
+                  border: "1px solid oklch(60% 0.25 230 / 0.18)",
+                }}
               >
-                <Icon className="w-4 h-4 text-brand-teal" />
-                <span className="text-sm font-semibold text-brand-heading">
+                <Icon className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">
                   {label}
                 </span>
               </div>
@@ -973,262 +1149,330 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 bg-brand-wash">
+      <GoldDivider />
+
+      {/* ===== PRICING ===== */}
+      <section id="pricing" className="py-16">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="bg-brand-orange/10 text-brand-orange border-brand-orange/20 mb-3">
+          <motion.div {...sectionMotion} className="text-center mb-12">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-3"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.08)",
+                border: "1px solid oklch(60% 0.25 230 / 0.2)",
+                color: "oklch(70% 0.2 200)",
+              }}
+            >
               Transparent Pricing
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              Choose Your Learning Path
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">Choose Your </span>
+              <span className="gold-text">Learning Path</span>
             </h2>
-            <p className="text-brand-body max-w-xl mx-auto">
+            <p
+              className="max-w-xl mx-auto"
+              style={{ color: "oklch(50% 0.01 250)" }}
+            >
               One-time payment. Lifetime access. From complete beginner to
               certified professional or master.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
             {PRICING_PLANS.map((plan, i) => (
               <motion.div
                 key={plan.tier}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className={`relative rounded-2xl border-2 p-6 flex flex-col bg-white ${
-                  plan.popular
-                    ? "border-blue-400 shadow-lg"
-                    : `${plan.color} shadow-sm`
-                }`}
+                transition={{
+                  delay: i * 0.12,
+                  duration: 0.6,
+                  ease: [0.25, 0.1, 0.25, 1],
+                }}
+                className="relative"
               >
+                {/* Popular plan: gradient border wrapper */}
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <span className="bg-brand-orange text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-orange">
-                      Most Popular
-                    </span>
-                  </div>
+                  <div
+                    className="absolute -inset-px rounded-[18px] pointer-events-none"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, oklch(60% 0.25 230 / 0.8), oklch(45% 0.22 290 / 0.5), oklch(70% 0.2 200 / 0.6))",
+                    }}
+                  />
                 )}
                 <div
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-2 ${plan.badge} w-fit`}
+                  className="relative rounded-2xl p-7 flex flex-col h-full"
+                  style={{
+                    background: plan.popular
+                      ? "oklch(9% 0.02 250)"
+                      : "oklch(8% 0.015 250 / 0.75)",
+                    backdropFilter: "blur(20px)",
+                    border: plan.popular
+                      ? "none"
+                      : "1px solid oklch(60% 0.25 230 / 0.18)",
+                    boxShadow: plan.popular
+                      ? "0 0 40px oklch(60% 0.25 230 / 0.2), inset 0 1px 0 oklch(100% 0 0 / 0.06)"
+                      : "inset 0 1px 0 oklch(100% 0 0 / 0.04), 0 4px 24px oklch(0% 0 0 / 0.35)",
+                    transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "translateY(-3px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "translateY(0)";
+                  }}
                 >
-                  <Bot className="w-3.5 h-3.5" /> {plan.tier}
-                </div>
-                <p className="text-xs text-brand-body mb-4 font-medium">
-                  {plan.tagline}
-                </p>
-                <div className="mb-6">
-                  <span className="text-4xl font-extrabold text-brand-heading">
-                    {plan.price}
-                  </span>
-                  <span className="text-brand-body text-sm ml-1">
-                    / one-time
-                  </span>
-                </div>
-                <ul className="space-y-3 flex-1 mb-8">
-                  {plan.features.map((feat) => (
-                    <li
-                      key={feat}
-                      className="flex items-start gap-2 text-sm text-brand-body"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-brand-teal flex-shrink-0 mt-0.5" />
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  data-ocid="pricing.primary_button"
-                  size="lg"
-                  disabled={createCheckout.isPending}
-                  onClick={() => handlePricingEnroll(plan.tierKey)}
-                  className={`w-full rounded-full font-semibold ${
-                    plan.popular
-                      ? "bg-brand-orange hover:bg-brand-orange-dark text-white shadow-orange"
-                      : plan.tierKey === "performance"
-                        ? "bg-amber-600 hover:bg-amber-700 text-white"
-                        : "bg-purple-600 hover:bg-purple-700 text-white"
-                  }`}
-                >
-                  {createCheckout.isPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mx-auto" />
-                  ) : (
-                    `Enroll in ${plan.tier}`
+                  {plan.popular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10">
+                      <span
+                        className="text-[10px] font-mono font-bold px-4 py-1 rounded-full uppercase tracking-widest"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, oklch(58% 0.28 230), oklch(65% 0.25 230))",
+                          color: "#fff",
+                          boxShadow: "0 0 12px oklch(60% 0.25 230 / 0.5)",
+                        }}
+                      >
+                        Most Popular
+                      </span>
+                    </div>
                   )}
-                </Button>
+
+                  {/* Tier badge */}
+                  <div
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-2 w-fit"
+                    style={{
+                      background: "oklch(60% 0.25 230 / 0.1)",
+                      border: "1px solid oklch(60% 0.25 230 / 0.25)",
+                      color: "oklch(70% 0.2 200)",
+                    }}
+                  >
+                    <Bot className="w-3.5 h-3.5" /> {plan.tier}
+                  </div>
+
+                  <p
+                    className="text-xs mb-5 font-medium"
+                    style={{ color: "oklch(50% 0.01 250)" }}
+                  >
+                    {plan.tagline}
+                  </p>
+
+                  {/* Price */}
+                  <div
+                    className="mb-6 pb-6"
+                    style={{
+                      borderBottom: "1px solid oklch(60% 0.25 230 / 0.12)",
+                    }}
+                  >
+                    <span className="text-4xl font-bold font-mono gold-text">
+                      {plan.price}
+                    </span>
+                    <span
+                      className="text-sm ml-1.5"
+                      style={{ color: "oklch(40% 0.01 250)" }}
+                    >
+                      / one-time
+                    </span>
+                    <div
+                      className="mt-1 text-xs font-mono"
+                      style={{ color: "oklch(45% 0.01 250)" }}
+                    >
+                      Lifetime access included
+                    </div>
+                  </div>
+
+                  <ul className="space-y-2.5 flex-1 mb-8">
+                    {plan.features.map((feat) => (
+                      <li
+                        key={feat}
+                        className="flex items-start gap-2.5 text-sm"
+                        style={{ color: "oklch(72% 0.008 250)" }}
+                      >
+                        <CheckCircle2
+                          className="w-4 h-4 flex-shrink-0 mt-0.5"
+                          style={{ color: "oklch(65% 0.22 230)" }}
+                        />
+                        {feat}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    data-ocid="pricing.primary_button"
+                    size="lg"
+                    disabled={createCheckout.isPending}
+                    onClick={() => handlePricingEnroll(plan.tierKey)}
+                    className={
+                      plan.popular
+                        ? "btn-gold w-full rounded-full font-semibold h-12 text-sm tracking-wide"
+                        : "w-full rounded-full font-semibold h-12 text-sm border-primary/25 text-primary hover:bg-primary/10"
+                    }
+                    variant={plan.popular ? "default" : "outline"}
+                  >
+                    {createCheckout.isPending ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      `Enroll in ${plan.tier}`
+                    )}
+                  </Button>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* WhatsApp AI Advisor Section */}
+      <GoldDivider />
+
+      {/* ===== AI ADVISOR CHATBOT SECTION ===== */}
       <WhatsAppChatbotSection
-        onNavigateToPricing={() => {
+        onNavigateToPricing={() =>
           document
             .getElementById("pricing")
-            ?.scrollIntoView({ behavior: "smooth" });
-        }}
+            ?.scrollIntoView({ behavior: "smooth" })
+        }
       />
 
-      {/* Testimonials */}
-      <section className="py-16 bg-white">
+      <GoldDivider />
+
+      {/* ===== TESTIMONIALS ===== */}
+      <section className="py-16 bg-grid-dark">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
-              Student Stories
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              What Our Students Say
+          <motion.div {...sectionMotion} className="text-center mb-12">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-semibold mb-3"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.08)",
+                border: "1px solid oklch(60% 0.25 230 / 0.2)",
+                color: "oklch(70% 0.2 200)",
+              }}
+            >
+              Student Success Stories
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">Loved by </span>
+              <span className="gold-text">35,000+ Students</span>
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {TESTIMONIALS.map((t, i) => (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.12, duration: 0.5 }}
+                className="glass-card rounded-2xl p-6"
               >
-                <Card className="h-full border border-gray-100 shadow-xs card-hover">
-                  <CardContent className="p-6">
-                    <div className="flex mb-3">
-                      {[...Array(t.rating)].map((_, j) => (
-                        <Star
-                          key={`star-${t.name}-${j}`}
-                          className="w-4 h-4 text-brand-orange fill-brand-orange"
-                        />
-                      ))}
+                <div className="flex gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].slice(0, t.rating).map((star) => (
+                    <Star
+                      key={star}
+                      className="w-4 h-4 text-primary fill-primary"
+                    />
+                  ))}
+                </div>
+                <p
+                  className="text-sm leading-relaxed mb-5"
+                  style={{ color: "oklch(70% 0.01 250)" }}
+                >
+                  &ldquo;{t.text}&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-mono font-bold text-primary"
+                    style={{
+                      background: "oklch(60% 0.25 230 / 0.15)",
+                      border: "1px solid oklch(60% 0.25 230 / 0.3)",
+                    }}
+                  >
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <div className="font-semibold text-sm text-foreground">
+                      {t.name}
                     </div>
-                    <p className="text-sm text-brand-body leading-relaxed mb-5 italic">
-                      "{t.text}"
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-brand-teal flex items-center justify-center text-white font-bold text-sm">
-                        {t.avatar}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm text-brand-heading">
-                          {t.name}
-                        </div>
-                        <div className="text-xs text-brand-body">{t.role}</div>
-                      </div>
+                    <div
+                      className="text-xs"
+                      style={{ color: "oklch(45% 0.01 250)" }}
+                    >
+                      {t.role}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="bg-brand-teal/10 text-brand-teal border-brand-teal/20 mb-3">
-              FAQ
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-brand-heading mb-3">
-              Frequently Asked Questions
+      <GoldDivider />
+
+      {/* ===== BLOGS PREVIEW ===== */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <motion.div {...sectionMotion} className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+              <span className="text-foreground">Latest from </span>
+              <span className="gold-text">Our Blog</span>
             </h2>
-            <p className="text-brand-body">
-              Everything you need to know before enrolling
-            </p>
           </motion.div>
-          <Accordion type="single" collapsible className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
               {
-                q: "Is the certificate government recognized?",
-                a: "Yes. Our certificates are government recognized and widely accepted by top companies in India. They add real credibility to your resume and LinkedIn profile.",
+                title: "10 Performance Marketing Strategies for 2026",
+                cat: "Performance Marketing",
+                date: "Apr 2026",
               },
               {
-                q: "Can I learn digital marketing from scratch with no experience?",
-                a: "Absolutely. Our Professional course starts from zero — no prior marketing or technical knowledge required. We guide you step by step from basics to professional level.",
+                title: "Google's 2026 Algorithm Update: SEO Recovery Guide",
+                cat: "SEO",
+                date: "Apr 2026",
               },
               {
-                q: "What is the difference between Professional, Advanced, and Performance Marketing?",
-                a: "Professional (₹24,999) covers all core digital marketing channels. Advanced (₹34,999) adds AI automation, live workshops, and placement support. Performance Marketing (₹74,999) is for those who want to master paid advertising, ROI tracking, and agency-level campaign management.",
+                title: "How to Use AI to Write 10x Better Ad Copy",
+                cat: "AI in Marketing",
+                date: "Apr 2026",
               },
-              {
-                q: "Do you provide placement or job support?",
-                a: "Yes! Advanced and Performance Marketing plans include internship and placement support, portfolio review by industry experts, and a dedicated success manager.",
-              },
-              {
-                q: "How is this different from Udemy or Coursera?",
-                a: "Unlike generic global platforms, we are built specifically for Indian students — India-focused curriculum, INR pricing, Govt. recognized certificate, live mentor sessions, WhatsApp support, and AI-powered learning. Udemy and Coursera don't offer government-recognized certificates or direct placement support.",
-              },
-              {
-                q: "What payment methods are accepted?",
-                a: "We accept all major payment methods via Razorpay — UPI, Net Banking, Credit/Debit Cards, EMI options. No foreign currency conversion needed.",
-              },
-              {
-                q: "Do I get lifetime access to course content?",
-                a: "Yes. All plans include lifetime access to course materials, including future updates added to the platform.",
-              },
-            ].map((faq, i) => (
-              <AccordionItem
-                key={faq.q}
-                value={`faq-${i}`}
-                className="border border-gray-100 rounded-xl px-5 shadow-xs"
+            ].map((post) => (
+              <motion.div
+                key={post.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="glass-card rounded-xl p-5 cursor-pointer group"
+                onClick={() => nav.navigate("blogs")}
               >
-                <AccordionTrigger className="text-left font-semibold text-brand-heading hover:text-brand-teal py-4">
-                  {faq.q}
-                </AccordionTrigger>
-                <AccordionContent className="text-brand-body text-sm leading-relaxed pb-4">
-                  {faq.a}
-                </AccordionContent>
-              </AccordionItem>
+                <div className="text-xs font-mono font-semibold mb-2 text-primary">
+                  {post.cat}
+                </div>
+                <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors leading-snug mb-3">
+                  {post.title}
+                </h3>
+                <div
+                  className="text-xs"
+                  style={{ color: "oklch(40% 0.01 250)" }}
+                >
+                  {post.date}
+                </div>
+              </motion.div>
             ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* CTA Banner */}
-      <section className="gradient-teal py-14">
-        <div className="container mx-auto px-4 text-center text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
-              Ready to Launch Your Digital Career?
-            </h2>
-            <p className="text-white/80 mb-8 max-w-lg mx-auto">
-              Join 35,000+ students who've transformed their careers from
-              scratch with The Digital Marketing Foundation.
-            </p>
+          </div>
+          <div className="text-center mt-8">
             <Button
-              data-ocid="cta.primary_button"
-              size="lg"
-              onClick={() => {
-                if (!identity) login();
-                else nav.navigate("dashboard");
-              }}
-              className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-10 font-semibold text-base shadow-orange"
+              data-ocid="blog.secondary_button"
+              variant="outline"
+              onClick={() => nav.navigate("blogs")}
+              className="border-primary/30 text-primary hover:bg-primary/10 rounded-full px-6"
             >
-              Start Learning Today
-              <TrendingUp className="ml-2 w-5 h-5" />
+              View All Blog Posts <ChevronRight className="ml-1 w-4 h-4" />
             </Button>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>

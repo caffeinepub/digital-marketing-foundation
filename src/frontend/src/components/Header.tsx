@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Brain,
-  GraduationCap,
+  Cpu,
   LayoutDashboard,
   LogIn,
   LogOut,
@@ -10,7 +10,7 @@ import {
   UserPlus,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppNav, PageName } from "../App";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
@@ -30,6 +30,13 @@ export default function Header({ nav, currentPage }: HeaderProps) {
   const [emailModalTab, setEmailModalTab] = useState<"login" | "signup">(
     "login",
   );
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   const isIILoggedIn = !!identity;
   const isLoggedIn = isIILoggedIn || isEmailLoggedIn;
@@ -70,53 +77,86 @@ export default function Header({ nav, currentPage }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-xs">
+      <header
+        className="sticky top-0 z-50 transition-all duration-300"
+        style={{
+          background: scrolled
+            ? "oklch(5% 0.01 250 / 0.96)"
+            : "oklch(5% 0.01 250 / 0.6)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderBottom: scrolled
+            ? "1px solid oklch(60% 0.25 230 / 0.2)"
+            : "1px solid transparent",
+        }}
+      >
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
           <button
             type="button"
             data-ocid="header.link"
             onClick={() => nav.navigate("landing")}
-            className="flex items-center gap-2 group"
+            className="flex items-center gap-3 group"
           >
-            <div className="w-8 h-8 rounded-lg bg-brand-teal flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
+            {/* Icon mark */}
+            <div
+              className="relative w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-105"
+              style={{
+                background: "oklch(60% 0.25 230 / 0.15)",
+                border: "1px solid oklch(60% 0.25 230 / 0.45)",
+                boxShadow: scrolled
+                  ? "0 0 14px oklch(60% 0.25 230 / 0.3)"
+                  : "0 0 10px oklch(60% 0.25 230 / 0.2)",
+              }}
+            >
+              <Cpu className="w-4 h-4 text-primary" />
             </div>
-            <span className="font-bold text-sm md:text-base text-brand-heading leading-tight">
-              The Digital Marketing
-              <span className="hidden sm:inline"> Foundation</span>
-            </span>
+            {/* Wordmark */}
+            <div className="flex flex-col leading-none">
+              <span className="font-bold text-sm font-mono text-primary tracking-widest uppercase glow-blue-text">
+                DMF
+              </span>
+              <span
+                className="hidden sm:block text-[10px] font-medium tracking-wide mt-0.5"
+                style={{ color: "oklch(50% 0.01 250)" }}
+              >
+                Digital Marketing Foundation
+              </span>
+            </div>
           </button>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <button
-                type="button"
-                key={link.label}
-                data-ocid="header.link"
-                onClick={() => handleNavClick(link)}
-                className={`text-sm font-medium transition-colors hover:text-brand-teal ${
-                  currentPage === link.page && !link.hash
-                    ? "text-brand-teal"
-                    : "text-brand-body"
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
+          <nav className="hidden md:flex items-center gap-7">
+            {navLinks.map((link) => {
+              const isActive = currentPage === link.page && !link.hash;
+              return (
+                <button
+                  type="button"
+                  key={link.label}
+                  data-ocid="header.link"
+                  onClick={() => handleNavClick(link)}
+                  className={`nav-link-underline text-sm font-medium transition-colors duration-200 ${
+                    isActive
+                      ? "active text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
             {isAdmin && (
               <button
                 type="button"
                 data-ocid="header.link"
                 onClick={() => nav.navigate("admin")}
-                className={`text-sm font-medium transition-colors hover:text-brand-teal flex items-center gap-1 ${
+                className={`nav-link-underline text-sm font-medium transition-colors duration-200 flex items-center gap-1.5 ${
                   currentPage === "admin"
-                    ? "text-brand-teal"
-                    : "text-brand-body"
+                    ? "active text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <ShieldCheck className="w-4 h-4" />
+                <ShieldCheck className="w-3.5 h-3.5" />
                 Admin
               </button>
             )}
@@ -127,7 +167,10 @@ export default function Header({ nav, currentPage }: HeaderProps) {
             {isLoggedIn ? (
               <>
                 {isEmailLoggedIn && emailUser && (
-                  <span className="text-sm font-medium text-brand-heading">
+                  <span
+                    className="text-sm font-medium font-mono"
+                    style={{ color: "oklch(70% 0.2 200)" }}
+                  >
                     Hi, {emailUser.name.split(" ")[0]}
                   </span>
                 )}
@@ -136,9 +179,9 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => nav.navigate("dashboard")}
-                  className="text-brand-teal hover:text-brand-teal hover:bg-brand-wash"
+                  className="text-primary hover:bg-primary/10 text-xs"
                 >
-                  <LayoutDashboard className="w-4 h-4 mr-1" />
+                  <LayoutDashboard className="w-3.5 h-3.5 mr-1" />
                   My Learning
                 </Button>
                 <Button
@@ -146,9 +189,9 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   variant="outline"
                   size="sm"
                   onClick={handleLogout}
-                  className="border-brand-teal text-brand-teal hover:bg-brand-wash"
+                  className="border-primary/25 text-primary hover:bg-primary/10 text-xs"
                 >
-                  <LogOut className="w-4 h-4 mr-1" />
+                  <LogOut className="w-3.5 h-3.5 mr-1" />
                   Logout
                 </Button>
               </>
@@ -160,7 +203,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   size="sm"
                   onClick={() => login()}
                   disabled={isLoggingIn}
-                  className="text-brand-body hover:text-brand-teal text-xs"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   <Brain className="w-3.5 h-3.5 mr-1" />
                   {isLoggingIn ? "Connecting..." : "Internet Identity"}
@@ -170,18 +213,18 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   variant="ghost"
                   size="sm"
                   onClick={() => openEmailModal("login")}
-                  className="text-brand-body hover:text-brand-teal"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  <LogIn className="w-4 h-4 mr-1" />
+                  <LogIn className="w-3.5 h-3.5 mr-1" />
                   Login
                 </Button>
                 <Button
                   data-ocid="header.primary_button"
                   size="sm"
                   onClick={() => openEmailModal("signup")}
-                  className="bg-brand-orange hover:bg-brand-orange-dark text-white rounded-full px-5 font-semibold shadow-orange"
+                  className="btn-gold rounded-full px-5 font-semibold text-xs"
                 >
-                  <UserPlus className="w-4 h-4 mr-1" />
+                  <UserPlus className="w-3.5 h-3.5 mr-1" />
                   Sign Up
                 </Button>
               </>
@@ -192,7 +235,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
           <button
             type="button"
             data-ocid="header.button"
-            className="md:hidden p-2 text-brand-body"
+            className="md:hidden p-2 text-primary"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -206,14 +249,20 @@ export default function Header({ nav, currentPage }: HeaderProps) {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-3">
+          <div
+            className="md:hidden px-4 py-4 flex flex-col gap-3"
+            style={{
+              background: "oklch(5% 0.01 250 / 0.98)",
+              borderTop: "1px solid oklch(60% 0.25 230 / 0.12)",
+            }}
+          >
             {navLinks.map((link) => (
               <button
                 type="button"
                 key={link.label}
                 data-ocid="header.link"
                 onClick={() => handleNavClick(link)}
-                className="text-left text-sm font-medium text-brand-body hover:text-brand-teal py-1"
+                className="text-left text-sm font-medium py-1 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {link.label}
               </button>
@@ -226,7 +275,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                   nav.navigate("admin");
                   setMenuOpen(false);
                 }}
-                className="text-left text-sm font-medium text-brand-body hover:text-brand-teal py-1"
+                className="text-left text-sm font-medium py-1 text-muted-foreground hover:text-foreground transition-colors"
               >
                 Admin Panel
               </button>
@@ -235,7 +284,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
               {isLoggedIn ? (
                 <>
                   {isEmailLoggedIn && emailUser && (
-                    <p className="text-sm font-medium text-brand-heading">
+                    <p className="text-sm font-medium text-foreground">
                       Hi, {emailUser.name}
                     </p>
                   )}
@@ -247,7 +296,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                       nav.navigate("dashboard");
                       setMenuOpen(false);
                     }}
-                    className="justify-start text-brand-teal"
+                    className="justify-start text-primary hover:bg-primary/10"
                   >
                     <LayoutDashboard className="w-4 h-4 mr-1" />
                     My Learning
@@ -257,7 +306,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                     variant="outline"
                     size="sm"
                     onClick={handleLogout}
-                    className="border-brand-teal text-brand-teal"
+                    className="border-primary/30 text-primary hover:bg-primary/10"
                   >
                     <LogOut className="w-4 h-4 mr-1" />
                     Logout
@@ -274,7 +323,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                       setMenuOpen(false);
                     }}
                     disabled={isLoggingIn}
-                    className="justify-start text-brand-body"
+                    className="justify-start text-muted-foreground"
                   >
                     <Brain className="w-4 h-4 mr-1" />
                     {isLoggingIn ? "Connecting..." : "Internet Identity"}
@@ -284,7 +333,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                     variant="ghost"
                     size="sm"
                     onClick={() => openEmailModal("login")}
-                    className="justify-start text-brand-body"
+                    className="justify-start text-muted-foreground"
                   >
                     <LogIn className="w-4 h-4 mr-1" />
                     Login with Email
@@ -293,7 +342,7 @@ export default function Header({ nav, currentPage }: HeaderProps) {
                     data-ocid="header.primary_button"
                     size="sm"
                     onClick={() => openEmailModal("signup")}
-                    className="bg-brand-orange text-white rounded-full"
+                    className="btn-gold rounded-full"
                   >
                     <UserPlus className="w-4 h-4 mr-1" />
                     Sign Up

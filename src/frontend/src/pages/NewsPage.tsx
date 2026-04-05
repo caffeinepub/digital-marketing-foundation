@@ -1,6 +1,4 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Bell, Calendar, ChevronRight, Newspaper } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AppNav } from "../App";
@@ -526,15 +524,16 @@ const COURSE_TABS = [
   "MS Office",
 ];
 
-const COURSE_COLORS: Record<string, string> = {
-  "Digital Marketing": "bg-blue-100 text-blue-700",
-  "Social Media Marketing": "bg-pink-100 text-pink-700",
-  SEO: "bg-green-100 text-green-700",
-  "Google Ads": "bg-yellow-100 text-yellow-700",
-  "Email Marketing": "bg-purple-100 text-purple-700",
-  "Learn the Art of Designing": "bg-orange-100 text-orange-700",
-  "Learn the Art of Sales": "bg-red-100 text-red-700",
-  "MS Office": "bg-cyan-100 text-cyan-700",
+const COURSE_NEON: Record<string, string> = {
+  "Digital Marketing": "#4d79ff",
+  "Social Media Marketing": "#ff4d9f",
+  SEO: "#39ff14",
+  "Google Ads": "#f59e0b",
+  "Email Marketing": "#a855f7",
+  "Learn the Art of Designing": "#ff6b35",
+  "Learn the Art of Sales": "#ff4444",
+  "MS Office": "#00ffff",
+  "Performance Marketing": "#f59e0b",
 };
 
 interface NewsPageProps {
@@ -569,29 +568,61 @@ export default function NewsPage({ nav }: NewsPageProps) {
   const regularItems = filtered.filter((n) => !n.isNew);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "#000" }}>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 py-16 text-white">
+      <section
+        className="py-16 bg-grid-dark"
+        style={{ borderBottom: "1px solid rgba(0,255,255,0.1)" }}
+      >
         <div className="container mx-auto px-4 text-center">
-          <Badge className="bg-teal-500/20 text-teal-300 border-teal-500/30 mb-4">
+          <div
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4"
+            style={{
+              background: "rgba(0, 255, 255, 0.08)",
+              border: "1px solid rgba(0, 255, 255, 0.2)",
+              color: "#00ffff",
+            }}
+          >
             Latest Updates
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-            News &amp; Course Updates
+          </div>
+          <h1
+            className="text-4xl md:text-5xl font-extrabold mb-4"
+            style={{ color: "#e0f7ff" }}
+          >
+            News &amp;{" "}
+            <span className="text-neon-gradient">Course Updates</span>
           </h1>
-          <p className="text-white/70 max-w-2xl mx-auto text-lg">
+          <p
+            className="max-w-2xl mx-auto text-lg"
+            style={{ color: "rgba(200,220,235,0.65)" }}
+          >
             Stay ahead of the curve with the latest digital marketing news,
             course updates, and expert insights — updated weekly.
           </p>
           <div className="flex items-center justify-center gap-2 mt-6">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-sm text-white/60">Updated weekly</span>
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{ background: "#39ff14", boxShadow: "0 0 6px #39ff14" }}
+            />
+            <span
+              className="text-sm"
+              style={{ color: "rgba(200,220,235,0.5)" }}
+            >
+              Updated weekly
+            </span>
           </div>
         </div>
       </section>
 
       {/* Tabs */}
-      <section className="bg-white border-b border-gray-200 sticky top-16 z-30">
+      <section
+        className="sticky top-16 z-30"
+        style={{
+          background: "rgba(0,0,0,0.92)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(0,255,255,0.08)",
+        }}
+      >
         <div className="container mx-auto px-4 py-4">
           <div className="flex gap-2 flex-wrap">
             {COURSE_TABS.map((tab) => (
@@ -599,11 +630,19 @@ export default function NewsPage({ nav }: NewsPageProps) {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  activeTab === tab
-                    ? "bg-teal-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                className="px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
+                style={{
+                  background:
+                    activeTab === tab
+                      ? "rgba(0, 255, 255, 0.15)"
+                      : "rgba(255,255,255,0.04)",
+                  border:
+                    activeTab === tab
+                      ? "1px solid rgba(0, 255, 255, 0.4)"
+                      : "1px solid rgba(255,255,255,0.08)",
+                  color:
+                    activeTab === tab ? "#00ffff" : "rgba(200,220,235,0.6)",
+                }}
               >
                 {tab}
               </button>
@@ -613,53 +652,94 @@ export default function NewsPage({ nav }: NewsPageProps) {
       </section>
 
       {/* News Content */}
-      <section className="py-12">
+      <section className="py-12 bg-grid-dark">
         <div className="container mx-auto px-4">
           {/* New / Breaking items */}
           {newItems.length > 0 && (
             <>
               <div className="flex items-center gap-2 mb-6">
-                <Bell className="w-5 h-5 text-teal-600" />
-                <h2 className="font-bold text-gray-900 text-lg">
+                <Bell className="w-5 h-5" style={{ color: "#00ffff" }} />
+                <h2 className="font-bold text-lg" style={{ color: "#e0f7ff" }}>
                   Breaking & New
                 </h2>
-                <Badge className="bg-red-100 text-red-600 border-red-200">
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded-full"
+                  style={{
+                    background: "rgba(255, 50, 50, 0.15)",
+                    border: "1px solid rgba(255, 50, 50, 0.3)",
+                    color: "#ff4444",
+                  }}
+                >
                   {newItems.length} new
-                </Badge>
+                </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                {newItems.map((item) => (
-                  <Card
-                    key={item.id}
-                    className="border-2 border-teal-200 bg-teal-50/30 hover:shadow-lg transition-shadow"
-                  >
-                    <CardContent className="p-6">
+                {newItems.map((item) => {
+                  const neonColor = COURSE_NEON[item.course] || "#00ffff";
+                  return (
+                    <div
+                      key={item.id}
+                      data-ocid={`news.item.${item.id}`}
+                      className="rounded-2xl p-6"
+                      style={{
+                        background: "rgba(10,12,20,0.7)",
+                        border: `1px solid ${neonColor}30`,
+                        boxShadow: `0 0 20px ${neonColor}10`,
+                      }}
+                    >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
-                            className={`text-xs font-semibold px-2.5 py-1 rounded-full ${COURSE_COLORS[item.course] || "bg-gray-100 text-gray-700"}`}
+                            className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                            style={{
+                              background: `${neonColor}18`,
+                              border: `1px solid ${neonColor}40`,
+                              color: neonColor,
+                            }}
                           >
                             {item.course}
                           </span>
-                          <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                          <span
+                            className="text-xs font-bold px-2 py-0.5 rounded-full"
+                            style={{
+                              background: "rgba(57, 255, 20, 0.12)",
+                              border: "1px solid rgba(57, 255, 20, 0.35)",
+                              color: "#39ff14",
+                            }}
+                          >
                             NEW
                           </span>
                         </div>
-                        <span className="text-xs text-gray-400 flex items-center gap-1 shrink-0">
+                        <span
+                          className="text-xs flex items-center gap-1 shrink-0"
+                          style={{ color: "rgba(200,220,235,0.4)" }}
+                        >
                           <Calendar className="w-3 h-3" />
                           {item.date}
                         </span>
                       </div>
-                      <h3 className="font-bold text-gray-900 text-base mb-2 leading-snug">
+                      <h3
+                        className="font-bold text-base mb-2 leading-snug"
+                        style={{ color: "#e0f7ff" }}
+                      >
                         {item.headline}
                       </h3>
-                      <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                      <p
+                        className="text-sm leading-relaxed mb-4"
+                        style={{ color: "rgba(200,220,235,0.65)" }}
+                      >
                         {item.summary}
                       </p>
                       <Button
+                        data-ocid="news.secondary_button"
                         size="sm"
                         variant="outline"
-                        className="border-teal-400 text-teal-700 hover:bg-teal-50 text-xs font-semibold"
+                        className="text-xs font-semibold"
+                        style={{
+                          borderColor: `${neonColor}40`,
+                          color: neonColor,
+                          background: "transparent",
+                        }}
                         onClick={() =>
                           nav.navigate("news-article", {
                             articleId: String(item.id),
@@ -669,9 +749,9 @@ export default function NewsPage({ nav }: NewsPageProps) {
                         Read Full Update{" "}
                         <ChevronRight className="w-3 h-3 ml-1" />
                       </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}
@@ -680,39 +760,60 @@ export default function NewsPage({ nav }: NewsPageProps) {
           {regularItems.length > 0 && (
             <>
               <div className="flex items-center gap-2 mb-6">
-                <Newspaper className="w-5 h-5 text-gray-600" />
-                <h2 className="font-bold text-gray-900 text-lg">
+                <Newspaper
+                  className="w-5 h-5"
+                  style={{ color: "rgba(200,220,235,0.5)" }}
+                />
+                <h2 className="font-bold text-lg" style={{ color: "#e0f7ff" }}>
                   Recent Updates
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {regularItems.map((item) => (
-                  <Card
-                    key={item.id}
-                    className="border border-gray-200 hover:shadow-md transition-shadow bg-white"
-                  >
-                    <CardContent className="p-5">
+                {regularItems.map((item) => {
+                  const neonColor = COURSE_NEON[item.course] || "#00ffff";
+                  return (
+                    <div
+                      key={item.id}
+                      data-ocid={`news.item.${item.id}`}
+                      className="glass-card glow-hover rounded-2xl p-5"
+                    >
                       <div className="flex items-center justify-between gap-2 mb-3">
                         <span
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-full ${COURSE_COLORS[item.course] || "bg-gray-100 text-gray-700"}`}
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                          style={{
+                            background: `${neonColor}18`,
+                            border: `1px solid ${neonColor}40`,
+                            color: neonColor,
+                          }}
                         >
                           {item.course}
                         </span>
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                        <span
+                          className="text-xs flex items-center gap-1"
+                          style={{ color: "rgba(200,220,235,0.4)" }}
+                        >
                           <Calendar className="w-3 h-3" />
                           {item.date}
                         </span>
                       </div>
-                      <h3 className="font-bold text-gray-900 text-sm mb-2 leading-snug line-clamp-2">
+                      <h3
+                        className="font-bold text-sm mb-2 leading-snug line-clamp-2"
+                        style={{ color: "#e0f7ff" }}
+                      >
                         {item.headline}
                       </h3>
-                      <p className="text-xs text-gray-600 leading-relaxed mb-3 line-clamp-3">
+                      <p
+                        className="text-xs leading-relaxed mb-3 line-clamp-3"
+                        style={{ color: "rgba(200,220,235,0.6)" }}
+                      >
                         {item.summary}
                       </p>
                       <Button
+                        data-ocid="news.secondary_button"
                         size="sm"
                         variant="ghost"
-                        className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 text-xs font-semibold p-1"
+                        className="text-xs font-semibold p-1"
+                        style={{ color: "#00ffff" }}
                         onClick={() =>
                           nav.navigate("news-article", {
                             articleId: String(item.id),
@@ -721,15 +822,19 @@ export default function NewsPage({ nav }: NewsPageProps) {
                       >
                         Read More <ChevronRight className="w-3 h-3 ml-0.5" />
                       </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}
 
           {filtered.length === 0 && (
-            <div className="text-center py-16 text-gray-500">
+            <div
+              data-ocid="news.empty_state"
+              className="text-center py-16"
+              style={{ color: "rgba(200,220,235,0.5)" }}
+            >
               <p className="text-lg font-medium">No news items found</p>
               <p className="text-sm mt-2">Select a different category</p>
             </div>

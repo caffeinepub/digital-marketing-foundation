@@ -16,7 +16,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        sans: ['Satoshi', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+        display: ['Satoshi', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -69,18 +71,36 @@ export default {
           border: "oklch(var(--sidebar-border))",
           ring: "oklch(var(--sidebar-ring))",
         },
+        /* Legacy brand aliases mapped to electric blue neural theme */
         brand: {
-          // WhatsApp green family
-          teal: "oklch(0.698 0.196 152.5)",           /* #25D366 WhatsApp green */
-          "teal-light": "oklch(0.860 0.090 152.5)",   /* light green */
-          "teal-dark": "oklch(0.521 0.113 174.5)",     /* #128C7E dark teal-green */
-          // YouTube red family
-          orange: "oklch(0.628 0.258 29.2)",           /* #FF0000 YouTube red */
-          "orange-dark": "oklch(0.535 0.217 29.2)",    /* #CC0000 */
-          // Backgrounds & text
-          wash: "oklch(0.978 0.018 158.0)",            /* #f0faf4 very light green */
-          heading: "oklch(0.371 0.087 175.5)",          /* #075E54 deep green headings */
-          body: "oklch(0.32 0.022 175.5)",             /* #1a1a1a near-black body */
+          teal: "oklch(60% 0.25 230)",
+          "teal-light": "oklch(60% 0.25 230 / 0.2)",
+          "teal-dark": "oklch(50% 0.28 230)",
+          orange: "oklch(60% 0.25 230)",
+          "orange-dark": "oklch(50% 0.28 230)",
+          wash: "oklch(60% 0.25 230 / 0.05)",
+          heading: "oklch(97% 0.005 250)",
+          body: "oklch(60% 0.01 250)",
+        },
+        neon: {
+          cyan: "#00AAFF",
+          blue: "#0066FF",
+          purple: "#7B2FBE",
+        },
+        /* Legacy color tokens */
+        gold: {
+          DEFAULT: "oklch(60% 0.25 230)",
+          400: "oklch(65% 0.25 230)",
+          800: "oklch(25% 0.05 250)",
+        },
+        crimson: {
+          DEFAULT: "oklch(45% 0.22 290)",
+          300: "oklch(70% 0.18 290)",
+          600: "oklch(30% 0.15 290)",
+          800: "oklch(18% 0.05 250)",
+        },
+        cream: {
+          DEFAULT: "oklch(97% 0.005 250)",
         },
       },
       borderRadius: {
@@ -89,9 +109,17 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        teal: "0 4px 20px oklch(0.698 0.196 152.5 / 0.25)",
-        orange: "0 4px 20px oklch(0.628 0.258 29.2 / 0.30)",
+        xs: "0 1px 2px 0 rgba(0,0,0,0.5)",
+        blue: "0 0 20px oklch(60% 0.25 230 / 0.3), 0 0 40px oklch(60% 0.25 230 / 0.12)",
+        "blue-lg": "0 0 40px oklch(60% 0.25 230 / 0.4), 0 0 80px oklch(60% 0.25 230 / 0.2)",
+        /* Legacy shadow names mapped to blue */
+        gold: "0 0 20px oklch(60% 0.25 230 / 0.3), 0 0 40px oklch(60% 0.25 230 / 0.12)",
+        "gold-lg": "0 0 40px oklch(60% 0.25 230 / 0.4), 0 0 80px oklch(60% 0.25 230 / 0.2)",
+        teal: "0 4px 20px oklch(60% 0.25 230 / 0.25)",
+        orange: "0 4px 20px oklch(60% 0.25 230 / 0.25)",
+        neon: "0 0 20px oklch(60% 0.25 230 / 0.4), 0 0 40px oklch(60% 0.25 230 / 0.15)",
+        "neon-green": "0 0 20px oklch(60% 0.25 230 / 0.35), 0 0 40px oklch(60% 0.25 230 / 0.12)",
+        crimson: "0 0 20px oklch(45% 0.22 290 / 0.4)",
       },
       keyframes: {
         "accordion-down": {
@@ -106,11 +134,39 @@ export default {
           from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "blue-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 12px oklch(60% 0.25 230 / 0.4), 0 0 24px oklch(60% 0.25 230 / 0.15)",
+          },
+          "50%": {
+            boxShadow: "0 0 20px oklch(60% 0.25 230 / 0.65), 0 0 40px oklch(60% 0.25 230 / 0.3)",
+          },
+        },
+        /* Legacy keyframe names */
+        "gold-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 12px oklch(60% 0.25 230 / 0.4), 0 0 24px oklch(60% 0.25 230 / 0.15)",
+          },
+          "50%": {
+            boxShadow: "0 0 20px oklch(60% 0.25 230 / 0.65), 0 0 40px oklch(60% 0.25 230 / 0.3)",
+          },
+        },
+        "neon-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 12px oklch(60% 0.25 230 / 0.4), 0 0 24px oklch(60% 0.25 230 / 0.15)",
+          },
+          "50%": {
+            boxShadow: "0 0 20px oklch(60% 0.25 230 / 0.65), 0 0 40px oklch(60% 0.25 230 / 0.3)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-up": "fade-up 0.4s ease-out",
+        "blue-pulse": "blue-pulse 2.5s ease-in-out infinite",
+        "gold-pulse": "blue-pulse 2.5s ease-in-out infinite",
+        "neon-pulse": "blue-pulse 2.5s ease-in-out infinite",
       },
     },
   },
