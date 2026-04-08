@@ -28,7 +28,9 @@ export default function EmailAuthModal({
   onOpenChange,
   defaultTab = "login",
 }: Props) {
-  const { actor } = useActor();
+  const { actor: actorRaw } = useActor();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actor = actorRaw as any;
   const { setEmailUser } = useEmailAuth();
 
   // --- LOGIN STATE ---

@@ -47,7 +47,7 @@ export default function Footer({ nav }: FooterProps) {
         className="container mx-auto px-6 py-16 relative"
         style={{ zIndex: 1 }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-5">
@@ -170,6 +170,57 @@ export default function Footer({ nav }: FooterProps) {
                     }}
                   >
                     {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h4 className="font-mono font-bold text-xs mb-5 text-primary tracking-widest uppercase">
+              Resources
+            </h4>
+            <ul className="space-y-2.5">
+              <li>
+                <a
+                  href="https://amzn.to/4tCnLPX"
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="text-sm transition-colors duration-200"
+                  style={{ color: "oklch(42% 0.01 250)" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.color =
+                      "oklch(70% 0.2 200)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.color =
+                      "oklch(42% 0.01 250)";
+                  }}
+                >
+                  Recommended Tools on Amazon
+                </a>
+              </li>
+              {[
+                { label: "Blog", action: () => nav.navigate("blogs") },
+                { label: "Latest News", action: () => nav.navigate("news") },
+              ].map((item) => (
+                <li key={item.label}>
+                  <button
+                    type="button"
+                    onClick={item.action}
+                    className="text-sm transition-colors duration-200"
+                    style={{ color: "oklch(42% 0.01 250)" }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.color =
+                        "oklch(70% 0.2 200)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.color =
+                        "oklch(42% 0.01 250)";
+                    }}
+                  >
+                    {item.label}
                   </button>
                 </li>
               ))}

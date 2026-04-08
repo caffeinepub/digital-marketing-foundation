@@ -12,8 +12,8 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
-import type { Certificate } from "../backend.d";
 import { useActor } from "../hooks/useActor";
+import type { Certificate } from "../types";
 
 interface Props {
   nav: AppNav;
@@ -259,7 +259,7 @@ export default function CertificatePage({ nav, certId }: Props) {
                   letterSpacing: "-0.01em",
                 }}
               >
-                {cert.studentName}
+                {cert.studentName ?? cert.userName}
               </p>
               <p
                 className="text-sm mb-2"

@@ -38,13 +38,13 @@ import { motion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
-import type { Course } from "../backend.d";
 import { NeuralNetworkCanvas } from "../components/NeuralNetworkCanvas";
 import { WhatsAppChatbotSection } from "../components/WhatsAppChatbot";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import { useCourses } from "../hooks/useQueries";
 import { useCreateCheckoutSession } from "../hooks/useStripe";
+import type { Course } from "../types";
 
 interface LandingPageProps {
   nav: AppNav;
@@ -1572,11 +1572,173 @@ export default function LandingPage({ nav }: LandingPageProps) {
         </div>
       </section>
 
+      {/* ===== RECOMMENDED TOOLS — AMAZON AFFILIATE ===== */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="container mx-auto px-6">
+          <motion.div {...sectionMotion} className="relative mb-12">
+            <span className="section-counter">07</span>
+            <div className="relative" style={{ zIndex: 1 }}>
+              <div
+                className="text-xs font-mono font-semibold uppercase tracking-widest mb-3"
+                style={{ color: "oklch(60% 0.25 230)" }}
+              >
+                Recommended Tools
+              </div>
+              <h2
+                className="font-black leading-[0.92]"
+                style={{
+                  fontSize: "clamp(32px, 4.5vw, 54px)",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                <span className="text-foreground">Boost Your</span>
+                <br />
+                <span className="gold-text">Learning Setup</span>
+              </h2>
+            </div>
+          </motion.div>
+
+          <motion.div
+            data-ocid="affiliate.amazon_banner"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+            className="relative rounded-3xl overflow-hidden max-w-4xl"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(8% 0.018 250) 0%, oklch(10% 0.025 240) 50%, oklch(8% 0.018 250) 100%)",
+              border: "1px solid oklch(60% 0.25 230 / 0.2)",
+              boxShadow:
+                "0 0 60px oklch(60% 0.25 230 / 0.08), inset 0 1px 0 oklch(100% 0 0 / 0.05)",
+            }}
+          >
+            {/* Subtle background glow */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(ellipse 60% 80% at 85% 50%, oklch(60% 0.25 230 / 0.06) 0%, transparent 70%)",
+              }}
+            />
+
+            <div
+              className="relative p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8"
+              style={{ zIndex: 1 }}
+            >
+              {/* Icon cluster */}
+              <div className="flex-shrink-0">
+                <div
+                  className="w-20 h-20 rounded-2xl flex items-center justify-center"
+                  style={{
+                    background: "oklch(60% 0.25 230 / 0.1)",
+                    border: "1px solid oklch(60% 0.25 230 / 0.25)",
+                    boxShadow: "0 0 30px oklch(60% 0.25 230 / 0.12)",
+                  }}
+                >
+                  <BookOpen className="w-9 h-9 text-primary" />
+                </div>
+              </div>
+
+              {/* Text content */}
+              <div className="flex-1 min-w-0">
+                <div
+                  className="text-xs font-mono font-bold uppercase tracking-widest mb-2"
+                  style={{ color: "oklch(60% 0.25 230)" }}
+                >
+                  Instructor-Curated
+                </div>
+                <h3
+                  className="font-black text-foreground mb-3 leading-tight"
+                  style={{
+                    fontSize: "clamp(20px, 2.5vw, 28px)",
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  Digital Marketing Books, Tools &amp; Gear on Amazon
+                </h3>
+                <p
+                  className="text-sm leading-relaxed max-w-lg"
+                  style={{ color: "oklch(55% 0.01 250)" }}
+                >
+                  Explore curated digital marketing books, design tools, and
+                  productivity gear recommended by our instructors. Pair the
+                  right resources with your course to accelerate your growth.
+                </p>
+                {/* Trust chips */}
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {[
+                    "Marketing Books",
+                    "Design Tools",
+                    "Productivity Gear",
+                    "SEO Resources",
+                  ].map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[10px] font-mono font-semibold px-3 py-1 rounded-full"
+                      style={{
+                        background: "oklch(60% 0.25 230 / 0.07)",
+                        border: "1px solid oklch(60% 0.25 230 / 0.15)",
+                        color: "oklch(58% 0.18 230)",
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="flex-shrink-0 w-full md:w-auto">
+                <a
+                  href="https://amzn.to/4tCnLPX"
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  data-ocid="affiliate.amazon_cta"
+                  className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 font-bold text-sm transition-all duration-200 w-full md:w-auto"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, oklch(58% 0.28 230), oklch(52% 0.24 230))",
+                    color: "#fff",
+                    boxShadow:
+                      "0 0 24px oklch(60% 0.25 230 / 0.35), 0 4px 14px oklch(0% 0 0 / 0.3)",
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 36px oklch(60% 0.25 230 / 0.5), 0 4px 18px oklch(0% 0 0 / 0.35)";
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.boxShadow =
+                      "0 0 24px oklch(60% 0.25 230 / 0.35), 0 4px 14px oklch(0% 0 0 / 0.3)";
+                    (e.currentTarget as HTMLElement).style.transform =
+                      "translateY(0)";
+                  }}
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  Shop on Amazon
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+                <p
+                  className="text-[10px] mt-2 text-center md:text-left"
+                  style={{ color: "oklch(35% 0.01 250)" }}
+                >
+                  *Affiliate link. We may earn a commission.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ===== BLOGS PREVIEW ===== */}
       <section className="py-20">
         <div className="container mx-auto px-6">
           <motion.div {...sectionMotion} className="relative mb-12">
-            <span className="section-counter">07</span>
+            <span className="section-counter">08</span>
             <div
               className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4"
               style={{ zIndex: 1 }}
@@ -1679,7 +1841,7 @@ export default function LandingPage({ nav }: LandingPageProps) {
       >
         <div className="container mx-auto px-6">
           <motion.div {...sectionMotion} className="relative mb-12">
-            <span className="section-counter">08</span>
+            <span className="section-counter">09</span>
             <div className="relative" style={{ zIndex: 1 }}>
               <div
                 className="text-xs font-mono font-semibold uppercase tracking-widest mb-3"

@@ -34,21 +34,21 @@ export function NeuralNetworkCanvas() {
     };
     window.addEventListener("mousemove", onMouseMove);
 
-    const COUNT = 90;
+    const COUNT = 35;
     const colors = ["#0066FF", "#7B2FBE", "#00AAFF", "#00D4FF", "#4488FF"];
     nodesRef.current = Array.from({ length: COUNT }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      radius: Math.random() * 2.5 + 1.5,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      radius: Math.random() * 2 + 1,
       color: colors[Math.floor(Math.random() * colors.length)],
       pulseOffset: Math.random() * Math.PI * 2,
     }));
 
-    const CONNECTION_DIST = 180;
-    const MOUSE_RADIUS = 200;
-    const MOUSE_STRENGTH = 0.5;
+    const CONNECTION_DIST = 140;
+    const MOUSE_RADIUS = 180;
+    const MOUSE_STRENGTH = 0.4;
 
     const draw = (time: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -66,7 +66,7 @@ export function NeuralNetworkCanvas() {
         }
 
         const speed = Math.sqrt(node.vx * node.vx + node.vy * node.vy);
-        if (speed > 1.5) {
+        if (speed > 1.2) {
           node.vx *= 0.95;
           node.vy *= 0.95;
         }
@@ -87,10 +87,10 @@ export function NeuralNetworkCanvas() {
           const dy = nodes[j].y - nodes[i].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < CONNECTION_DIST) {
-            const alpha = (1 - dist / CONNECTION_DIST) * 0.4;
+            const alpha = (1 - dist / CONNECTION_DIST) * 0.25;
             ctx.beginPath();
             ctx.strokeStyle = `rgba(0, 170, 255, ${alpha})`;
-            ctx.lineWidth = (1 - dist / CONNECTION_DIST) * 1.2;
+            ctx.lineWidth = (1 - dist / CONNECTION_DIST) * 0.8;
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
             ctx.stroke();
@@ -100,7 +100,7 @@ export function NeuralNetworkCanvas() {
 
       for (const node of nodes) {
         const pulse = (Math.sin(time * 0.001 + node.pulseOffset) + 1) / 2;
-        const glowRadius = node.radius * (3 + pulse * 2);
+        const glowRadius = node.radius * (2.5 + pulse * 1.5);
 
         const grad = ctx.createRadialGradient(
           node.x,
@@ -108,13 +108,13 @@ export function NeuralNetworkCanvas() {
           0,
           node.x,
           node.y,
-          glowRadius * 3,
+          glowRadius * 2.5,
         );
-        grad.addColorStop(0, `${node.color}CC`);
-        grad.addColorStop(0.3, `${node.color}44`);
+        grad.addColorStop(0, `${node.color}99`);
+        grad.addColorStop(0.4, `${node.color}22`);
         grad.addColorStop(1, `${node.color}00`);
         ctx.beginPath();
-        ctx.arc(node.x, node.y, glowRadius * 3, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, glowRadius * 2.5, 0, Math.PI * 2);
         ctx.fillStyle = grad;
         ctx.fill();
 

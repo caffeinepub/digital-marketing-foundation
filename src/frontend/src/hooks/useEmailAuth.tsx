@@ -5,7 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import type { UserProfile } from "../backend.d";
+import type { UserProfile } from "../types";
 
 const STORAGE_KEY = "dmf_email_user";
 

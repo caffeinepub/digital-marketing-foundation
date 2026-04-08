@@ -78,16 +78,16 @@ export interface Course {
     totalVideos: bigint;
     priceInr: bigint;
 }
-export interface AIMessage {
-    content: string;
-    role: string;
-}
 export interface ShoppingItem {
     productName: string;
     currency: string;
     quantity: bigint;
     priceInCents: bigint;
     productDescription: string;
+}
+export interface AIMessage {
+    content: string;
+    role: string;
 }
 export interface VideoWithBlob {
     id: string;

@@ -194,7 +194,7 @@ export default function VideoPlayerPage({
                   {quizQuestions.map((q, qi) => (
                     <div key={q.id} data-ocid={`quiz.item.${qi + 1}`}>
                       <p className="font-semibold text-brand-heading mb-3 text-sm">
-                        {qi + 1}. {q.questionText}
+                        {qi + 1}. {q.questionText ?? q.question}
                       </p>
                       <RadioGroup
                         value={selectedAnswers[q.id]?.toString() || ""}

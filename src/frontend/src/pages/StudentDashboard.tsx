@@ -36,11 +36,6 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
-import type {
-  AssignmentSubmission,
-  Certificate,
-  Enrollment,
-} from "../backend.d";
 import { useEmailAuth } from "../hooks/useEmailAuth";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
@@ -53,6 +48,7 @@ import {
   useMySubmissions,
   useSubmitAssignment,
 } from "../hooks/useQueries";
+import type { AssignmentSubmission, Certificate, Enrollment } from "../types";
 
 interface Props {
   nav: AppNav;
@@ -274,7 +270,7 @@ function AssignmentsSection({ courseId }: { courseId: string }) {
               {submitted ? (
                 <div className="mt-2 p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-brand-body italic">
-                    {submitted.submissionText}
+                    {submitted.submissionText ?? submitted.content}
                   </p>
                   {submitted.giftCardCode && (
                     <div className="mt-2 flex items-center gap-2 text-xs text-brand-orange font-semibold">
@@ -354,7 +350,7 @@ function CertificateCard({
           <p className="text-sm text-brand-body">
             Awarded to:{" "}
             <span className="font-semibold text-brand-teal">
-              {cert.studentName}
+              {cert.studentName ?? cert.userName}
             </span>
           </p>
           <p className="text-xs text-brand-body mt-1">Issued: {issuedDate}</p>
@@ -661,7 +657,7 @@ export default function StudentDashboard({ nav }: Props) {
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
                             <p className="text-sm text-brand-body">
-                              {sub.submissionText}
+                              {sub.submissionText ?? sub.content}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
                               {new Date(

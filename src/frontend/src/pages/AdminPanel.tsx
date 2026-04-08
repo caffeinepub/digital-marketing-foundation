@@ -52,7 +52,6 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { AppNav } from "../App";
-import { CourseTier } from "../backend.d";
 import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
@@ -79,10 +78,13 @@ import {
   useSeedSampleData,
   useVideosForModule,
 } from "../hooks/useQueries";
+import type { CourseTierKey, UserProfile } from "../types";
 
 function UsersTab() {
-  const { actor, isFetching } = useActor();
-  const [users, setUsers] = useState<import("../backend.d").UserProfile[]>([]);
+  const { actor: actorRaw, isFetching } = useActor();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actor = actorRaw as any;
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -232,14 +234,15 @@ function CoursesTab() {
   const handleCreate = async () => {
     if (!form.title || !form.price) return;
     try {
-      const tierMap: Record<string, CourseTier> = {
-        professional: CourseTier.professional,
-        advanced: CourseTier.advanced,
+      const tierMap: Record<string, CourseTierKey> = {
+        professional: "professional",
+        advanced: "advanced",
+        performance: "performance",
       };
       await createCourse.mutateAsync({
         title: form.title,
         description: form.description,
-        tier: tierMap[form.tier],
+        tier: tierMap[form.tier] ?? "professional",
         priceInr: BigInt(Number.parseInt(form.price)),
         thumbnailUrl: form.thumbnailUrl,
       });
@@ -544,7 +547,7 @@ function VideoUploadCell({
   videoId,
   moduleId,
   blobId,
-}: { videoId: string; moduleId: string; blobId: string }) {
+}: { videoId: string; moduleId: string; blobId: string | undefined }) {
   const updateBlobId = useAdminUpdateVideoBlobId();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -1017,7 +1020,7 @@ function QuizzesTab() {
               >
                 <CardContent className="p-4">
                   <p className="font-medium text-sm text-brand-heading mb-2">
-                    {i + 1}. {q.questionText}
+                    {i + 1}. {q.questionText ?? q.question}
                   </p>
                   <div className="grid grid-cols-2 gap-1">
                     {q.options.map((opt, oi) => (
@@ -1255,7 +1258,9 @@ function SubmissionsTab() {
             submissions.map((sub, i) => (
               <TableRow data-ocid={`admin.row.${i + 1}`} key={sub.id}>
                 <TableCell className="text-sm max-w-xs">
-                  <p className="truncate">{sub.submissionText}</p>
+                  <p className="truncate">
+                    {sub.submissionText ?? sub.content}
+                  </p>
                   <p className="text-xs text-gray-400">
                     {sub.assignmentId.slice(0, 8)}...
                   </p>

@@ -1,5 +1,8 @@
-import AccessControl "authorization/access-control";
-import MixinAuthorization "authorization/MixinAuthorization";
+import AccessControl "mo:caffeineai-authorization/access-control";
+import MixinAuthorization "mo:caffeineai-authorization/MixinAuthorization";
+import MixinObjectStorage "mo:caffeineai-object-storage/Mixin";
+import Stripe "mo:caffeineai-stripe/stripe";
+import OutCall "mo:caffeineai-http-outcalls/outcall";
 import Map "mo:core/Map";
 import Principal "mo:core/Principal";
 import Nat "mo:core/Nat";
@@ -8,6 +11,7 @@ import Time "mo:core/Time";
 import List "mo:core/List";
 
 actor {
+  include MixinObjectStorage();
   // ─── Authorization ─────────────────────────────────────────
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -592,5 +596,36 @@ actor {
       title = "Create Your First Digital Marketing Strategy";
       description = "Write a 500-word digital marketing strategy for a brand of your choice.";
     });
+  };
+
+  // ─── Stripe ──────────────────────────────────────────
+  var configuration : ?Stripe.StripeConfiguration = null;
+
+  public query func isStripeConfigured() : async Bool {
+    configuration != null;
+  };
+
+  public shared ({ caller }) func setStripeConfiguration(config : Stripe.StripeConfiguration) : async () {
+    assert AccessControl.isAdmin(accessControlState, caller);
+    configuration := ?config;
+  };
+
+  func getStripeConfiguration() : Stripe.StripeConfiguration {
+    switch (configuration) {
+      case (null) { loop {} };
+      case (?value) { value };
+    };
+  };
+
+  public func getStripeSessionStatus(sessionId : Text) : async Stripe.StripeSessionStatus {
+    await Stripe.getSessionStatus(getStripeConfiguration(), sessionId, transform);
+  };
+
+  public shared ({ caller }) func createCheckoutSession(items : [Stripe.ShoppingItem], successUrl : Text, cancelUrl : Text) : async Text {
+    await Stripe.createCheckoutSession(getStripeConfiguration(), caller, items, successUrl, cancelUrl, transform);
+  };
+
+  public query func transform(input : OutCall.TransformationInput) : async OutCall.TransformationOutput {
+    OutCall.transform(input);
   };
 };

@@ -1,0 +1,193 @@
+// Version: 1.0.0
+type AssignmentSubmission__16365222 =
+  {
+    assignmentId : Text;
+    giftCardCode : ?Text;
+    id : Text;
+    reviewed : Bool;
+    submissionText : Text;
+    submittedAt : Int;
+    userId : Principal
+  };
+type Assignment__702522088 =
+  {
+    courseId : Text;
+    description : Text;
+    id : Text;
+    title : Text;
+    weekNumber : Nat
+  };
+type Certificate__754890367 =
+  {
+    courseId : Text;
+    courseTitle : Text;
+    id : Text;
+    issuedAt : Int;
+    studentName : Text;
+    userId : Principal
+  };
+type CourseModule__229205560 =
+  {courseId : Text; id : Text; orderPos : Nat; title : Text};
+type CourseTier__263672751 = {#advanced; #basic; #professional};
+type Course__388460598 =
+  {
+    description : Text;
+    id : Text;
+    priceInr : Nat;
+    thumbnailUrl : Text;
+    tier : CourseTier__263672751;
+    title : Text;
+    totalModules : Nat;
+    totalVideos : Nat
+  };
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type Enrollment__881499984 =
+  {
+    courseId : Text;
+    enrolledAt : Int;
+    id : Text;
+    stripeSessionId : Text;
+    tier : CourseTier__263672751;
+    userId : Principal
+  };
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type PromptTemplate__112989099 =
+  {
+    category : Text;
+    createdAt : Int;
+    description : Text;
+    id : Text;
+    promptText : Text;
+    title : Text
+  };
+type QuizAttempt__859611161 =
+  {
+    answers : [Nat];
+    attemptedAt : Int;
+    id : Text;
+    passed : Bool;
+    score : Nat;
+    userId : Principal;
+    videoId : Text
+  };
+type QuizQuestion__253667764 =
+  {
+    correctIndex : Nat;
+    id : Text;
+    options : [Text];
+    questionText : Text;
+    videoId : Text
+  };
+type StripeConfiguration__96897619 =
+  {allowedCountries : [Text]; secretKey : Text};
+type UserProfile__491224006 =
+  {
+    age : Nat;
+    contactNumber : Text;
+    email : Text;
+    id : Principal;
+    name : Text;
+    otpCode : Text;
+    otpVerified : Bool;
+    passwordHash : Text;
+    registeredAt : Int
+  };
+type UserRole__1054455867 = {#admin; #guest; #user};
+type VideoCompletion__652808605 =
+  {completedAt : Int; courseId : Text; userId : Principal; videoId : Text};
+type Video__127466529 =
+  {
+    courseId : Text;
+    description : Text;
+    durationMinutes : Nat;
+    id : Text;
+    moduleId : Text;
+    orderPos : Nat;
+    title : Text
+  };
+actor {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1054455867>
+    };
+  stable assignments :
+    {
+      var root : Node__46230540<Text, Assignment__702522088>;
+      var size : Nat__490723111
+    };
+  stable certificates :
+    {
+      var root : Node__46230540<Text, Certificate__754890367>;
+      var size : Nat__490723111
+    };
+  stable var configuration : ?StripeConfiguration__96897619;
+  stable courses :
+    {
+      var root : Node__46230540<Text, Course__388460598>;
+      var size : Nat__490723111
+    };
+  stable emailToPrincipal :
+    {var root : Node__46230540<Text, Principal>; var size : Nat__490723111};
+  stable enrollments :
+    {
+      var root : Node__46230540<Text, Enrollment__881499984>;
+      var size : Nat__490723111
+    };
+  stable modules :
+    {
+      var root : Node__46230540<Text, CourseModule__229205560>;
+      var size : Nat__490723111
+    };
+  stable var nextId : Nat;
+  stable promptTemplates :
+    {
+      var root : Node__46230540<Text, PromptTemplate__112989099>;
+      var size : Nat__490723111
+    };
+  stable quizAttempts :
+    {
+      var root : Node__46230540<Text, QuizAttempt__859611161>;
+      var size : Nat__490723111
+    };
+  stable quizQuestions :
+    {
+      var root : Node__46230540<Text, QuizQuestion__253667764>;
+      var size : Nat__490723111
+    };
+  stable var razorpayKeyId : Text;
+  stable var razorpayKeySecret : Text;
+  stable submissions :
+    {
+      var root : Node__46230540<Text, AssignmentSubmission__16365222>;
+      var size : Nat__490723111
+    };
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    };
+  stable videoBlobIds :
+    {var root : Node__46230540<Text, Text>; var size : Nat__490723111};
+  stable videoCompletions :
+    {
+      var root : Node__46230540<Text, VideoCompletion__652808605>;
+      var size : Nat__490723111
+    };
+  stable videos :
+    {
+      var root : Node__46230540<Text, Video__127466529>;
+      var size : Nat__490723111
+    }
+};

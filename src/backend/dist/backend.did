@@ -1,0 +1,269 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type _ImmutableObjectStorageRefillResult = 
+ record {
+   success: opt bool;
+   topped_up_amount: opt nat;
+ };
+type _ImmutableObjectStorageRefillInformation = record {
+                                                  proposed_top_up_amount:
+                                                   opt nat;};
+type _ImmutableObjectStorageCreateCertificateResult = 
+ record {
+   blob_hash: text;
+   method: text;
+ };
+type VideoWithBlob = 
+ record {
+   blobId: text;
+   courseId: text;
+   description: text;
+   durationMinutes: nat;
+   id: text;
+   moduleId: text;
+   orderPos: nat;
+   title: text;
+ };
+type Video = 
+ record {
+   courseId: text;
+   description: text;
+   durationMinutes: nat;
+   id: text;
+   moduleId: text;
+   orderPos: nat;
+   title: text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = 
+ record {
+   age: nat;
+   contactNumber: text;
+   email: text;
+   id: principal;
+   name: text;
+   otpCode: text;
+   otpVerified: bool;
+   passwordHash: text;
+   registeredAt: int;
+ };
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type StripeSessionStatus = 
+ variant {
+   completed: record {
+                response: text;
+                userPrincipal: opt text;
+              };
+   failed: record {error: text;};
+ };
+type StripeConfiguration = 
+ record {
+   allowedCountries: vec text;
+   secretKey: text;
+ };
+type ShoppingItem = 
+ record {
+   currency: text;
+   priceInCents: nat;
+   productDescription: text;
+   productName: text;
+   quantity: nat;
+ };
+type QuizQuestion = 
+ record {
+   correctIndex: nat;
+   id: text;
+   options: vec text;
+   questionText: text;
+   videoId: text;
+ };
+type QuizAttempt = 
+ record {
+   answers: vec nat;
+   attemptedAt: int;
+   id: text;
+   passed: bool;
+   score: nat;
+   userId: principal;
+   videoId: text;
+ };
+type PromptTemplate = 
+ record {
+   category: text;
+   createdAt: int;
+   description: text;
+   id: text;
+   promptText: text;
+   title: text;
+ };
+type Enrollment = 
+ record {
+   courseId: text;
+   enrolledAt: int;
+   id: text;
+   stripeSessionId: text;
+   tier: CourseTier;
+   userId: principal;
+ };
+type CourseTier = 
+ variant {
+   advanced;
+   basic;
+   professional;
+ };
+type CourseModule = 
+ record {
+   courseId: text;
+   id: text;
+   orderPos: nat;
+   title: text;
+ };
+type Course = 
+ record {
+   description: text;
+   id: text;
+   priceInr: nat;
+   thumbnailUrl: text;
+   tier: CourseTier;
+   title: text;
+   totalModules: nat;
+   totalVideos: nat;
+ };
+type Certificate = 
+ record {
+   courseId: text;
+   courseTitle: text;
+   id: text;
+   issuedAt: int;
+   studentName: text;
+   userId: principal;
+ };
+type AssignmentSubmission = 
+ record {
+   assignmentId: text;
+   giftCardCode: opt text;
+   id: text;
+   reviewed: bool;
+   submissionText: text;
+   submittedAt: int;
+   userId: principal;
+ };
+type Assignment = 
+ record {
+   courseId: text;
+   description: text;
+   id: text;
+   title: text;
+   weekNumber: nat;
+ };
+type AIMessage = 
+ record {
+   content: text;
+   role: text;
+ };
+service : {
+  _immutableObjectStorageBlobsAreLive: (hashes: vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete: () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion: (blobs: vec blob) -> ();
+  _immutableObjectStorageCreateCertificate: (blobHash: text) ->
+   (_ImmutableObjectStorageCreateCertificateResult);
+  _immutableObjectStorageRefillCashier: (refillInformation:
+   opt _ImmutableObjectStorageRefillInformation) ->
+   (_ImmutableObjectStorageRefillResult);
+  _immutableObjectStorageUpdateGatewayPrincipals: () -> ();
+  _initializeAccessControl: () -> ();
+  adminCreateAssignment: (courseId: text, weekNumber: nat, title: text,
+   description: text) -> (Assignment);
+  adminCreateCourse: (title: text, description: text, tier: CourseTier,
+   priceInr: nat, thumbnailUrl: text) -> (Course);
+  adminCreateModule: (courseId: text, title: text, orderPos: nat) ->
+   (CourseModule);
+  adminCreateQuizQuestion: (videoId: text, questionText: text, options:
+   vec text, correctIndex: nat) -> (QuizQuestion);
+  adminCreateVideo: (moduleId: text, courseId: text, title: text,
+   description: text, durationMinutes: nat, orderPos: nat) -> (Video);
+  adminDeleteQuizQuestion: (questionId: text) -> ();
+  adminGetAllEnrollments: () -> (vec Enrollment) query;
+  adminGetAllSubmissions: () -> (vec AssignmentSubmission) query;
+  adminGetAllUsers: () -> (vec UserProfile) query;
+  adminGetPaymentSettings: () ->
+   (record {
+      keyId: text;
+      keySecret: text;
+    }) query;
+  adminReviewSubmission: (submissionId: text, giftCardCode: opt text) -> ();
+  adminSetPaymentSettings: (keyId: text, keySecret: text) -> ();
+  adminUpdateCourse: (courseId: text, title: text, description: text,
+   priceInr: nat, thumbnailUrl: text) -> ();
+  adminUpdateVideoBlobId: (videoId: text, blobId: text) -> ();
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  chatWithAI: (userMessage: text, history: vec AIMessage) -> (text);
+  claimCertificate: (courseId: text, studentName: text) -> (Certificate);
+  createCheckoutSession: (items: vec ShoppingItem, successUrl: text,
+   cancelUrl: text) -> (text);
+  deletePromptTemplate: (templateId: text) -> ();
+  enrollInCourse: (courseId: text, razorpayOrderId: text, razorpayPaymentId:
+   text) -> (Enrollment);
+  generateAIContent: (contentType: text, topic: text) -> (text);
+  getAssignmentsForCourse: (courseId: text) -> (vec Assignment) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getCertificateById: (certId: text) -> (opt Certificate) query;
+  getCompletedVideos: (courseId: text) -> (vec text) query;
+  getCourse: (courseId: text) -> (opt Course) query;
+  getCourses: () -> (vec Course) query;
+  getModulesForCourse: (courseId: text) -> (vec CourseModule) query;
+  getMyCertificates: () -> (vec Certificate) query;
+  getMyEnrollments: () -> (vec Enrollment) query;
+  getMyProfile: () -> (opt UserProfile) query;
+  getMyQuizAttempts: (videoId: text) -> (vec QuizAttempt) query;
+  getMySubmissions: () -> (vec AssignmentSubmission) query;
+  getPromptTemplates: () -> (vec PromptTemplate) query;
+  getQuizQuestionsForVideo: (videoId: text) -> (vec QuizQuestion) query;
+  getRazorpayKeyId: () -> (text) query;
+  getStripeSessionStatus: (sessionId: text) -> (StripeSessionStatus);
+  getUserProfile: (user: principal) -> (opt UserProfile) query;
+  getVideosForCourse: (courseId: text) -> (vec VideoWithBlob) query;
+  getVideosForModule: (moduleId: text) -> (vec VideoWithBlob) query;
+  hasPassedQuiz: (videoId: text) -> (bool) query;
+  isCallerAdmin: () -> (bool) query;
+  isEnrolled: (courseId: text) -> (bool) query;
+  isStripeConfigured: () -> (bool) query;
+  loginWithEmail: (email: text, passwordHash: text) -> (opt UserProfile);
+  markVideoComplete: (videoId: text, courseId: text) -> ();
+  registerUser: (email: text, name: text, age: nat, contactNumber: text,
+   passwordHash: text) -> (text);
+  saveCallerUserProfile: (profile: UserProfile) -> ();
+  savePromptTemplate: (title: text, description: text, promptText: text,
+   category: text) -> (PromptTemplate);
+  seedSampleData: () -> ();
+  setStripeConfiguration: (config: StripeConfiguration) -> ();
+  submitAssignment: (assignmentId: text, submissionText: text) ->
+   (AssignmentSubmission);
+  submitQuiz: (videoId: text, answers: vec nat) -> (QuizAttempt);
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  verifyOtp: (email: text, otpCode: text) -> (bool);
+}
